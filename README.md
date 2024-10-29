@@ -17,18 +17,20 @@ python setup.py install
 ```
 
 # Environment
+
 ### CUDA
-Project using ONNXRuntime as inference runtime, using Pytorch as training tool, so users have to carefully make CUDA and CUDNN version right in order to make this two runtime work.    
+
+Project using ONNXRuntime as inference runtime, using Pytorch as training tool, so users have to carefully make CUDA and CUDNN version right in order to make this two runtime work.
 
 For example:  
 `ONNXRuntime==1.10.0` and `Pytorch==1.10.0-1.13.0` can runs under `CUDA==11.4 CUDNN==8.2.4`
 
-Please visit [ONNXRuntime](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements) and [Pytorch](https://pytorch.org/get-started/previous-versions/). 
+Please visit [ONNXRuntime](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements) and [Pytorch](https://pytorch.org/get-started/previous-versions/).
 
 ### Docker
+
 ONNXRuntime has bug when running in docker when `cpu-sets` is set.
 Please check [issue](https://github.com/microsoft/onnxruntime/issues/8313)
-
 
 # Usage
 
@@ -51,35 +53,37 @@ cali_data_dir
       └──N-1.bin
 ```
 
-
 ## Running Dipoorlet in Pytorch Distributed Environment
+
 ```
 python -m torch.distributed.launch --use_env -m dipoorlet -M MODEL_PATH -I INPUT_PATH -N PIC_NUM -A [mse, hist, minmax] -D [trt, snpe, rv, atlas, ti, stpu] [--bc] [--adaround] [--brecq] [--drop]
 ```
 
 ## Running Dipoorlet in Cluster Environment
+
 ```
 python -m dipoorlet -M MODEL_PATH -I INPUT_PATH -N PIC_NUM -A [mse, hist, minmax] -D [trt, snpe, rv, atlas, ti, stpu] [--bc] [--adaround] [--brecq] [--drop] [--slurm | --mpirun]
 ```
+
 ## Optional
 
-- Using -M to specify ONNX model path.
-- Using -A to select activation statistic algorithm, minmax, hist, mse.
-- Using -D to select deploy platform, trt, snpe, rv, ti...
-- Using -N to specify number of calibration pics.
-- Using -I to specify path of calibration pics.
-- Using -O to specify output path.
-- For hist and kl:  
+* Using -M to specify ONNX model path.
+* Using -A to select activation statistic algorithm, minmax, hist, mse.
+* Using -D to select deploy platform, trt, snpe, rv, ti...
+* Using -N to specify number of calibration pics.
+* Using -I to specify path of calibration pics.
+* Using -O to specify output path.
+* For hist and kl:  
     --bins specify histogram bins.  
     --threshold specify histogram threshold for hist algorithm.
-- Using --bc to do Bias Correction algorithm. 
-- Using --we to do weight equalization.
-- Using --adaround to do offline finetune by [Adaround](https://arxiv.org/abs/2004.10568).
-- Using --brecq to do offline finetune by [Brecq](https://arxiv.org/abs/2102.05426).
-- Using --brecq --drop to do offline finetune by [Qdrop](https://arxiv.org/abs/2203.05740).
-- Using --skip_layers to skip quantization of some layers.
-- Using --slurm to launch task from slurm.
-- Other usage can get by "python -m dipoorlet --h/-help"
+* Using --bc to do Bias Correction algorithm.
+* Using --we to do weight equalization.
+* Using --adaround to do offline finetune by [Adaround](https://arxiv.org/abs/2004.10568).
+* Using --brecq to do offline finetune by [Brecq](https://arxiv.org/abs/2102.05426).
+* Using --brecq --drop to do offline finetune by [Qdrop](https://arxiv.org/abs/2203.05740).
+* Using --skip_layers to skip quantization of some layers.
+* Using --slurm to launch task from slurm.
+* Other usage can get by "python -m dipoorlet --h/-help"
 
 ## Example
 
