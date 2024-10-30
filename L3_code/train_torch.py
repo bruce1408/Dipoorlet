@@ -110,7 +110,7 @@ def train_model(
         )
     )
     
-    print_colored_box_line("Best val Acc: {:4f}".format(best_acc), attrs=['bold'], text_color='red', box_color='yellow')
+    print_colored_box("Best val Acc: {:4f}".format(best_acc), attrs=['bold'], text_color='red', box_color='yellow')
 
     # load best model weights
     model.load_state_dict(best_model_wts)
