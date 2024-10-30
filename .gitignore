@@ -7,5 +7,9 @@ dipoorlet.egg-info/
 *.txt
 
 *.bin
+*.pth
+*.onnx
+*.cache
+*.engine
 
 log_dir/

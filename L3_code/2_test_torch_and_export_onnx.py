@@ -9,10 +9,11 @@ from torch.autograd import Variable
 import torchvision.models as models
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
-from code.dataset import get_dataset
+from dataset import get_dataset
+from printk import *
 
 
-model = torch.load("models/mobilev2_model.pth")
+model = torch.load("/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/L3_code/models/2024_10_30_mobilev2_model.pth")
 
 _, val_dataset, _ = get_dataset()
 dataloaders = torch.utils.data.DataLoader(
@@ -25,16 +26,19 @@ for i, (inputs, labels) in enumerate(dataloaders):
     outputs = model(inputs)
     _, preds = torch.max(outputs, 1)
     running_corrects += torch.sum(preds == labels.data)
-print(f"Accuracy : {running_corrects / len(val_dataset) * 100}%")
+print_colored_box(f"Accuracy : {running_corrects / len(val_dataset) * 100:.2f}%")
 
 # convert to onnx
 if isinstance(model, torch.nn.DataParallel):
     model = model.module
+
+
 x = torch.randn(1, 3, 224, 224).cuda()
-# torch.onnx.export(
-#     model, x, "models/rs18_model.onnx", export_params=True, opset_version=13
-# )
 
 torch.onnx.export(
-    model, x, "models/mobilev2_model.onnx", export_params=True, opset_version=13
+    model, 
+    x, 
+    "/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/L3_code/models/mobilev2_model_new.onnx", 
+    export_params=True, 
+    opset_version=11
 )

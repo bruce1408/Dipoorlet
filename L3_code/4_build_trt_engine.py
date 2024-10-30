@@ -1,9 +1,11 @@
-import tensorrt as trt
 import os
+import tensorrt as trt
 from calibrator import Calibrator, CalibDataLoader
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
 
 def buildEngine(
     onnx_file, engine_file, FP16_mode, INT8_mode, data_loader, calibration_table_path
@@ -34,9 +36,9 @@ def buildEngine(
 
 
 def main():
-    onnx_file = "./models/mobilev2_model.onnx"
-    engine_file = "./trt/mobilev2_model_int8.engine"
-    calibration_cache = "./trt/mobilev2_model_calib.cache"
+    onnx_file = f"{current_dir}/models/mobilev2_model_new.onnx"
+    engine_file = f"{current_dir}/trt/mobilev2_model_int8.engine"
+    calibration_cache = f"{current_dir}/trt/mobilev2_model_calib.cache"
 
     FP16_mode = False
     INT8_mode = True

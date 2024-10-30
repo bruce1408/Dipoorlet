@@ -12,7 +12,7 @@ import json
 #200类，每类随机选5个
 def get_calib_data_path():
     img_paths = []
-    data_root = "tiny-imagenet-200/val/"
+    data_root = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/val/"
     data_info = pd.read_table(data_root + "val_annotations.txt")
     grouped = data_info.groupby(data_info.columns[1])
     classes = list(grouped.groups.keys())
@@ -39,7 +39,7 @@ def Preprocess(img):
 # For TRT
 class CalibDataLoader:
     def __init__(self, batch_size, calib_count):
-        self.data_root = "tiny-imagenet-200/val/images/"
+        self.data_root = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/val/images/"
         self.index = 0
         self.batch_size = batch_size
         self.calib_count = calib_count
@@ -99,12 +99,12 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
 
 # For Dipoorlet
 def get_dipoorlet_calib():
-    data_root = "tiny-imagenet-200/val/images/"
+    data_root = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/val/images/"
     image_list = get_calib_data_path()    
     for i, image_path in enumerate(image_list):
         image = Image.open(data_root + image_path).convert("RGB")
         image = Preprocess(image).numpy()
-        image.tofile("dipoorlet_work_dir/input.1/" + str(i) + ".bin")
+        image.tofile("/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/L3_code/dipoorlet_work_dir/input.1/" + str(i) + ".bin")
 
 
 get_dipoorlet_calib()

@@ -104,13 +104,13 @@ def train_model(
         print_colored_box(epoch_summary, text_color='green', box_color='yellow')
 
     time_elapsed = time.time() - since
-    print_colored_box_line(
+    print_colored_box(
         "Training complete in {:.0f}m {:.0f}s".format(
             time_elapsed // 60, time_elapsed % 60
         )
     )
     
-    print_colored_box("Best val Acc: {:4f}".format(best_acc), attrs=['bold'], text_color='red', box_color='yellow')
+    print_colored_box("Best val Acc: {:4f}".format(best_acc), attrs=['bold'], text_color='green', box_color='yellow')
 
     # load best model weights
     model.load_state_dict(best_model_wts)
