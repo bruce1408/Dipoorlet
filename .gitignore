@@ -7,3 +7,5 @@ dipoorlet.egg-info/
 *.txt
 
 *.bin
+
+log_dir/

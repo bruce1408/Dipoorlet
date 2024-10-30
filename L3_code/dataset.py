@@ -34,7 +34,7 @@ class ImagesDataset(Dataset):
 
 
 def get_dataset():
-    DIR_MAIN = "tiny-imagenet-200/"
+    DIR_MAIN = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/"
     DIR_TRAIN = DIR_MAIN + "train/"
     DIR_VAL = DIR_MAIN + "val/"
     DIR_TEST = DIR_MAIN + "test/"

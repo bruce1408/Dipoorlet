@@ -1,17 +1,23 @@
+import os
+import sys
+import datetime
 import torch, torchvision
 import torch.nn as nn
+from printk import * 
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import torchvision.datasets as datasets
 import torch.utils.data as data
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-import torchvision.models as models
+from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
-from code.dataset import get_dataset
-import sys
+from dataset import get_dataset
 
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "5, 6, 7"
+num_gpus = torch.cuda.device_count()
 
 def train_model(
     model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, num_epochs=25
@@ -29,7 +35,7 @@ def train_model(
         # Each epoch has a training and validation phase
         for phase in ["train", "val"]:
             if phase == "train":
-                scheduler.step()
+                # scheduler.step()
                 model.train()  # Set model to training mode
             else:
                 model.eval()  # Set model to evaluate mode
@@ -73,6 +79,7 @@ def train_model(
             if phase == "train":
                 avg_loss = epoch_loss
                 t_acc = epoch_acc
+                scheduler.step()
             else:
                 val_loss = epoch_loss
                 val_acc = epoch_acc
@@ -81,18 +88,29 @@ def train_model(
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
-        print("Train Loss: {:.4f} Acc: {:.4f}".format(avg_loss, t_acc))
-        print("Val Loss: {:.4f} Acc: {:.4f}".format(val_loss, val_acc))
-        print("Best Val Accuracy: {}".format(best_acc))
+        # print("Train Loss: {:.4f} Acc: {:.4f}".format(avg_loss, t_acc))
+        # print("Val Loss: {:.4f} Acc: {:.4f}".format(val_loss, val_acc))
+        # print("Best Val Accuracy: {}".format(best_acc))
+        # print()
+        # 用列表存储所有的输出信息
         print()
+        epoch_summary = [
+            "Epoch Summary:",
+            "  Train Loss: {:.4f} | Train Accuracy: {:.4f}".format(avg_loss, t_acc),
+            "  Val Loss: {:.4f} | Val Accuracy: {:.4f}".format(val_loss, val_acc),
+            "  Best Val Accuracy So Far: {:.4f}".format(best_acc),
+        ]
+        
+        print_colored_box(epoch_summary, text_color='green', box_color='yellow')
 
     time_elapsed = time.time() - since
-    print(
+    print_colored_box_line(
         "Training complete in {:.0f}m {:.0f}s".format(
             time_elapsed // 60, time_elapsed % 60
         )
     )
-    print("Best val Acc: {:4f}".format(best_acc))
+    
+    print_colored_box_line("Best val Acc: {:4f}".format(best_acc), attrs=['bold'], text_color='red', box_color='yellow')
 
     # load best model weights
     model.load_state_dict(best_model_wts)
@@ -100,7 +118,9 @@ def train_model(
 
 
 # model = models.resnet18(pretrained=True)
-model = models.mobilenet_v2(pretrained=True)
+# model = models.mobilenet_v2(pretrained=True)
+model = mobilenet_v2(weights=MobileNet_V2_Weights.IMAGENET1K_V1)
+
 # Finetune Final few layers to adjust for tiny imagenet input
 # model.avgpool = nn.AdaptiveAvgPool2d(1)
 # num_ftrs = model.fc.in_features
@@ -109,8 +129,20 @@ model = models.mobilenet_v2(pretrained=True)
 model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 200)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
+
+if num_gpus > 1:
+    # 使用所有可见的 GPU
+    device_ids = list(range(num_gpus))  # 此时 num_gpus 会是 1，因为我们只暴露了一个 GPU
+    model = torch.nn.DataParallel(model, device_ids=device_ids)
+    print(f"Using {num_gpus} GPUs for training: {device_ids}")
+else:
+    print("Only one GPU or no GPU available, using single GPU or CPU.")
+
+model = model.to(device)
+
+
 # Multi GPU
-model = torch.nn.DataParallel(model, device_ids=[0, 7])
+# model = torch.nn.DataParallel(model, device_ids=[0, 7])
 
 # Loss Function
 criterion = nn.CrossEntropyLoss()
@@ -148,4 +180,6 @@ model = train_model(
     num_epochs=15,
 )
 
-torch.save(model, "models/mobilev2_model.pth")
+current_timestamp = datetime.datetime.now()
+formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
+torch.save(model, f"models/{formatted_timestamp}_mobilev2_model.pth")
