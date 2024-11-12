@@ -74,8 +74,8 @@ def find_clip_val_minmax_weight(onnx_graph, args):
     need_transpose = []
     for node in onnx_graph.graph.node:
         if node.op_type in LAYER_HAS_WEIGHT:
-            for in_tensor in node.input[1:]:
-                weight_tensor[in_tensor] = onnx_graph.get_initializer(in_tensor)
+            for in_tensor in node.input[1:]: # 从 1 开始遍历权重
+                weight_tensor[in_tensor] = onnx_graph.get_initializer(in_tensor) # 获取权重
             if node.op_type == 'ConvTranspose':
                 need_transpose.append(node.input[1])
     weight_clip_val = {}
@@ -85,7 +85,7 @@ def find_clip_val_minmax_weight(onnx_graph, args):
             continue
         if name in need_transpose:
             tensor = tensor.transpose([1, 0, 2, 3])
-        c_num = tensor.shape[0]
+        c_num = tensor.shape[0] # 获取通道数进行minmax
         weight_clip_val[name] = [np.min(tensor.reshape((c_num, -1)), -1),
                                  np.max(tensor.reshape((c_num, -1)), -1)]
     return weight_clip_val

@@ -278,6 +278,7 @@ def cos_similarity(ta, tb):
         / np.sqrt(np.square(tb).sum())
 
 
+# 定义装饰器函数
 def dispatch_functool(func):
     registry = {}
 
