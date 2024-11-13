@@ -7,6 +7,7 @@
 #### 1.1.1 项目的背景和目标
 
 Dipoorlet 项目是一个 跨边缘设备平台的量化工具链，主要使python 和 onnxruntime 开发。本文档旨在帮助开发者深入理解 Dipoorlet 项目的源码结构、功能模块以及设计思想。
+opset = 13
 
 #### 1.1.2 使用的编程语言和框架
 
@@ -154,9 +155,91 @@ flowchart TD
     parser.add_argument("--qnode_version", default=13, type=int, choices=[13])                                      # 量化节点的onnx opset version 默认是13
     ```
   - 项目启动过程及主函数的分析
-   
-  - 主要工作流的实现（如输入-处理-输出）
+
+## 4.1 forward_get_hist函数
+
+```python
+'''
+description: 
+param {*} onnx_graph
+param {*} stats_min_max
+param {*} args
+return {*}
+'''
+def forward_get_minmax(onnx_graph, args):
+    net = copy.deepcopy(onnx_graph.model)
+    graph = net.graph
+    for node in reversed(graph.node):
+        for output_name in reversed(node.output):
+            if output_name not in [_o.name for _o in graph.output]:
+                graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
+    providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
+    ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
+    if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
+        logger.warning("CUDA may not used. Please check your ort/cuda/cudnn version.")
+    # Start activation quantization.
+    statistics = {}
+    t1 = 0
+    ort_inputs = {}
+```
+
+## forward_get_hist函数
+
+```python
+'''
+description: 
+param {*} onnx_graph
+param {*} stats_min_max
+param {*} args
+return {*}
+'''
+def forward_get_hist(onnx_graph, stats_min_max, args):
+    net = copy.deepcopy(onnx_graph.model)
+    graph = net.graph
+    for node in reversed(graph.node):
+        for output_name in reversed(node.output):
+            if output_name not in [_o.name for _o in graph.output]:
+                graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
+    providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
+    ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
+    if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
+        logger.warning("CUDA may not used. Please check your ort/cuda/cudnn version.")
+    # Start activation quantization.
+    statistics = {}
+    ort_inputs = {}
+```
+
+## forward_net_octav函数 mse的实现
+
+```python
+'''
+description: mse 是按照下面这篇论文进行实现的：
+"Optimal clipping and magnitude-aware differentiation for improved quantization-aware training"（最优截断和幅值感知微分用于改进量化感知训练）
+param {*} onnx_graph
+param {*} args
+return {*}
+'''
+def forward_net_octav(onnx_graph, args):
+    # Generate Graph and Net
+    net = copy.deepcopy(onnx_graph.model)
+    graph = net.graph
+    for node in reversed(graph.node):
+        for output_name in reversed(node.output):
+            if output_name not in [_o.name for _o in graph.output]:
+                graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
+    providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
+    ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
+    if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
+        logger.warning("CUDA may not used. Please check your ort/cuda/cudnn version.")
+    # Start activation quantization.
+    statistics = {}
+    t1 = 0
+    ort_inputs = {}
+```
+
+- 主要工作流的实现（如输入-处理-输出）
 - 各模块之间的交互关系
+weight_equalization 适用的是conv + conv pair这样的结构。
 
 - 通过时序图或调用图来说明模块之间的调用关系
 

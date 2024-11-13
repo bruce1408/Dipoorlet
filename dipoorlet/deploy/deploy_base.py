@@ -1,3 +1,12 @@
+'''
+version: 1.0.0
+Author: BruceCui
+Date: 2024-10-26 16:56:28
+LastEditors: BruceCui
+LastEditTime: 2024-11-13 16:54:28
+Description: 到处量化推理部署配置
+'''
+
 from ..platform_settings import platform_setting_table
 from .deploy_atlas import gen_atlas_quant_param
 from .deploy_default import deploy_dispatcher

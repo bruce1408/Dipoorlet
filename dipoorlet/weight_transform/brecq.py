@@ -13,7 +13,7 @@ from ..platform_settings import platform_setting_table
 from ..quantize import QUANT_NODE_NAME_LIST, quant_graph
 from ..utils import logger
 from .ada_quant_layer import *
-from .utils import *
+from .utils import * 
 from .weight_equalization import node_has_equalized
 
 
@@ -34,7 +34,10 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
         if node.name in args.skip_layers:
             continue
         if node.op_type in LEARNABLE_LAYER_TYPES and node.name not in already:
+            
+            # 从block 获取多个node
             block_layer_list = get_block_from_first(graph, node, args)
+            
             # If the last node has weight equalized, it cannot be the last.
             if args.we:
                 if node_has_equalized(graph, block_layer_list[-1]):
@@ -42,6 +45,7 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
             if dist.get_rank() == 0:
                 logger.info("{} for: {}".format(_log_head, ' '.join([_node.name for _node in block_layer_list])))
             already.extend([_node.name for _node in block_layer_list])
+            
             # Using graph_brecq and restore act cache for incremental update.
             if not prev_act_cache:
                 graph_q, quant_node_list = quant_graph(graph_brecq, clip_val, args)

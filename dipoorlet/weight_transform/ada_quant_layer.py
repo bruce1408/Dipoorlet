@@ -8,11 +8,14 @@ __all__ = ["nnie_rest_init", "quant_acti", "quant_weight", "quant_weight_nnie", 
            "adaround_reg", "AdaQLayer", "L2_norm"]
 
 
+# 初始化nnie权重
 def nnie_rest_init(weight):
+    # 计算零点
     def zero_point(x, z):
         out = 16 * torch.log2(x) - z
         out = torch.round(out)
         return out
+    # 计算最大值
     max_value = weight.abs().max()
     z = zero_point(max_value, 127).cuda()
     pos_idx = weight > 2 ** ((z - 16) / 16)
@@ -131,14 +134,39 @@ class TempDecay:
 
 
 class AdaQLayer(torch.nn.Module):
+    
     def __init__(self, node, weight, bias, rest, reg, qw_tensor, qi_tensor, relu_flag, type, acti_quant):
+        """_summary_ 自定义的量化层
+
+        Args:
+            node (_type_):      当前的node
+            weight (_type_):    权重的信息
+            bias (_type_):      偏置的信息
+            rest (_type_):      这个是初始化V的
+            reg (_type_):       这个是正则
+            qw_tensor (_type_): weight的量化信息  
+            qi_tensor (_type_): 激活的量化信息
+            relu_flag (_type_): 是否过relu
+            type (_type_):      onnx模型的算法conv或者是其他
+            acti_quant (_type_): qdrop需要用到的
+        """        
         super(AdaQLayer, self).__init__()
+        # 保存权重和偏置的量化张量
         self.qw_tensor = qw_tensor
         self.qi_tensor = qi_tensor
+        # node类型
         self.type = type
+        
+        # 保存是否转置的标志
         self.transposed = False
+        
+        # 保存属性名称映射
         self.attr_name_map = {}
+        
+        # 获取属性名称映射
         self.get_attr_name_map(node)
+        
+        # 根据层类型构建层
         if self.type == 'Conv':
             self.layer = self.build_torch_conv(node, weight, bias)
         elif self.type == 'Gemm':
@@ -146,12 +174,14 @@ class AdaQLayer(torch.nn.Module):
         else:
             self.layer = self.build_torch_deconv(node, weight, bias)
             self.transposed = True
+        # 保存激活函数的标志
         self.relu_flag = relu_flag
+        # 如果激活函数标志为True，则构建激活函数
         if relu_flag:
             self.relu = nn.ReLU()
         # Init alpha.
         rest = -torch.log((reg.zeta - reg.gamma) / (rest - reg.gamma) - 1)
-        self.round_mask = torch.nn.Parameter(rest.cuda(), True)
+        self.round_mask = torch.nn.Parameter(rest.cuda(), True) # 需要训练的rest
         # Init drop ratio.
         self.drop_ratio = 0.5
         # Init activation quantization mode

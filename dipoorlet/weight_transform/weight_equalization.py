@@ -6,7 +6,12 @@ from onnx import numpy_helper
 from ..utils import ONNXGraph, logger
 from .utils import update_weight
 
-
+'''
+description: 寻找当前的conv+conv组合或者是conv+relu组合
+param {*} cur_node
+param {*} graph
+return {*}
+'''
 def find_successor(cur_node, graph):
     # Conv -> Relu -> Conv or Conv -> Conv pattern supported.
     result = []

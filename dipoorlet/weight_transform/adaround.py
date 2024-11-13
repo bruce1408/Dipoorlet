@@ -16,6 +16,15 @@ from .utils import *
 from .weight_equalization import node_has_equalized
 
 
+'''
+description: https://arxiv.org/abs/2006.10518
+param {*} graph_ori         原始的graph
+param {*} graph             可能经过we bc后的graph
+param {*} act_clip_val      激活量化参数
+param {*} weight_clip_val   权重量化参数
+param {*} args              考虑到激活和权重的量化
+return {*}
+'''
 def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
     dist.barrier()
     clip_val = act_clip_val.copy()
@@ -25,6 +34,8 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
     num_per_rank = args.data_num // dist.get_world_size()
     rank_st = rank * num_per_rank
     rank_ed = rank_st + num_per_rank
+    
+    # 比较节省空间的cache, 在进行某层的输入输出的时候, 可以直接从cache中取值, 而不需要重新前向推理, 使用递归的实现
     fp_act_cache = ActivationCache(graph_ori, args, rank_st, rank_ed)
     prev_act_cache = None
     for node in graph_ori.graph.node:
@@ -38,6 +49,8 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
                 logger.info("Adaround for: {}".format(node.name))
             # Using graph_ada and restore act cache for incremental update.
             if not prev_act_cache:
+                
+                # 给原始graph插入量化反量化节点
                 graph_q, quant_node_list = quant_graph(graph_ada, clip_val, args)
                 q_act_cache = ActivationCache(graph_q, args, rank_st, rank_ed)
             else:
@@ -63,11 +76,15 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
             # Get quantization param.
             if args.deploy != 'nnie':
                 weight_range = clip_val[node.input[1]]
+                
+                # 这个是根据后端相关的，读取量化配置
                 qw_param = platform_setting_table[args.deploy]['qw_params']
                 if node.op_type == 'ConvTranspose':
                     weight = weight.transpose(0, 1)
                 scale, q_min, q_max = get_quant_tensor(weight.shape, qw_param, weight_range)
-                rest = (weight / scale) - (weight / scale).floor()
+                
+                # 这个就是初始化V的做法
+                rest = (weight / scale) - (weight / scale).floor()  
                 qw_tensor = {'scale': scale,
                              'q_min': q_min,
                              'q_max': q_max,
@@ -80,7 +97,7 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
                              'per_channel': None,
                              'type': 'NNIE'}
                 rest = nnie_rest_init(weight)
-            # Learning.
+            # Learning. 判断node后面是否有relu这个激活函数，如果有就relu_flag为True，过一下relu激活函数
             relu_flag = follow_relu(graph, node)
             if relu_flag:
                 fp_tensor = torch.nn.Parameter(F.relu(torch.from_numpy(fp_out_tensor)), False)
@@ -88,7 +105,11 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
                 fp_tensor = torch.nn.Parameter(torch.from_numpy(fp_out_tensor), False)
             # Learning round mask.
             total_iter = args.ada_epoch * np.ceil(num_per_rank / args.ada_bs)
+            
+            # 根据总的迭代次数来初始化一个正则函数，这个正则就是论文中的F正则
             reg = adaround_reg(total_iter)
+            
+            # 这个就是优化求解，构建一个torch模型，写一个自定义的qlayer
             ada_layer = AdaQLayer(node, weight, bias, rest, reg, qw_tensor, None,
                                   relu_flag, node.op_type, args.acti_quant)
             round_mask = learning_round_mask(

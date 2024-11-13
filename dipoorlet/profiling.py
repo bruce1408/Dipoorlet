@@ -1,3 +1,11 @@
+'''
+version: 1.0.0
+Author: BruceCui
+Date: 2024-10-26 16:56:28
+LastEditors: BruceCui
+LastEditTime: 2024-11-13 16:53:12
+Description: 可以输出逐层的量化误差以及激活、权重的分布范围
+'''
 import heapq
 import math
 import os
