@@ -23,7 +23,7 @@ model.fc = nn.Linear(model.fc.in_features, num_classes)
 model.eval()  # 设置为评估模式
 
 # 4. 导出为 ONNX 模型
-onnx_path = "/mnt/share_disk/bruce_trie/misc_data_products/onnx_models/resnet34_model.onnx"
+onnx_path = "/mnt/share_disk/bruce_trie/onnx_models/onnx_models/resnet34_model.onnx"
 
 dummy_input = torch.randn(1, 3, 224, 224)  # 创建一个假输入，用于导出模型
 
