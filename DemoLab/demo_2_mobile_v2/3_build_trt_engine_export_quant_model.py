@@ -1,5 +1,6 @@
 import os
 import tensorrt as trt
+from printk import print_colored_box, print_colored_box_line
 from calibrator import Calibrator, CalibDataLoader
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
@@ -37,9 +38,15 @@ def buildEngine(
 
 def main():
     onnx_file = f"{current_dir}/models/mobilev2_model_new.onnx"
-    engine_file = f"{current_dir}/trt/mobilev2_model_int8.engine"
     calibration_cache = f"{current_dir}/trt/mobilev2_model_calib.cache"
-
+    
+    if(os.path.exists(f"{current_dir}/models/") == False):
+        os.makedirs(f"{current_dir}/trt/", exist_ok=True)
+    
+    if(os.path.exists(f"{current_dir}/trt/") == False):
+        os.makedirs(f"{current_dir}/trt/", exist_ok=True)
+        
+        
     FP16_mode = False
     INT8_mode = True
 
@@ -47,14 +54,16 @@ def main():
 
     if not os.path.exists(onnx_file):
         print("LOAD ONNX FILE FAILED: ", onnx_file)
-
     print(
         "Load ONNX file from:%s \nStart export, Please wait a moment..." % (onnx_file)
     )
+    
+    engine_file = f"{current_dir}/trt/mobilev2_model_{'int8' if INT8_mode else 'fp16'}.engine"
+
     buildEngine(
         onnx_file, engine_file, FP16_mode, INT8_mode, dataloader, calibration_cache
     )
-    print("Export ENGINE success, Save as: ", engine_file)
+    print_colored_box(f"Export ENGINE success, Save as: {engine_file}")
 
 
 if __name__ == "__main__":

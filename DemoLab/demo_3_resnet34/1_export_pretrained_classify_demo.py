@@ -1,3 +1,10 @@
+'''
+version: 1.0.0
+Author: BruceCui
+Date: 2024-11-13 16:57:30
+LastEditors: BruceCui
+LastEditTime: 2024-11-14 10:05:32
+'''
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms

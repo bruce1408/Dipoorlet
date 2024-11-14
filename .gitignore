@@ -3,7 +3,7 @@ dipoorlet.egg-info/
 
 **/build/*
 **/dist/*
-
+*.rank*
 *.txt
 
 *.bin

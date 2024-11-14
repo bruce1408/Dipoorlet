@@ -5,14 +5,15 @@ import pandas as pd
 from torchvision import transforms
 from PIL import Image
 import tensorrt as trt
+from tqdm import tqdm
 import pycuda.driver as cuda
 import pycuda.autoinit
-import json
 
+current_file_path = os.path.dirname(os.path.abspath(__file__))
 #200类，每类随机选5个
 def get_calib_data_path():
     img_paths = []
-    data_root = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/val/"
+    data_root = "/mnt/share_disk/bruce_trie/outputs/tiny-imagenet-200/val/"
     data_info = pd.read_table(data_root + "val_annotations.txt")
     grouped = data_info.groupby(data_info.columns[1])
     classes = list(grouped.groups.keys())
@@ -39,7 +40,7 @@ def Preprocess(img):
 # For TRT
 class CalibDataLoader:
     def __init__(self, batch_size, calib_count):
-        self.data_root = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/val/images/"
+        self.data_root = "/mnt/share_disk/bruce_trie/outputs/tiny-imagenet-200/val/images/"
         self.index = 0
         self.batch_size = batch_size
         self.calib_count = calib_count
@@ -62,11 +63,11 @@ class CalibDataLoader:
             return np.ascontiguousarray(self.calibration_data, dtype=np.float32)
         else:
             return np.array([])
-
+    
     def __len__(self):
         return self.calib_count
 
-
+# 集成KL散度校准方式
 class Calibrator(trt.IInt8EntropyCalibrator2):
     def __init__(self, data_loader, cache_file=""):
         trt.IInt8EntropyCalibrator2.__init__(self)
@@ -86,11 +87,13 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
 
         return [self.d_input]
 
+    # 这个需要进行重写
     def read_calibration_cache(self):
         if os.path.exists(self.cache_file):
             with open(self.cache_file, "rb") as f:
                 return f.read()
-
+    
+    # 这个函数需要重写
     def write_calibration_cache(self, cache):
         with open(self.cache_file, "wb") as f:
             f.write(cache)
@@ -99,12 +102,12 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
 
 # For Dipoorlet
 def get_dipoorlet_calib():
-    data_root = "/mnt/share_disk/bruce_trie/report_outputs/tiny-imagenet-200/val/images/"
+    data_root = "/mnt/share_disk/bruce_trie/outputs/tiny-imagenet-200/val/images/"
     image_list = get_calib_data_path()    
-    for i, image_path in enumerate(image_list):
+    for i, image_path in tqdm(enumerate(image_list)):
         image = Image.open(data_root + image_path).convert("RGB")
         image = Preprocess(image).numpy()
-        image.tofile("/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/L3_code/dipoorlet_work_dir/input.1/" + str(i) + ".bin")
+        image.tofile(f"{current_file_path}/trt/calibration_data/input.1/" + str(i) + ".bin")
 
 
 get_dipoorlet_calib()

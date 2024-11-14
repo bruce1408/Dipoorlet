@@ -9,18 +9,20 @@ from torch.autograd import Variable
 import torchvision.models as models
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
+from tqdm import tqdm
 from dataset import get_dataset
 from printk import *
 
+current_file_path = os.path.dirname(os.path.abspath(__file__))
 
-model = torch.load("/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/L3_code/models/2024_10_30_mobilev2_model.pth")
+model = torch.load(f"{current_file_path}/models/2024_10_30_mobilev2_model.pth")
 
 _, val_dataset, _ = get_dataset()
 dataloaders = torch.utils.data.DataLoader(
     val_dataset, batch_size=128, shuffle=True, num_workers=8
 )
 running_corrects = 0.0
-for i, (inputs, labels) in enumerate(dataloaders):
+for i, (inputs, labels) in tqdm(enumerate(dataloaders)):
     inputs = inputs.cuda()
     labels = labels.cuda()
     outputs = model(inputs)
@@ -35,10 +37,12 @@ if isinstance(model, torch.nn.DataParallel):
 
 x = torch.randn(1, 3, 224, 224).cuda()
 
+export_onnx_path = f"{current_file_path}/models/mobilev2_model_new.onnx"
 torch.onnx.export(
     model, 
     x, 
-    "/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/L3_code/models/mobilev2_model_new.onnx", 
+    export_onnx_path, 
     export_params=True, 
     opset_version=11
 )
+print_colored_box(f"onnx has been saved in {export_onnx_path}")

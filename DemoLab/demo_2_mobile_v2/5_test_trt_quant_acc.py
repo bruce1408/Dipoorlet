@@ -1,15 +1,23 @@
+'''
+version: 1.0.0
+Author: BruceCui
+Date: 2024-11-13 16:57:30
+LastEditors: BruceCui
+LastEditTime: 2024-11-14 10:49:14
+'''
 import pycuda.autoinit
 import numpy as np
 import pycuda.driver as cuda
 import tensorrt as trt
-import time
+import time, os
 import torch
 from PIL import Image
 from calibrator import Preprocess
-from code.dataset import get_dataset
+from dataset import get_dataset
 
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 EXPLICIT_BATCH = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
+current_file_path = os.path.dirname(os.path.abspath(__file__))
 
 class HostDeviceMem(object):
     def __init__(self, host_mem, device_mem):
@@ -78,7 +86,8 @@ def main(mode):
         val_dataset, batch_size=1, shuffle=True, num_workers=8
     )
 
-    engine_file = "trt/mobilev2_model_dipoorlet_brecq_{}.engine".format(mode)
+    # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
+    engine_file = f"{current_file_path}/trt/mobilev2_model_{mode}.engine"
     engine = deserializing_engine(engine_file)
 
     context = engine.create_execution_context()
