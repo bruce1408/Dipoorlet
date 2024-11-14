@@ -119,6 +119,7 @@ flowchart TD
 ## 4. 项目流程分析
 
 - 代码执行主流程
+
     ```python
     parser = argparse.ArgumentParser()
     parser.add_argument("-M", "--model", help="onnx model")
@@ -154,6 +155,7 @@ flowchart TD
     parser.add_argument("--quant_format", default="QDQ", type=str, choices=["QOP", "QDQ"])
     parser.add_argument("--qnode_version", default=13, type=int, choices=[13])                                      # 量化节点的onnx opset version 默认是13
     ```
+
   - 项目启动过程及主函数的分析
 
 ## 4.1 forward_get_hist函数
@@ -268,9 +270,6 @@ weight_equalization 适用的是conv + conv pair这样的结构。
 - 优化代码的实践（如算法优化、内存管理）
 
 - 进一步改进的建议
-
-
-
 
 ## 11. 参考资料
 

@@ -3,7 +3,7 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-11-14 10:49:14
+LastEditTime: 2024-11-14 18:17:58
 '''
 import pycuda.autoinit
 import numpy as np
@@ -88,6 +88,10 @@ def main(mode):
 
     # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
     engine_file = f"{current_file_path}/trt/mobilev2_model_{mode}.engine"
+    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_{mode}.engine"
+    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
+    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
+    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
     engine = deserializing_engine(engine_file)
 
     context = engine.create_execution_context()

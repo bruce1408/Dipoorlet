@@ -107,7 +107,7 @@ def get_dipoorlet_calib():
     for i, image_path in tqdm(enumerate(image_list)):
         image = Image.open(data_root + image_path).convert("RGB")
         image = Preprocess(image).numpy()
-        image.tofile(f"{current_file_path}/trt/calibration_data/input.1/" + str(i) + ".bin")
+        image.tofile(f"{current_file_path}/calibration_data/input.1/" + str(i) + ".bin")
 
 
 get_dipoorlet_calib()

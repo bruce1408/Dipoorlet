@@ -1,8 +1,17 @@
+'''
+version: 1.0.0
+Author: BruceCui
+Date: 2024-11-13 16:57:30
+LastEditors: BruceCui
+LastEditTime: 2024-11-14 18:17:11
+Description: 根据trt量化参数, 生成新的 tensorrt engine
+'''
 import tensorrt as trt
 import os
 import json
-
+from printk import print_colored_box
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
+
 
 
 def set_dynamic_range(config, network, blob_range):
@@ -33,7 +42,7 @@ def set_dynamic_range(config, network, blob_range):
                     output.set_dynamic_range(-dmax, dmax)
                     print(f'set dynamic range of tensor "{output.name}" to {dmax}.')
 
-def buildEngine(onnx_file, engine_file, json_path):
+def buildEngine(onnx_file, export_engine_file, json_path):
     builder = trt.Builder(LOGGER)
     network = builder.create_network(
         1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
@@ -53,23 +62,42 @@ def buildEngine(onnx_file, engine_file, json_path):
     if engine is None:
         print("EXPORT ENGINE FAILED!")
 
-    with open(engine_file, "wb") as f:
+    with open(export_engine_file, "wb") as f:
         f.write(engine)
 
 
 def main():
-    onnx_file = "./dipoorlet_work_dir/output_mb_brecq/brecq.onnx"
-    engine_file = "./trt/mobilev2_model_dipoorlet_brecq_int8.engine"
-    json_path = "./dipoorlet_work_dir/output_mb_brecq/trt_clip_val.json"
+    current_file_path = os.path.dirname(os.path.abspath(__file__))
 
+    # onnx_file = "./dipoorlet_work_dir/output_mb_brecq/brecq.onnx"
+    # engine_file = "./trt/mobilev2_model_dipoorlet_brecq_int8.engine"
+    # json_path = "./dipoorlet_work_dir/output_mb_brecq/trt_clip_val.json"
+    
+    # dipoorlet 使用 mse 量化算法
+    # onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/quant_model.onnx"
+    # json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/trt_clip_val.json"
+    # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_int8.engine"
+
+    # dipoorlet 使用 hist 量化算法
+    onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/quant_model.onnx"
+    json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/trt_clip_val.json"
+    export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_int8.engine"
+    
+    
+    # dipoorlet 使用 mse + brecq 量化算法
+    # onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/brecq.onnx"
+    # json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/trt_clip_val.json"
+    # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_int8.engine"
+    
+    
     if not os.path.exists(onnx_file):
         print("LOAD ONNX FILE FAILED: ", onnx_file)
 
     print(
         "Load ONNX file from:%s \nStart export, Please wait a moment..." % (onnx_file)
     )
-    buildEngine(onnx_file, engine_file, json_path)
-    print("Export ENGINE success, Save as: ", engine_file)
+    buildEngine(onnx_file, export_engine_file, json_path)
+    print_colored_box(f"Export ENGINE success, Save as: {export_engine_file}")
 
 
 if __name__ == "__main__":

@@ -5,8 +5,10 @@ from calibrator import Calibrator, CalibDataLoader
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
-
 current_dir = os.path.dirname(os.path.realpath(__file__))
+log_dir = "./trt_mobilev2_trt_intrinsic_kl"
+
+os.makedirs(log_dir, exist_ok=True)
 
 def buildEngine(
     onnx_file, engine_file, FP16_mode, INT8_mode, data_loader, calibration_table_path
@@ -38,15 +40,12 @@ def buildEngine(
 
 def main():
     onnx_file = f"{current_dir}/models/mobilev2_model_new.onnx"
-    calibration_cache = f"{current_dir}/trt/mobilev2_model_calib.cache"
+    calibration_cache = f"{current_dir}/calibration_data/mobilev2_model_calib.cache"
     
-    if(os.path.exists(f"{current_dir}/models/") == False):
-        os.makedirs(f"{current_dir}/trt/", exist_ok=True)
-    
-    if(os.path.exists(f"{current_dir}/trt/") == False):
-        os.makedirs(f"{current_dir}/trt/", exist_ok=True)
+    if(os.path.exists(f"{current_dir}/{log_dir}/") == False):
+        os.makedirs(f"{current_dir}/{log_dir}/", exist_ok=True)
         
-        
+
     FP16_mode = False
     INT8_mode = True
 
@@ -58,7 +57,8 @@ def main():
         "Load ONNX file from:%s \nStart export, Please wait a moment..." % (onnx_file)
     )
     
-    engine_file = f"{current_dir}/trt/mobilev2_model_{'int8' if INT8_mode else 'fp16'}.engine"
+    # 导出 tensorrt engine
+    engine_file = f"{current_dir}/{log_dir}/mobilev2_model_trt_{'int8' if INT8_mode else 'fp16'}.engine"
 
     buildEngine(
         onnx_file, engine_file, FP16_mode, INT8_mode, dataloader, calibration_cache
