@@ -3,7 +3,7 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-11-14 18:17:11
+LastEditTime: 2024-11-14 18:36:48
 Description: 根据trt量化参数, 生成新的 tensorrt engine
 '''
 import tensorrt as trt
@@ -78,10 +78,15 @@ def main():
     # json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/trt_clip_val.json"
     # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_int8.engine"
 
-    # dipoorlet 使用 hist 量化算法
-    onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/quant_model.onnx"
-    json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/trt_clip_val.json"
-    export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_int8.engine"
+    # # dipoorlet 使用 hist 量化算法
+    # onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/quant_model.onnx"
+    # json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/trt_clip_val.json"
+    # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_int8.engine"
+    
+    # dipoorlet 使用 minmax 量化算法
+    onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/quant_model.onnx"
+    json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/trt_clip_val.json"
+    export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_int8.engine"
     
     
     # dipoorlet 使用 mse + brecq 量化算法

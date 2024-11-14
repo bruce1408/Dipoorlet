@@ -3,7 +3,7 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-11-14 18:17:58
+LastEditTime: 2024-11-14 18:40:22
 '''
 import pycuda.autoinit
 import numpy as np
@@ -92,15 +92,15 @@ def main(mode):
     engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
+    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
     engine = deserializing_engine(engine_file)
 
     context = engine.create_execution_context()
-    inputs, outputs, bindings, stream = allocate_buffers(
-        engine
-    )
+    inputs, outputs, bindings, stream = allocate_buffers(engine)
 
     # Do inference
     shape_of_output = (1, 200)
+    
     # Load data to the buffer
     running_corrects = 0.0
     for i, (inps, labels) in enumerate(val_loaders):

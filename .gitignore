@@ -13,4 +13,4 @@ dipoorlet.egg-info/
 *.engine
 
 log_dir/
-DemoLab/*.json
+DemoLab/**/*.json

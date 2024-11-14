@@ -4,9 +4,9 @@
 
 Accuracy with onnx fp16 infer : 69.05%
 
-## trt int8 kl散度
+## dipoorlet int8 act->mse brecq
 
-Accuracy with TRT int8 infer : 66.13%
+Accuracy with Dipoorlet int8 infer : 68.55%
 
 ## dipoorlet int8 act->mse
 
@@ -16,6 +16,10 @@ Accuracy with Dipoorlet int8 infer : 68.12%
 
 Accuracy with TRT int8 infer : 66.989%
 
-## dipoorlet int8 act->mse brecq
+## dipoorlet int8 act->minmax
 
-Accuracy with Dipoorlet int8 infer : 68.55%
+Accuracy with TRT int8 infer : 64.97%
+
+## trt int8 kl散度
+
+Accuracy with TRT int8 infer : 66.13%
