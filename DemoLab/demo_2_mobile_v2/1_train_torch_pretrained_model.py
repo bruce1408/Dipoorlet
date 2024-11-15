@@ -1,6 +1,7 @@
 import os
 import sys
 import datetime
+import config
 import torch, torchvision
 import torch.nn as nn
 from printk import * 
@@ -16,7 +17,7 @@ import time, os, copy, numpy as np
 from dataset import get_dataset
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5, 6, 7"
+os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
 num_gpus = torch.cuda.device_count()
 
 def train_model(
@@ -31,6 +32,7 @@ def train_model(
     for epoch in range(num_epochs):
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         print("-" * 10)
+        epoch_start = time.time()
 
         # Each epoch has a training and validation phase
         for phase in ["train", "val"]:
@@ -87,18 +89,17 @@ def train_model(
             if phase == "val" and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
+                torch.save(model.state_dict(), f"{config.train_mobile_v2_dir}/best_model.pth")
 
-        # print("Train Loss: {:.4f} Acc: {:.4f}".format(avg_loss, t_acc))
-        # print("Val Loss: {:.4f} Acc: {:.4f}".format(val_loss, val_acc))
-        # print("Best Val Accuracy: {}".format(best_acc))
-        # print()
         # 用列表存储所有的输出信息
+        epoch_time = time.time() - epoch_start
         print()
         epoch_summary = [
             "Epoch Summary:",
             "  Train Loss: {:.4f} | Train Accuracy: {:.4f}".format(avg_loss, t_acc),
             "  Val Loss: {:.4f} | Val Accuracy: {:.4f}".format(val_loss, val_acc),
             "  Best Val Accuracy So Far: {:.4f}".format(best_acc),
+            "  Epoch Time: {:.0f}m {:.0f}s".format(epoch_time // 60, epoch_time % 60)
         ]
         
         print_colored_box(epoch_summary, text_color='green', box_color='yellow')
@@ -155,10 +156,10 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 train_dataset, val_dataset, _ = get_dataset()
 
 train_loaders = torch.utils.data.DataLoader(
-    train_dataset, batch_size=256, shuffle=True, num_workers=8
+    train_dataset, batch_size=config.train_batch_size, shuffle=True, num_workers=8
 )
 val_loaders = torch.utils.data.DataLoader(
-    val_dataset, batch_size=128, shuffle=True, num_workers=8
+    val_dataset, batch_size=config.val_batch_size, shuffle=True, num_workers=8
 )
 
 
@@ -177,9 +178,9 @@ model = train_model(
     criterion,
     optimizer_ft,
     exp_lr_scheduler,
-    num_epochs=15,
+    num_epochs=config.epochs,
 )
 
 current_timestamp = datetime.datetime.now()
 formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-torch.save(model, f"models/{formatted_timestamp}_mobilev2_model.pth")
+torch.save(model, f"{config.train_mobile_v2_dir}/{formatted_timestamp}_mobilev2_model.pth")

@@ -1,4 +1,5 @@
 import os
+import config
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
@@ -34,7 +35,7 @@ class ImagesDataset(Dataset):
 
 
 def get_dataset():
-    DIR_MAIN = "/mnt/share_disk/bruce_trie/outputs/tiny-imagenet-200/"
+    DIR_MAIN = config.datasets_dir
     DIR_TRAIN = DIR_MAIN + "train/"
     DIR_VAL = DIR_MAIN + "val/"
     DIR_TEST = DIR_MAIN + "test/"

@@ -1,4 +1,4 @@
-import os
+import os, config
 import tensorrt as trt
 from printk import print_colored_box, print_colored_box_line
 from calibrator import Calibrator, CalibDataLoader
@@ -6,7 +6,7 @@ from calibrator import Calibrator, CalibDataLoader
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = "./trt_mobilev2_trt_intrinsic_kl"
+log_dir = f"{current_dir}/trt_mobilev2_trt_intrinsic_kl"
 
 os.makedirs(log_dir, exist_ok=True)
 
@@ -39,12 +39,8 @@ def buildEngine(
 
 
 def main():
-    onnx_file = f"{current_dir}/models/mobilev2_model_new.onnx"
-    calibration_cache = f"{current_dir}/calibration_data/mobilev2_model_calib.cache"
-    
-    if(os.path.exists(f"{current_dir}/{log_dir}/") == False):
-        os.makedirs(f"{current_dir}/{log_dir}/", exist_ok=True)
-        
+    onnx_file = f'{config.train_mobile_v2_dir}/mobilev2_model_new.onnx'
+    calibration_cache = f"{config.calibration_dir}/mobilev2_model_calib.cache"        
 
     FP16_mode = False
     INT8_mode = True
@@ -58,7 +54,7 @@ def main():
     )
     
     # 导出 tensorrt engine
-    engine_file = f"{current_dir}/{log_dir}/mobilev2_model_trt_{'int8' if INT8_mode else 'fp16'}.engine"
+    engine_file = f"{config.tensorrt_dir}/mobilev2_model_trt_{'int8' if INT8_mode else 'fp16'}.engine"
 
     buildEngine(
         onnx_file, engine_file, FP16_mode, INT8_mode, dataloader, calibration_cache
