@@ -36,17 +36,17 @@ class ImagesDataset(Dataset):
 
 def get_dataset():
     DIR_MAIN = config.datasets_dir
-    DIR_TRAIN = DIR_MAIN + "train/"
-    DIR_VAL = DIR_MAIN + "val/"
-    DIR_TEST = DIR_MAIN + "test/"
+    DIR_TRAIN = os.path.join(DIR_MAIN , "train/")
+    DIR_VAL = os.path.join(DIR_MAIN , "val/")
+    DIR_TEST = os.path.join(DIR_MAIN , "test/")
 
     labels = os.listdir(DIR_TRAIN)
     encoder_labels = LabelEncoder()
     encoder_labels.fit(labels)
-
     files_train = []
     labels_train = []
     for label in labels:
+
         for filename in os.listdir(DIR_TRAIN + label + "/images/"):
             files_train.append(DIR_TRAIN + label + "/images/" + filename)
             labels_train.append(label)

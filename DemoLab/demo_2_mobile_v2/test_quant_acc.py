@@ -10,7 +10,7 @@ import numpy as np
 import pycuda.driver as cuda
 import tensorrt as trt
 import time, os
-import torch
+import torch, config
 from PIL import Image
 from calibrator import Preprocess
 from dataset import get_dataset
@@ -87,12 +87,12 @@ def main(mode):
     )
 
     # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
-    engine_file = f"{current_file_path}/trt/mobilev2_model_{mode}.engine"
-    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_{mode}.engine"
-    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
-    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
-    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
-    engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
+    engine_file = f"{config.export_work_dir}/mobilev2_model_trt_{mode}.engine"
+    # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_{mode}.engine"
+    # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
+    # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
+    # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
+    # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
     engine = deserializing_engine(engine_file)
 
     context = engine.create_execution_context()

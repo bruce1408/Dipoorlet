@@ -89,7 +89,9 @@ def train_model(
             if phase == "val" and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
-                torch.save(model.state_dict(), f"{config.train_mobile_v2_dir}/best_model.pth")
+                os.makedirs(config.export_work_dir, exist_ok=True)
+                torch.save(model, f"{config.export_work_dir}/best_model.pth")
+
 
         # 用列表存储所有的输出信息
         epoch_time = time.time() - epoch_start
@@ -183,4 +185,4 @@ model = train_model(
 
 current_timestamp = datetime.datetime.now()
 formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-torch.save(model, f"{config.train_mobile_v2_dir}/{formatted_timestamp}_mobilev2_model.pth")
+torch.save(model, f"{config.export_work_dir}/{formatted_timestamp}_mobilev2_model.pth")
