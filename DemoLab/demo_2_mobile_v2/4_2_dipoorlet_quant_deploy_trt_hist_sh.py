@@ -13,10 +13,7 @@ def main():
     os.makedirs(work_dir, exist_ok=True)
 
     calibration_data = f"{config.dipoorlet_calib_dir}"
-    onnx_path = f"{config.export_work_dir}/mobilev2_model_new.onnx"
-    
-    # 切换到该目录
-    # os.chdir(work_dir)    
+    onnx_path = f"{config.export_work_dir}/mobilev2_model_new.onnx"  
 
     # 构建 torchrun 命令
     command = [
