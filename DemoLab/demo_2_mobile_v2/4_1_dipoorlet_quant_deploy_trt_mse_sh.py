@@ -20,7 +20,7 @@ def main():
         "torchrun",
         f"--nproc_per_node={cuda_nums}",
         "-m", "dipoorlet",
-        "-M", f"{onnx_path}",
+        "-M", onnx_path,
         "-I", config.dipoorlet_calib_dir,
         "-O", log_dir,
         "-N", "1000",

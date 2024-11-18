@@ -19,9 +19,9 @@ def main():
         "torchrun",
         f"--nproc_per_node={cuda_nums}",
         "-m", "dipoorlet",
-        "-M", f"{onnx_path}",
-        "-I", f"{calibration_data}",
-        "-O", f"{log_dir}",
+        "-M", onnx_path,
+        "-I", calibration_data,
+        "-O", log_dir,
         "-N", "1000",
         "-A", "minmax",
         "-D", "trt"
