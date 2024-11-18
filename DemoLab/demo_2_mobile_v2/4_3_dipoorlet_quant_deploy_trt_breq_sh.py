@@ -1,5 +1,7 @@
 import os,config
 import subprocess
+import time
+
 
 # 构建 CUDA 环境变量
 os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
@@ -13,8 +15,7 @@ def main():
     calibration_data = config.dipoorlet_calib_dir
     onnx_path = config.export_work_dir + "/mobilev2_model_new.onnx"
     
-    # 切换到该目录
-    # os.chdir(workdir)    
+    start_time = time.time()   
 
     # 构建 torchrun 命令
     command = [
@@ -29,9 +30,12 @@ def main():
         "-D", "trt",
         "--brecq"
     ]
-
+    
     # 执行命令
     subprocess.run(command, check=True)
 
+    run_time = time.time() - start_time
+    print(f"程序运行时间：{run_time:.2f} 秒")
+    
 if __name__ == "__main__":
     main()
