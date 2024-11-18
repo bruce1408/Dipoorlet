@@ -20,9 +20,9 @@ def main():
         "torchrun",
         f"--nproc_per_node={cuda_num}",
         "-m", "dipoorlet",
-        "-M", f"{onnx_path}",
-        "-I", f"{calibration_data}",
-        "-O", f"{work_dir}",
+        "-M", onnx_path,
+        "-I", calibration_data,
+        "-O", work_dir,
         "-N", "1000",
         "-A", "hist",
         "-D", "trt"

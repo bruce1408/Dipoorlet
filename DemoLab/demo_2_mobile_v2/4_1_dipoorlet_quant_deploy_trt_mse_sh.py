@@ -22,7 +22,7 @@ def main():
         "-m", "dipoorlet",
         "-M", f"{onnx_path}",
         "-I", config.dipoorlet_calib_dir,
-        "-O", f"./{log_dir}",
+        "-O", log_dir,
         "-N", "1000",
         "-A", "mse",
         "-D", "trt"
