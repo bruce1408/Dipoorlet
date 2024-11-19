@@ -1,5 +1,6 @@
-import os
-import config
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import utils.config as config
 import subprocess
 
 # 构建 CUDA 环境变量

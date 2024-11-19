@@ -1,10 +1,11 @@
 import os
 import sys
-import config
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import utils.config as config
 import tensorrt as trt
 from loguru import logger
 from contextlib import redirect_stdout
-from calibrator import Calibrator, CalibDataLoader
+from utils.calibrator import Calibrator, CalibDataLoader
 from printk import print_colored_box
 
 

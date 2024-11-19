@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-import config
+import utils.config as config
 import torch, torchvision
 import torch.nn as nn
 from printk import * 
@@ -14,7 +14,8 @@ from torch.autograd import Variable
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
-from dataset import get_dataset
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.dataset import get_dataset
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids

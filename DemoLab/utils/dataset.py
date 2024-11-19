@@ -121,6 +121,6 @@ def get_dataset():
     return train_dataset, val_dataset, test_dataset
 
 
-# train_dataset, val_dataset, test_dataset = get_dataset()
-
-# print(val_dataset[0])
+if __name__ == "__main__":
+    train_dataset, val_dataset, test_dataset = get_dataset()
+    print(val_dataset[0])
