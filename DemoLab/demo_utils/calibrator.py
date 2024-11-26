@@ -8,7 +8,15 @@ import tensorrt as trt
 from tqdm import tqdm
 import pycuda.driver as cuda
 import pycuda.autoinit
-import config 
+
+try:
+    # 尝试直接导入，适用于当前目录运行
+    import quant_config as config
+except ImportError:
+    # 如果直接导入失败，尝试使用相对导入，适用于跨目录调用
+    from . import quant_config as config
+
+
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))
 #200类，每类随机选5个

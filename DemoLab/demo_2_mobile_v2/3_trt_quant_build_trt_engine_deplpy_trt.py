@@ -1,18 +1,21 @@
 import os
 import sys
+# sys.path.append('/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/DemoLab')
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import utils.config as config
+
+import demo_utils.quant_config as config_param
 import tensorrt as trt
 from loguru import logger
 from contextlib import redirect_stdout
-from utils.calibrator import Calibrator, CalibDataLoader
+from demo_utils.calibrator import Calibrator, CalibDataLoader
 from printk import print_colored_box
 
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-export_dir = f"{config.export_work_dir}/trt_mobilev2_trt_intrinsic_kl"
+export_dir = f"{config_param.export_work_dir}/trt_mobilev2_trt_intrinsic_kl"
 
 # 配置 loguru 日志
 log_file_path = f"{export_dir}/engine_export.log"
@@ -65,8 +68,8 @@ def buildEngine(
 
 
 def main():
-    onnx_file = f"{config.export_work_dir}/mobilev2_model_new.onnx"
-    calibration_cache = f"{config.trt_calib_cache_dir}/mobilev2_model_calib.cache"
+    onnx_file = f"{config_param.export_work_dir}/mobilev2_model_new.onnx"
+    calibration_cache = f"{config_param.trt_calib_cache_dir}/mobilev2_model_calib.cache"
 
     FP16_mode = False
     INT8_mode = True

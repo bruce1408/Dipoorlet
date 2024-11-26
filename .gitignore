@@ -15,3 +15,4 @@ dipoorlet.egg-info/
 log_dir/
 DemoLab/**/*.json
 config.py
+quant_config.py
