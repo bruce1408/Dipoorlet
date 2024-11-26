@@ -1,0 +1,43 @@
+ios:
+  - inputs: [
+      'img_front_fisheye', 
+      'img_right_fisheye', 
+      'img_rear_fisheye', 
+      'img_left_fisheye', 
+      'img_front_short', 
+      'indice_front_fisheye', 
+      'indice_right_fisheye', 
+      'indice_rear_fisheye', 
+      'indice_left_fisheye', 
+      'indice_front_short'
+      ]
+    outputs: ['heatmap', 'reg', 'dim', 'rot']
+
+0:
+  conversion:
+    quantize: true
+    input_layout_overrides:
+      "indice_right_fisheye": keep
+      "indice_left_fisheye": keep
+      "indice_rear_fisheye": keep
+      "indice_front_fisheye": keep
+      "indice_front_short": keep
+    output_layout_overrides:
+      "heatmap": keep
+      "reg": keep
+      "dim": keep
+      "rot": keep
+    options:
+      store_true: ["use_per_channel_quantization"]
+      kwargs:
+        quantization_overrides: ./config/overrides_onestage.json
+        
+  execute: Null
+
+  dataset:
+    data_loader:
+      name: NumpyDataLoader
+      root: /share/cdd/od_bev_0915_calib_data/
+
+    data_preprocessor:
+      name: NumpyDataPreprocessor
