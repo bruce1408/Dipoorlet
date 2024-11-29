@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
 from tqdm import tqdm
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import utils.config as config
-from utils.dataset import get_dataset
+import demo_utils.quant_config as config
+from demo_utils.dataset import get_dataset
 from printk import *
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))

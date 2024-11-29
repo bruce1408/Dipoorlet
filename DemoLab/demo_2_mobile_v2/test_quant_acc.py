@@ -3,17 +3,18 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-11-14 18:40:22
+LastEditTime: 2024-11-27 10:03:23
 '''
 import pycuda.autoinit
 import numpy as np
 import pycuda.driver as cuda
 import tensorrt as trt
-import time, os
+import time, os, sys
 import torch, config
 from PIL import Image
-from calibrator import Preprocess
-from dataset import get_dataset
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from demo_utils.calibrator import Preprocess
+from demo_utils.dataset import get_dataset
 
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 EXPLICIT_BATCH = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
@@ -85,9 +86,10 @@ def main(mode):
     val_loaders = torch.utils.data.DataLoader(
         val_dataset, batch_size=1, shuffle=True, num_workers=8
     )
-
     # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
-    engine_file = f"{config.export_work_dir}/mobilev2_model_trt_{mode}.engine"
+    # engine_file = f"{config.export_work_dir}/mobilev2_model_trt_{mode}.engine"
+    engine_file = f"{config.export_work_dir}/trt_mobilev2_trt_intrinsic_kl/mobilev2_model_trt_{mode}.engine"
+    
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
@@ -122,8 +124,8 @@ def main(mode):
 
 
 if __name__ == "__main__":
-    # main("fp16")
-    main("int8")
+    main("fp16")
+    # main("int8")
 
 # pytorch
 # Accuracy : 67.7699966430664%
@@ -136,3 +138,19 @@ if __name__ == "__main__":
 
 # dipoorlet MSE+Brecq INT8
 # Accuracy with TRT int8 infer : 67.27999877929688%
+
+
+
+
+# pytorch
+# Accuracy : 73.24%
+
+# trt fp16
+# Accuracy with TRT int8 infer : 73.28%
+
+# dipoorlet MSE INT8
+# Accuracy with TRT int8 infer : 66.54000091552734%
+
+# dipoorlet MSE+Brecq INT8
+# Accuracy with TRT int8 infer : 67.27999877929688%
+
