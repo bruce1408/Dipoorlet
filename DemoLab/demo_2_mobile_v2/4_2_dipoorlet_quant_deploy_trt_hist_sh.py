@@ -24,7 +24,7 @@ def main():
         "-M", onnx_path,
         "-I", calibration_data,
         "-O", work_dir,
-        "-N", "1000",
+        "-N", "100",
         "-A", "hist",
         "-D", "trt"
     ]
