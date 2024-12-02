@@ -3,7 +3,7 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-10-26 16:56:28
 LastEditors: BruceCui
-LastEditTime: 2024-11-13 16:53:12
+LastEditTime: 2024-12-03 00:43:58
 Description: 可以输出逐层的量化误差以及激活、权重的分布范围
 '''
 import heapq
@@ -15,10 +15,10 @@ import torch.distributed as dist
 from onnx import numpy_helper
 from tqdm import tqdm
 
-from .forward_net import forward_get_tensor, ActivationCache
+from .forward_net import forward_get_tensor, ActivationCache, forward_get_output
 from .platform_settings import platform_setting_table
-from .quantize import DQTENSORSUFFIX, QUANT_NODE_NAME_LIST, quant_graph
-from .utils import cos_similarity, logger
+from .quantize import DQTENSORSUFFIX, QUANT_NODE_NAME_LIST, quant_graph, insert_fake_quant_node, delete_fake_quant_node
+from .utils import cos_similarity, logger, max_abs_gap
 
 
 def update_node_quant_profiling(graph_q, node, fp_cache, q_cache, layer_cosine_dict, args):
@@ -270,3 +270,71 @@ def show_model_profiling_res(graph_after_wt, layer_cosine_dict, model_cosine_dic
                                                                             model_cosine_dict[name][1]))
         else:
             logger.info("{:40} tolcos : {:<.5f}".format(name, model_cosine_dict[name][0]))
+
+
+def quantize_profiling_layerwise(graph_after_wt, graph_ori, act_clip_val, weight_clip_val, args):
+    clip_val = act_clip_val.copy()
+    clip_val.update(weight_clip_val)
+    graph_q, quant_node_list = quant_graph(graph_after_wt, clip_val, args)
+
+    node_gen = tqdm(range(0, len(quant_node_list)))
+
+    graph_q.update_model_dim(args.prof_num)
+    graph_ori.update_model_dim(args.prof_num)
+
+    fp_net = graph_ori.model
+    q_net = graph_q.model
+
+    fp_tensors = forward_get_output(graph_ori, fp_net, 0, args)
+    q_tensors = forward_get_output(graph_q, q_net, 0, args)
+
+    base_error = 0.0
+    for tensor_name in graph_q.network_outputs:
+        q_tensor_name = tensor_name
+        if tensor_name + DQTENSORSUFFIX in graph_q.network_outputs:
+            q_tensor_name = tensor_name + DQTENSORSUFFIX
+
+        if args.criterion == "cosine":
+            base_error += 1 - cos_similarity(fp_tensors[tensor_name], q_tensors[q_tensor_name])
+        elif args.criterion == "max_abs_gap":
+            base_error += max_abs_gap(fp_tensors[tensor_name], q_tensors[q_tensor_name])
+
+
+    base_error /= len(graph_q.network_outputs)
+    res = {}
+    act_quant = []
+    for node_id in node_gen:
+        node = quant_node_list[node_id]
+        delete_fake_quant_node(graph_q, node)
+        graph_q.update_model()
+
+        q_net = graph_q.model
+        q_tensors = forward_get_output(graph_q, q_net, 0, args)
+
+        for tensor_name in graph_q.network_outputs:
+            q_tensor_name = tensor_name
+            if tensor_name + DQTENSORSUFFIX in graph_q.network_outputs:
+                q_tensor_name = tensor_name + DQTENSORSUFFIX
+
+            if args.criterion == "cosine":
+                error = 1 - cos_similarity(fp_tensors[tensor_name], q_tensors[q_tensor_name])
+            elif args.criterion == "max_abs_gap":
+                error = max_abs_gap(fp_tensors[tensor_name], q_tensors[q_tensor_name])
+
+            if node.name not in res:
+                res[node.name] = error
+            else:
+                res[node.name] += error
+
+        res[node.name] /= len(graph_q.network_outputs)
+        res[node.name] = base_error - res[node.name]
+        logger.info(res)
+
+        insert_fake_quant_node(graph_q, node, act_quant, clip_val, args)
+        graph_q.update_model()
+
+    sorted_res = dict(sorted(res.items(), key=lambda x: x[1], reverse=True))
+    logger.info(f"The sorted by quant sensitive of all layers {sorted_res}")
+
+    sensitive_layer = list(sorted_res.keys())
+    logger.info(f"The top-{args.sensitive_layer_num} sensitive layer are {sensitive_layer[:args.sensitive_layer_num]}")

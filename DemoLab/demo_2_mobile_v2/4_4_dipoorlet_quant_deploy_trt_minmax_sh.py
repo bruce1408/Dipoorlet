@@ -24,9 +24,10 @@ def main():
         "-M", onnx_path,
         "-I", calibration_data,
         "-O", log_dir,
-        "-N", "1000",
+        "-N", "10",
         "-A", "minmax",
-        "-D", "trt"
+        "-D", "trt",
+        "--onnx_sim"
     ]
 
     # 执行命令
