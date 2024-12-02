@@ -1,15 +1,15 @@
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import config
+import demo_utils.quant_config as config
 import subprocess
+
 
 # 构建 CUDA 环境变量
 os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
 
 cuda_nums = len(config.cuda_ids.split(","))
-def main():
-    
 
+def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
     log_dir = f"{config.export_work_dir}/trt_mobile_v2_dipoorlet_mse"
     os.makedirs(log_dir, exist_ok=True)

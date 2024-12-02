@@ -1,5 +1,4 @@
 import os
-import config
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
@@ -8,6 +7,12 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
+try:
+    # 尝试直接导入，适用于当前目录运行
+    import quant_config as config
+except ImportError:
+    # 如果直接导入失败，尝试使用相对导入，适用于跨目录调用
+    from . import quant_config as config
 
 class ImagesDataset(Dataset):
     def __init__(self, files, labels, encoder, transforms, mode):
