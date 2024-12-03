@@ -26,6 +26,7 @@ def main():
         "-O", work_dir,
         "-N", "100",
         "-A", "hist",
+        "--onnx_sim",
         "-D", "trt"
     ]
     
