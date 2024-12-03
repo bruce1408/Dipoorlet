@@ -111,7 +111,7 @@ snpe_platform_settings = {
         'bit_width': 8,
         'type': 'Linear',
         'symmetric': False,
-        'per_channel': False
+        'per_channel': True
     },
     'qi_params': {
         'bit_width': 8,
