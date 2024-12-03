@@ -11,10 +11,10 @@ cuda_nums = len(config.cuda_ids.split(","))
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{config.export_work_dir}/trt_mobile_v2_dipoorlet_mse"
+    log_dir = f"{config.od_bev_outputs}/snpe_od_bev_dipoorlet_mse"
     os.makedirs(log_dir, exist_ok=True)
     
-    onnx_path = f"{config.export_work_dir}/mobilev2_model_new.onnx"
+    onnx_path = f"{config.od_bev_onnx_models}/od_bev_1110.onnx"
     
     # 构建 torchrun 命令
     command = [
@@ -22,11 +22,10 @@ def main():
         f"--nproc_per_node={cuda_nums}",
         "-m", "dipoorlet",
         "-M", onnx_path,
-        "-I", config.dipoorlet_calib_dir,
+        "-I", config.od_bev_calibration_data_dipoorlet,
         "-O", log_dir,
-        "-N", "10",
+        "-N", "120",
         "-A", "mse",
-        "--onnx_sim",
         "-D", "trt"
     ]
 

@@ -39,6 +39,7 @@ def quant_graph(onnx_graph, clip_val, args):
 
 def insert_fake_quant_node(graph, node, act_quantized, data_range_list, args):
     param = platform_setting_table[args.deploy]
+    # print(data_range_list.keys())
     # We now quant input and weight tp INT8 but left output fp32.
     find_weight = False
     trt_merge_add = False

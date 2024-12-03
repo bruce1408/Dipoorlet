@@ -1,5 +1,5 @@
 import os,sys
-import random
+import random, tqdm
 import numpy as np
 import pandas as pd
 from torchvision import transforms
@@ -24,6 +24,31 @@ input_names = [
     "indices"
 ]
 
+
+info = {
+    "inputs_name": [
+        "front_short_camera", 
+        "front_fisheye_camera",
+        "right_fisheye_camera",
+        "rear_fisheye_camera", 
+        "left_fisheye_camera", 
+        "indices"
+    ],
+    "outputs_name" : [
+        "dim", 
+        "height", 
+        "reg",
+        "rot",
+        "hm"
+    ],
+    "input_width": [1920, 960, 960, 960, 960],
+    "input_height": [720, 720, 720, 720, 720],
+    "indices": [5, 256, 192, 4, 2],
+    "confidence_thres": 0.001,
+    "iou_thres": 0.7,
+    "max_det": 300,
+    "providers": ["CUDAExecutionProvider"]
+}
 
 
 def get_calib_data_path(num_samples=256, yaml=None):
@@ -170,41 +195,27 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
             f.flush()
             
 
+# For Dipoorlet
+def get_dipoorlet_calib():
+    data_root = f"{config.od_bev_calib_dir}/od_bev_1125_calib_data_v2"
+    image_list = get_calib_data_path()    
+    print(image_list)
+    for index_i in range(len(image_list)):
+        for index_j in range(len(image_list[index_i])):
+            image_path = image_list[index_i][index_j]
+            image = Preprocess(image_path, index_j, info)
+            
+            calibration_dir_path = f"{config.od_bev_calibration_data_dipoorlet}/{input_names[index_j]}"
+            os.makedirs(calibration_dir_path, exist_ok=True)
+            file_path = os.path.join(f"{config.od_bev_calibration_data_dipoorlet}/{input_names[index_j]}/", str(index_i) + ".bin")
+            image.tofile(file_path)
+
+
 if __name__ == "__main__":
+    get_dipoorlet_calib()
+             
     # img = np.load("/home/bruce_ultra/data/data_sets/od_bev_0915_calib_data/1/img_front_fisheye.npz")
     # print(img.files)
     # for file_name in img.files:
     #     print(img[file_name])
-    
-    
-    info = {
-        "inputs_name": [
-            "front_short_camera", 
-            "front_fisheye_camera",
-            "right_fisheye_camera",
-            "rear_fisheye_camera", 
-            "left_fisheye_camera", 
-            "indices"
-        ],
-        "outputs_name" : [
-            "dim", 
-            "height", 
-            "reg",
-            "rot",
-            "hm"
-        ],
-        "input_width": [1920, 960, 960, 960, 960],
-        "input_height": [720, 720, 720, 720, 720],
-        "indices": [5, 256, 192, 4, 2],
-        "confidence_thres": 0.001,
-        "iou_thres": 0.7,
-        "max_det": 300,
-        "providers": ["CUDAExecutionProvider"]
-    }
-    
-    
-    img_path_list = get_calib_data_path()
-    print(len(img_path_list))
-    dataloader = CalibDataLoader(batch_size=1, calib_count=128, info=info)
-
     

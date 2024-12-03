@@ -114,7 +114,7 @@ else:
     if model.opset_import[0].version < args.qnode_version:
         model = onnx.version_converter.convert_version(model, args.qnode_version)
     if args.onnx_sim:
-        model, check = simplify(model, mutable_initializer=True)
+        model, check = simplify(model)
         assert check, "Simplified ONNX model could not be validated"
     # assert check, "Simplified ONNX model could not be validated"
 onnx_graph = ONNXGraph(model, args.output_dir, args.deploy, args.model_type)

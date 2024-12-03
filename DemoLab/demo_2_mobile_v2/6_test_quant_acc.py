@@ -3,18 +3,18 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-11-27 10:03:23
+LastEditTime: 2024-12-03 19:40:59
 '''
 import pycuda.autoinit
 import numpy as np
 import pycuda.driver as cuda
 import tensorrt as trt
 import time, os, sys
-import torch, config
+import torch
 from PIL import Image
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from demo_utils.calibrator import Preprocess
 from demo_utils.dataset import get_dataset
+import demo_utils.quant_config as config
 
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 EXPLICIT_BATCH = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
@@ -88,13 +88,13 @@ def main(mode):
     )
     # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
     # engine_file = f"{config.export_work_dir}/mobilev2_model_trt_{mode}.engine"
-    engine_file = f"{config.export_work_dir}/trt_mobilev2_trt_intrinsic_kl/mobilev2_model_trt_{mode}.engine"
+    # engine_file = f"{config.export_work_dir}/trt_mobilev2_trt_intrinsic_kl/mobilev2_model_trt_{mode}.engine"
     
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse/mobilev2_model_dipoorlet_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
-    # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
+    engine_file = f"{config.export_work_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
     engine = deserializing_engine(engine_file)
 
     context = engine.create_execution_context()
@@ -124,8 +124,8 @@ def main(mode):
 
 
 if __name__ == "__main__":
-    main("fp16")
-    # main("int8")
+    # main("fp16")
+    main("int8")
 
 # pytorch
 # Accuracy : 67.7699966430664%

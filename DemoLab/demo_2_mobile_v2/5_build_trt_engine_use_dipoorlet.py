@@ -3,15 +3,16 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-11-14 18:36:48
+LastEditTime: 2024-12-03 19:32:57
 Description: 根据trt量化参数, 生成新的 tensorrt engine
 '''
 import tensorrt as trt
-import os
+import os, sys
 import json
 from printk import print_colored_box
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import demo_utils.quant_config as config
 
 
 def set_dynamic_range(config, network, blob_range):
@@ -84,9 +85,9 @@ def main():
     # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_int8.engine"
     
     # dipoorlet 使用 minmax 量化算法
-    onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/quant_model.onnx"
-    json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/trt_clip_val.json"
-    export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_int8.engine"
+    onnx_file = f"{config.tensorrt_dir}/trt_mobile_v2_dipoorlet_minmax/quant_model.onnx"
+    json_path = f"{config.tensorrt_dir}/trt_mobile_v2_dipoorlet_minmax/trt_clip_val.json"
+    export_engine_file = f"{config.tensorrt_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_int8.engine"
     
     
     # dipoorlet 使用 mse + brecq 量化算法

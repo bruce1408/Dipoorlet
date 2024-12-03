@@ -3,7 +3,7 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-10-26 16:56:28
 LastEditors: BruceCui
-LastEditTime: 2024-12-03 00:43:58
+LastEditTime: 2024-12-03 21:17:14
 Description: 可以输出逐层的量化误差以及激活、权重的分布范围
 '''
 import heapq
@@ -260,8 +260,8 @@ def show_model_profiling_res(graph_after_wt, layer_cosine_dict, model_cosine_dic
             for out_tensor in node.output:
                 logger.info("Layer  cos: {:.5f}".format(layer_cosine_dict[out_tensor]))
                 heapq.heappush(quant_heapq, (layer_cosine_dict[out_tensor], node.name + '-' + out_tensor))
-        logger.info("The smallest cos value of 10 layers: ")
-        for tuple_cos_name in heapq.nsmallest(10, quant_heapq):
+        logger.info("The smallest cos value of 20 layers: ")
+        for tuple_cos_name in heapq.nsmallest(20, quant_heapq):
             logger.info("{:40} cos : {:<.5f}".format(tuple_cos_name[1], tuple_cos_name[0]))
     logger.info("Quant model output cos: ")
     for name in graph_after_wt.network_outputs:
