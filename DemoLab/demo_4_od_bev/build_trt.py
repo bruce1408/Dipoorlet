@@ -1,25 +1,35 @@
-import os
+import os, sys
 import tensorrt as trt
 from utils.calibrator import Calibrator, CalibDataLoader
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import demo_utils.quant_config as config
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
 info = {
-    "inputs_name": ["img_front_fisheye",    "img_right_fisheye", "img_rear_fisheye", "img_left_fisheye", "img_front_short", 
-                    "indice_front_fisheye", "indice_right_fisheye", "indice_rear_fisheye", "indice_left_fisheye", "indice_front_short"],
-    "outputs_name" : [
-        "heatmap", 
-        "reg", 
-        "dim",
-        "rot"
-    ],
-    "input_width": 960,
-    "input_height": 720,
-    "confidence_thres": 0.001,
-    "iou_thres": 0.7,
-    "max_det": 300,
-    "providers": ["CUDAExecutionProvider"]
-}
+        "inputs_name": [
+            "front_short_camera", 
+            "front_fisheye_camera",
+            "right_fisheye_camera",
+            "rear_fisheye_camera", 
+            "left_fisheye_camera", 
+            "indices"
+        ],
+        "outputs_name" : [
+            "dim", 
+            "height", 
+            "reg",
+            "rot",
+            "hm"
+        ],
+        "input_width": [1920, 960, 960, 960, 960],
+        "input_height": [720, 720, 720, 720, 720],
+        "indices": [5, 256, 192, 4, 2],
+        "confidence_thres": 0.001,
+        "iou_thres": 0.7,
+        "max_det": 300,
+        "providers": ["CUDAExecutionProvider"]
+    }
 
 
 def buildEngine(
@@ -51,9 +61,9 @@ def buildEngine(
 
 
 def main(mode):
-    onnx_file = "//home/bruce_ultra/workspace/onnx_models/modelv5_0915.onnx"
-    engine_file = f"/home/bruce_ultra/workspace/quant_workspace/perception_quanti/avp_obstacle/POD/20240827_trt/outputs_trt/od_bev_0915_{mode}.engine"
-    calibration_cache = "/home/bruce_ultra/workspace/quant_workspace/perception_quanti/avp_obstacle/POD/20240827_trt/outputs_trt/od_bev_0915_calib.cache"
+    onnx_file = f"{config.od_bev_onnx_models}/od_bev_1125_v2.onnx"
+    engine_file = f"{config.od_bev_outputs}/trt_od_bev_trt_intrinsic_kl/od_bev_1125_v2_{mode}.engine"
+    calibration_cache = f"{config.od_bev_outputs}/trt_od_bev_trt_intrinsic_kl/od_bev_1125_v2_calib.cache"
 
     if mode=='fp16':
         FP16_mode = True
@@ -62,7 +72,7 @@ def main(mode):
         INT8_mode = True
         FP16_mode = False
 
-    dataloader = CalibDataLoader(batch_size=1, calib_count=256, info=info)
+    dataloader = CalibDataLoader(batch_size=6, calib_count=10, info=info)
 
     if not os.path.exists(onnx_file):
         print("LOAD ONNX FILE FAILED: ", onnx_file)

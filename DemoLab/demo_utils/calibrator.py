@@ -89,10 +89,10 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
         return self.data_loader.batch_size
 
     def get_batch(self, names):
-        batch = self.data_loader.next_batch()
-        if not batch.size:
+        tensor_data = self.data_loader.next_batch()
+        if not tensor_data.size:
             return None
-        cuda.memcpy_htod(self.d_input, batch)
+        cuda.memcpy_htod(self.d_input, tensor_data)
 
         return [self.d_input]
 

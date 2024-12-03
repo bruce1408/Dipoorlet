@@ -71,8 +71,8 @@ def main():
     onnx_file = f"{config_param.export_work_dir}/mobilev2_model_new.onnx"
     calibration_cache = f"{config_param.trt_calib_cache_dir}/mobilev2_model_calib.cache"
 
-    FP16_mode = True
-    INT8_mode = False
+    FP16_mode = False
+    INT8_mode = True
 
     dataloader = CalibDataLoader(batch_size=1, calib_count=1000)
 

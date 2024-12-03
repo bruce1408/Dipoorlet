@@ -15,8 +15,6 @@ argc = len(sys.argv)
 if argc > 1:
     details = sys.argv[1]
 
-# import pdb;pdb.set_trace()
-
 # 获取当前时
 current_time = datetime.datetime.now()
 
