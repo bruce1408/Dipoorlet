@@ -9,7 +9,7 @@ cuda_nums = len(config.cuda_ids.split(","))
 
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-algorithm = "adaround"
+algorithm = "brecq"
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
@@ -26,7 +26,7 @@ def main():
         "-M", onnx_path,
         "-I", config.od_bev_calibration_data_dipoorlet,
         "-O", log_dir,
-        "-N", "120",
+        "-N", "24",
         "-A", "mse",
         "-D", "snpe",
         f"--{algorithm}"

@@ -17,10 +17,11 @@ def main():
     os.makedirs(log_dir, exist_ok=True)
     
     onnx_path = f"{config.od_bev_onnx_models}/od_bev_1110.onnx"
-    
+    port = 29501
     # 构建 torchrun 命令
     command = [
         "torchrun",
+        f"--master_port={port}",
         f"--nproc_per_node={cuda_nums}",
         "-m", "dipoorlet",
         "-M", onnx_path,
