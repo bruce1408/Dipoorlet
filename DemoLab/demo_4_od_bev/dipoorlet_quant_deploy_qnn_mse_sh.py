@@ -15,7 +15,7 @@ def main():
     log_dir = f"{config.od_bev_outputs}/snpe_od_bev_dipoorlet_{algothirm}_{timestamp}"
     os.makedirs(log_dir, exist_ok=True)
     
-    onnx_path = f"{config.od_bev_onnx_models}/od_bev_1110.onnx"
+    onnx_path = f"{config.od_bev_onnx_models}/od_bev_1125_v2.onnx"
     
     # 构建 torchrun 命令
     command = [

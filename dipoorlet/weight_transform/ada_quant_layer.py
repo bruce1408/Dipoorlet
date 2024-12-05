@@ -114,6 +114,7 @@ class adaround_reg(nn.Module):
 
 
 def L2_norm(pred, tgt):
+    print("======== L2 norm is ", pred.shape, tgt.shape)
     return (pred - tgt).pow(2.0).sum(1).mean()
 
 
@@ -279,4 +280,15 @@ class AdaQLayer(torch.nn.Module):
                            self.qi_tensor['q_max'], self.drop_ratio)
         elif self.acti_quant and self.qi_tensor['type'] == 'NNIE':
             x = quant_acti_nnie(x, self.qi_tensor['max_value'], self.drop_ratio)
+        print("ada_quant_layer : ", x.shape)
         return x
+
+
+if __name__ == "__main__":
+    pass
+    
+    # adlayer = AdaQLayer(node, weight, bias, rest, reg, qw_tensor, None,
+    #                               relu_flag, node.op_type, args.acti_quant)
+    
+    # input_tensor = torch.randn(2, 1, 3, 224, 224)   # batch size = 2, channels = 3, height = 224, width = 224
+    # fp_tensor = torch.randn(2, 1, 3, 112, 112)      # batch size = 2, channels = 3, height = 224, width = 224

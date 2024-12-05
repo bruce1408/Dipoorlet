@@ -64,6 +64,9 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
 
             q_in_tensor = np.stack(q_act_cache[in_tensor_name])
             fp_out_tensor = np.stack(fp_act_cache[node.output[0]])
+            print(node.output[0])
+            print(fp_act_cache[node.output[0]].__len__())
+            print("the output shape fp out ",fp_out_tensor.shape)
             prev_act_cache = q_act_cache.activation_cache.copy()
 
             # Get weight and build torch conv.
@@ -104,12 +107,22 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
             else:
                 fp_tensor = torch.nn.Parameter(torch.from_numpy(fp_out_tensor), False)
             # Learning round mask.
+            print("fp tensor.shape", fp_tensor.shape)
             total_iter = args.ada_epoch * np.ceil(num_per_rank / args.ada_bs)
             
             # 根据总的迭代次数来初始化一个正则函数，这个正则就是论文中的F正则
             reg = adaround_reg(total_iter)
             
             # 这个就是优化求解，构建一个torch模型，写一个自定义的qlayer
+            # print("node is ", node)
+            print(weight.shape) # 32, 3, 3, 3
+            print(bias.shape) # 32
+            print(rest.shape) # 32, 3, 3, 3
+            # print("reg is: ", reg)
+            # print(qw_tensor)
+            print(relu_flag)    # false
+            print(node.op_type) # conv
+            print(args.acti_quant) # false
             ada_layer = AdaQLayer(node, weight, bias, rest, reg, qw_tensor, None,
                                   relu_flag, node.op_type, args.acti_quant)
             round_mask = learning_round_mask(
@@ -138,14 +151,20 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
 
 
 def learning_round_mask(in_tensor, fp_out_tensor, ada_layer, reg, batch_size, max_epoch):
+    # batch_size = 64 默认
     optimizer = torch.optim.Adam([ada_layer.round_mask])
     ada_layer = DDP(ada_layer, [torch.cuda.current_device()])
+    if dist.get_rank() == 0:
+        print("in_tensor shape is ========", in_tensor.shape, fp_out_tensor.shape, __file__)
     # New train precedure
     cur_iter = 0
-    for epoch in range(max_epoch):
+    for epoch in range(1):
         for idx in range(np.ceil(len(in_tensor) / batch_size).astype(int)):
+            print("========= the batch is ", np.ceil(len(in_tensor) / batch_size).astype(int), batch_size)
             st = idx * batch_size
             ed = st + batch_size
+            print("the st is ", st, __file__)
+            print("the ed is ", ed, __file__)
             input = in_tensor[st:ed].squeeze(1)
             fp_output = fp_out_tensor[st:ed].squeeze(1)
             output = ada_layer(input)

@@ -13,10 +13,10 @@ algothrim = "minmax"
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{config.od_bev_outputs}/snpe_od_bev_dipoorlet_{algothrim}_{timestamp}"
+    log_dir = f"{config.od_bev_outputs}/snpe_od_bev_dipoorlet_{algothrim}_{timestamp}_1125"
     os.makedirs(log_dir, exist_ok=True)
     
-    onnx_path = f"{config.od_bev_onnx_models}/od_bev_1110.onnx"
+    onnx_path = f"{config.od_bev_onnx_models}/od_bev_1125_v2.onnx"
     port = 29501
     # 构建 torchrun 命令
     command = [

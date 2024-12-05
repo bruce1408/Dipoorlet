@@ -26,9 +26,10 @@ def main():
         "-M", onnx_path,
         "-I", config.od_bev_calibration_data_dipoorlet,
         "-O", log_dir,
-        "-N", "12",
+        "-N", "6",
         "-A", "mse",
         "-D", "snpe",
+        "--onnx_sim",
         f"--{algorithm}"
     ]
 
