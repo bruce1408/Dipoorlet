@@ -6,12 +6,7 @@ import torch.nn as nn
 from printk import * 
 import torch.optim as optim
 from torch.optim import lr_scheduler
-import torchvision.datasets as datasets
-import torch.utils.data as data
-import torchvision.transforms as transforms
-from torch.autograd import Variable
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
-import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
 
 from DemoLab.demo_utils import quant_config
