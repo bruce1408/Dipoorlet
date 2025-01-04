@@ -1,8 +1,7 @@
 import os
 import sys
 import datetime
-import utils.config as config
-import torch, torchvision
+import torch
 import torch.nn as nn
 from printk import * 
 import torch.optim as optim
@@ -14,11 +13,12 @@ from torch.autograd import Variable
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.dataset import get_dataset
+
+from DemoLab.demo_utils import quant_config
+from DemoLab.demo_utils.dataset import get_dataset
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
+os.environ["CUDA_VISIBLE_DEVICES"] = quant_config.cuda_ids
 num_gpus = torch.cuda.device_count()
 
 def train_model(
@@ -68,10 +68,14 @@ def train_model(
 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
+                current_mean_loss = running_loss / ((i + 1) * inputs.size(0))  # 计算到目前为止的平均loss
                 running_corrects += torch.sum(preds == labels.data)
                 print(
-                    "\rIteration: {}/{}, Loss: {}.".format(
-                        i + 1, len(dataloaders[phase]), loss.item() * inputs.size(0)
+                    "\rIteration: {}/{}, Batch Loss: {:.4f}, Average Loss: {:.4f}".format(
+                        i + 1, 
+                        len(dataloaders[phase]), 
+                        loss.item(),  # 当前batch的loss
+                        current_mean_loss  # 到目前为止的平均loss
                     ),
                     end="",
                 )
@@ -90,8 +94,8 @@ def train_model(
             if phase == "val" and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
-                os.makedirs(config.export_work_dir, exist_ok=True)
-                torch.save(model, f"{config.export_work_dir}/best_model.pth")
+                os.makedirs(quant_config.export_work_dir, exist_ok=True)
+                torch.save(model, f"{quant_config.export_work_dir}/best_model.pth")
 
 
         # 用列表存储所有的输出信息
@@ -159,10 +163,10 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 train_dataset, val_dataset, _ = get_dataset()
 
 train_loaders = torch.utils.data.DataLoader(
-    train_dataset, batch_size=config.train_batch_size, shuffle=True, num_workers=8
+    train_dataset, batch_size=quant_config.train_batch_size, shuffle=True, num_workers=8
 )
 val_loaders = torch.utils.data.DataLoader(
-    val_dataset, batch_size=config.val_batch_size, shuffle=True, num_workers=8
+    val_dataset, batch_size=quant_config.val_batch_size, shuffle=True, num_workers=8
 )
 
 
@@ -181,9 +185,9 @@ model = train_model(
     criterion,
     optimizer_ft,
     exp_lr_scheduler,
-    num_epochs=config.epochs,
+    num_epochs=quant_config.epochs,
 )
 
 current_timestamp = datetime.datetime.now()
 formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-torch.save(model, f"{config.export_work_dir}/{formatted_timestamp}_mobilev2_model.pth")
+torch.save(model, f"{quant_config.export_work_dir}/{formatted_timestamp}_mobilev2_model.pth")

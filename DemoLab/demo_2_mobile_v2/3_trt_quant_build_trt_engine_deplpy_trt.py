@@ -1,15 +1,11 @@
 import os
 import sys
-# sys.path.append('/mnt/share_disk/bruce_trie/Quantizer-Tools/Dipoorlet/DemoLab')
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import demo_utils.quant_config as config_param
 import tensorrt as trt
 from loguru import logger
 from contextlib import redirect_stdout
-from demo_utils.calibrator import Calibrator, CalibDataLoader
 from printk import print_colored_box
+import DemoLab.demo_utils.quant_config as config_param
+from DemoLab.demo_utils.calibrator import Calibrator, CalibDataLoader
 
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)

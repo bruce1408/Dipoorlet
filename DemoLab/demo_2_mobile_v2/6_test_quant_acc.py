@@ -12,9 +12,8 @@ import tensorrt as trt
 import time, os, sys
 import torch
 from PIL import Image
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from demo_utils.dataset import get_dataset
-import demo_utils.quant_config as config
+from DemoLab.demo_utils.dataset import get_dataset
+import DemoLab.demo_utils.quant_config as config
 
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 EXPLICIT_BATCH = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
