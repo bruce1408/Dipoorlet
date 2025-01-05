@@ -13,7 +13,7 @@ os.chdir(workdir)
 log_dir = os.path.join(workdir, 'log_dir')
 os.makedirs(log_dir, exist_ok=True)
 onnx_path = os.path.join(config.export_work_dir, 'mobilev2_model_new.onnx')
-calibration_path = config.calibration_dir
+calibration_path = config.dipoorlet_calib_dir
 
 # 定义 torchrun 命令及其参数
 command = [
@@ -26,6 +26,7 @@ command = [
     '-D', 'trt',
     '-O', f'{log_dir}',
     '--adaround',
+    "--onnx_sim",
     '--ada_epoch', '1'
 ]
 
