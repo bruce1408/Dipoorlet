@@ -12,7 +12,7 @@ os.chdir(workdir)
 # 检查并创建 log_dir 目录
 log_dir = os.path.join(workdir, 'log_dir')
 os.makedirs(log_dir, exist_ok=True)
-onnx_path = os.path.join(config.model_dir, 'resnet34_model.onnx')
+onnx_path = os.path.join(config.export_work_dir, 'mobilev2_model_new.onnx')
 calibration_path = config.calibration_dir
 
 # 定义 torchrun 命令及其参数
