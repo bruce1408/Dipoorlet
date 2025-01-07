@@ -13,7 +13,7 @@ fi
 torchrun \
 -m dipoorlet \
 -M /home/bruce_ultra/workspace/onnx_models/resnet34_model.onnx \
--I /home/bruce_ultra/workspace/Quantizer-Tools/Dipoorlet/DemoLab/demo_1_random_data \
+-I /home/bruce_ultra/workspace/quant_workspace/Quantizer-Tools/Dipoorlet/DemoLab/demo_1_random_data \
 -N 2 \
 -A minmax \
 -D trt \
