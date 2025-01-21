@@ -2,6 +2,8 @@
 
 ## float
 
+Accuracy with onnx fp16 infer : 69.11%
+
 Accuracy with onnx fp16 infer : 69.05%
 
 ## dipoorlet int8 act->mse brecq
