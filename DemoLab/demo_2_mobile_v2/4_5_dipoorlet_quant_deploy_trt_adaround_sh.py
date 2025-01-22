@@ -4,7 +4,8 @@ import time, datetime
 import DemoLab.demo_utils.quant_config as config
 
 # 构建 CUDA 环境变量
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3"
+os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
+os.environ["OMP_NUM_THREADS"] = config.OMP_NUM_THREADS  # 设置OpenMP线程数，可以根据CPU核心数调整
 cuda_nums = len(config.cuda_ids.split(","))
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
