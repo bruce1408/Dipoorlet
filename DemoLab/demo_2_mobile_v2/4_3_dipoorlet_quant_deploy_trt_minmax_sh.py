@@ -1,6 +1,6 @@
 import os, sys
 import subprocess
-import DemoLab.demo_utils.quant_config as config
+import dipoorlet_utils.quant_config as config
 
 # 构建 CUDA 环境变量
 os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
@@ -20,6 +20,7 @@ def main():
     command = [
         "torchrun",
         f"--nproc_per_node={cuda_nums}",
+        "--master_port=29501",
         "-m", "dipoorlet",
         "-M", onnx_path,
         "-I", calibration_data,

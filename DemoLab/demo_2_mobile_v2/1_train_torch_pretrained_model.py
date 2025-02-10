@@ -9,8 +9,8 @@ from torch.optim import lr_scheduler
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import time, os, copy, numpy as np
 
-from DemoLab.demo_utils import quant_config
-from DemoLab.demo_utils.dataset import get_dataset
+from DemoLab.dipoorlet_utils import quant_config
+from DemoLab.dipoorlet_utils.dataset import get_dataset
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = quant_config.cuda_ids

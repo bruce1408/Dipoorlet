@@ -1,6 +1,6 @@
 import os, sys, datetime
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import demo_utils.quant_config as config
+import dipoorlet_utils.quant_config as config
 import subprocess
 
 # 构建 CUDA 环境变量

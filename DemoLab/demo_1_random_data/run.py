@@ -1,6 +1,6 @@
 import os
 import subprocess
-import DemoLab.demo_utils.quant_config as config
+import DemoLab.dipoorlet_utils.quant_config as config
 from printk import print_colored_box 
 
 # 获取当前脚本所在的目录

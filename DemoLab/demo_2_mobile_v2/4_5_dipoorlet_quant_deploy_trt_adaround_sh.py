@@ -1,7 +1,8 @@
 import os, sys
 import subprocess
 import time, datetime
-import DemoLab.demo_utils.quant_config as config
+import dipoorlet_utils.quant_config as config
+from quant_tools.common_utils import time_it
 
 # 构建 CUDA 环境变量
 os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
@@ -10,6 +11,8 @@ cuda_nums = len(config.cuda_ids.split(","))
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
+
+@time_it
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
     log_dir = f"{config.export_work_dir}/trt_mobile_v2_dipoorlet_brecq_{timestamp}"
@@ -18,8 +21,6 @@ def main():
     calibration_data = config.dipoorlet_calib_dir
     onnx_path = config.export_work_dir + "/mobilev2_model_new.onnx"
     
-    start_time = time.time()   
-
     # 构建 torchrun 命令
     command = [
         "torchrun",
@@ -38,9 +39,6 @@ def main():
     
     # 执行命令
     subprocess.run(command, check=True)
-
-    run_time = time.time() - start_time
-    print(f"程序运行时间：{run_time:.2f} 秒")
     
 if __name__ == "__main__":
     main()

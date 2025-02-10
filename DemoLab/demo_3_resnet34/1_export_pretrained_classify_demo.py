@@ -14,8 +14,8 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 from torchvision.models.resnet import resnet34
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.dataset import get_dataset
-import utils.config as config
+from dipoorlet_utils.dataset import get_dataset
+import dipoorlet_utils.quant_config as config
 
 
 

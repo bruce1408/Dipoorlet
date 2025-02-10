@@ -4,8 +4,8 @@ import tensorrt as trt
 from loguru import logger
 from contextlib import redirect_stdout
 from printk import print_colored_box
-import DemoLab.demo_utils.quant_config as config_param
-from DemoLab.demo_utils.calibrator import Calibrator, CalibDataLoader
+import DemoLab.dipoorlet_utils.quant_config as config_param
+from DemoLab.dipoorlet_utils.calibrator import Calibrator, CalibDataLoader
 
 
 LOGGER = trt.Logger(trt.Logger.VERBOSE)

@@ -11,7 +11,7 @@ import yaml
 import json
 import cv2
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-import demo_utils.quant_config as config
+import dipoorlet_utils.quant_config as config
 
 
 # 输入数据

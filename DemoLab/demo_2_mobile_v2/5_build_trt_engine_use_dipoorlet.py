@@ -11,7 +11,7 @@ import os, sys
 import json
 from printk import print_colored_box
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
-import DemoLab.demo_utils.quant_config as config
+import DemoLab.dipoorlet_utils.quant_config as config
 
 
 def set_dynamic_range(config, network, blob_range):

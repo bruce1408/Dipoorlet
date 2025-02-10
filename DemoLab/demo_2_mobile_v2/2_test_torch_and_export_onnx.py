@@ -11,8 +11,8 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
 from tqdm import tqdm
-import DemoLab.demo_utils.quant_config as config
-from DemoLab.demo_utils.dataset import get_dataset
+import DemoLab.dipoorlet_utils.quant_config as config
+from DemoLab.dipoorlet_utils.dataset import get_dataset
 from printk import *
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))

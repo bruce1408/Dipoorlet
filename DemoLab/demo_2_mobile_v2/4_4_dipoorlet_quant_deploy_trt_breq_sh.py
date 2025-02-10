@@ -1,7 +1,7 @@
 import os, sys
 import subprocess
 import time, datetime
-import DemoLab.demo_utils.quant_config as config
+import dipoorlet_utils.quant_config as config
 
 # 构建 CUDA 环境变量
 os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
