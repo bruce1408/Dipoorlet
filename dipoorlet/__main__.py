@@ -1,5 +1,6 @@
 import argparse
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 import sys
 import time
 import copy
@@ -10,33 +11,30 @@ import torch.distributed as dist
 
 from onnxsim import simplify
 
-from .deploy import to_deploy
-from .dist_helper import init_from_mpi, init_from_slurm
-from .profiling import (quantize_profiling_multipass, quantize_profiling_transformer,
+from dipoorlet.deploy import to_deploy
+from dipoorlet.dist_helper import init_from_mpi, init_from_slurm
+from dipoorlet.profiling import (quantize_profiling_multipass, quantize_profiling_transformer,
                         quantize_profiling_layerwise, show_model_profiling_res, 
                         show_model_ranges, weight_need_perchannel)
-from .tensor_cali import tensor_calibration
-from .utils import (ONNXGraph, load_clip_val, logger, reduce_clip_val,
+from dipoorlet.tensor_cali import tensor_calibration
+from dipoorlet.utils import (ONNXGraph, load_clip_val, logger, reduce_clip_val,
                     reduce_profiling_res, save_clip_val, save_profiling_res,
                     setup_logger, deploy_QOperator, restore_data)
-from .weight_transform import weight_calibration
+from dipoorlet.weight_transform import weight_calibration
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-M", "--model", help="onnx model")
-parser.add_argument("-I", "--input_dir", help="calibration data", required=True)
-parser.add_argument("-O", "--output_dir", help="output data path")
-parser.add_argument("-N", "--data_num", help="num of calibration pics", type=int, required=True)
+parser.add_argument("-M", "--model", default="/share/cdd/onnx_models/od_bev_1110.onnx", help="onnx model")
+parser.add_argument("-I", "--input_dir", default="/mnt/share_disk/bruce_trie/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_calibration_data", help="calibration data")
+parser.add_argument("-O", "--output_dir", default="/mnt/share_disk/bruce_trie/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_adround", help="output data path")
+parser.add_argument("-N", "--data_num", default=1, help="num of calibration pics", type=int)
 parser.add_argument("--we", help="weight euqalization", action="store_true")
 parser.add_argument("--bc", help="bias correction", action="store_true")
 parser.add_argument("--update_bn", help="update BN", action="store_true")
-parser.add_argument("--adaround", help="Adaround", action="store_true")
+parser.add_argument("--adaround", help="Adaround", action="store_true", default=True)
 parser.add_argument("--brecq", help="BrecQ", action="store_true")
 parser.add_argument("--drop", help="QDrop", action="store_true")
-parser.add_argument("-A", "--act_quant", help="algorithm of activation quantization",
-                    choices=['minmax', 'hist', 'mse'], default='mse')
-parser.add_argument("-D", "--deploy", help="deploy platform",
-                    choices=['trt', 'stpu', 'magicmind', 'rv', 'atlas',
-                             'snpe', 'ti', 'imx'], required=True)
+parser.add_argument("-A", "--act_quant", help="algorithm of activation quantization", choices=['minmax', 'hist', 'mse'], default='mse')
+parser.add_argument("-D", "--deploy", default="snpe", help="deploy platform", choices=['trt', 'stpu', 'magicmind', 'rv', 'atlas', 'snpe', 'ti', 'imx'])
 parser.add_argument("--bins", help="bins for histogram and kl", default=2048)
 parser.add_argument("--threshold", help="threshold for histogram", default=0.99999, type=float)
 parser.add_argument("--savefp", help="Save FP output of model.", action="store_true")
@@ -53,27 +51,34 @@ parser.add_argument("--pattern", help="Sparse pattern", choices=["unstruction", 
 parser.add_argument("--optim_transformer", help="Transformer model optimization", default=False, action='store_true')
 parser.add_argument("--model_type", help="Transformer model type", choices=["unet"], default=None)
 parser.add_argument("--quant_format", default="QDQ", type=str, choices=["QOP", "QDQ"])
-parser.add_argument("--onnx_sim", help="Whether use onnxsim to simplify model", action='store_true')
+parser.add_argument("--onnx_sim", default=True, help="Whether use onnxsim to simplify model", )
 parser.add_argument("--qnode_version", help="The quant node opset version", type=int, choices=[13], default=13)
 parser.add_argument("--layerwise_error_prof", help='Profiling per-layer quantitative error', action="store_true")
 parser.add_argument("--prof_num", type=int, default=32)
 parser.add_argument("--batch_data_dir", type=str, default="./batch_data/")
-parser.add_argument("--criterion", help='The evaluation criterion of profiling quantitative error', type=str,
-                    choices=['cosine', 'max_abs_gap'], default="cosine")
+parser.add_argument("--criterion", help='The evaluation criterion of profiling quantitative error', type=str, choices=['cosine', 'max_abs_gap'], default="cosine")
 parser.add_argument("--sensitive_layer_num", type=int, default=10)
 args = parser.parse_args()
 
 if args.layerwise_error_prof:
     assert args.prof_num <= args.data_num
 
-if args.slurm:
-    init_from_slurm()
-elif args.mpirun:
-    init_from_mpi()
-else:
-    dist.init_process_group(backend='nccl')
-    device = dist.get_rank() % torch.cuda.device_count()
-    torch.cuda.set_device(device)
+# 修改这里的初始化代码
+if not dist.is_initialized():
+    dist.init_process_group(backend='nccl', init_method='file:///tmp/sharedfile', world_size=1, rank=0)
+
+
+# if args.slurm:
+#     init_from_slurm()
+# elif args.mpirun:
+#     init_from_mpi()
+# else:
+#     dist.init_process_group(backend='nccl')
+#     device = dist.get_rank() % torch.cuda.device_count()
+#     torch.cuda.set_device(device)
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.cuda.set_device(device)
 
 if args.output_dir is None:
     model_path = ('/').join(args.model.split('/')[:-1])
@@ -99,7 +104,7 @@ if dist.get_rank() == 0:
                    --use_external_data_format --disable_packed_qkv \
                    --disable_packed_kv --use_gpu --disable_nhwc_conv"
                    .format(args.infer_shape_dir, args.optimzed_model_dir, args.model_type))
-dist.barrier()
+# dist.barrier()
 args.optimzed_model_dir = os.path.join(args.output_dir, 'optim_model.onnx')
 logger.parent = None
 
@@ -128,9 +133,15 @@ if dist.get_rank() == 0 and not args.optim_transformer:
 
 # Assgin rank index to calibration GPU wise.
 # Split the dataset averagly.
-setattr(args, 'rank', dist.get_rank())
-setattr(args, 'local_rank', dist.get_rank() % torch.cuda.device_count())
-setattr(args, 'world_size', dist.get_world_size())
+# setattr(args, 'rank', dist.get_rank())
+# setattr(args, 'local_rank', dist.get_rank() % torch.cuda.device_count())
+# setattr(args, 'world_size', dist.get_world_size())
+
+setattr(args, 'rank', 0)
+setattr(args, 'local_rank', 0)
+setattr(args, 'world_size', 1)
+
+
 if dist.get_rank() == 0:
     logger.info("Do tensor calibration...")
 act_clip_val, weight_clip_val = tensor_calibration(onnx_graph, args)

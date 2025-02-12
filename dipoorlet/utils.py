@@ -14,69 +14,163 @@ from onnxruntime.quantization.onnx_quantizer import ONNXQuantizer
 from onnxruntime.quantization.quant_utils import QuantizationMode, QuantType
 from termcolor import colored
 
-from .platform_settings import platform_setting_table
+
+try:
+    # 尝试直接导入，适用于当前目录运行
+    from platform_settings import platform_setting_table
+except ImportError:
+    # 如果直接导入失败，尝试使用相对导入，适用于跨目录调用
+    from .platform_settings import platform_setting_table
+
+
 
 logger = logging.getLogger("dipoorlet")
 
 
 class ONNXGraph(object):
+    """ONNX模型图处理类
+    用于加载、操作和保存ONNX模型图，提供了模型图的各类操作接口
+
+    Attributes:
+        model: ONNX模型对象
+        graph: ONNX模型图对象
+        output_dir: 输出目录
+        deploy: 部署平台配置
+        model_type: 模型类型
+        initializer: 初始化器字典 (name -> (initializer, index))
+        input_map: 输入映射字典 (input_name -> list of nodes)
+        output_map: 输出映射字典 (output_name -> node)
+        network_inputs: 网络输入列表
+        network_outputs: 网络输出列表
+        tensor_name_shape_map: 张量名称到形状的映射
+        value_name_type_map: 值名称到类型的映射
+        name_idx_map: 节点名称到索引的映射
+        input: 所有输入列表
+        output: 所有输出列表
+    """
     def __init__(self, model=None, output_dir="", deploy=None, model_type=None):
+        """初始化ONNXGraph对象
+        
+        Args:
+            model (optional): ONNX模型对象，默认为None
+            output_dir (str): 输出目录路径，默认为空字符串
+            deploy (optional): 部署平台配置，默认为None
+            model_type (optional): 模型类型，默认为None
+        """
         self.model = model
-        if self.model:
-            self.graph = self.model.graph
         self.output_dir = output_dir
         self.deploy = deploy
         self.model_type = model_type
+        
+        # 非输入和输出节点的参数
         self.initializer = {}
+        
+        
         self.input_map = {}
+        
+        
         self.output_map = {}
+        
+        # 模型输入
         self.network_inputs = []
+        
+        # 模型输出
         self.network_outputs = []
+        
+        # 模型输入和输出的shape字典
         self.tensor_name_shape_map = {}
+        
+        # 模型输入、输出、节点输入和输出的类型
         self.value_name_type_map = {}
+        
+        # 非模型输入、输出的节点名称索引
         self.name_idx_map = {}
+        
+        # 模型输入以及各个节点输入
         self.input = []
+        
+        # 模型输出以及各个节点的输出
         self.output = []
+        
         if self.model:
-            self.set_names()
-            self.convert_constant_to_init()
-            self.topologize_graph()
-            self.prepare_initializer()
-            self.set_index()
-            self.get_inp_oup()
-            self.get_shape_type()
+            self.graph = self.model.graph
+            self._initialize_model()
+            
+    
+    def _initialize_model(self):
+        """执行模型初始化操作"""
+        # 把node没有名字的节点设置为 类型_idx 的名字
+        self.set_names()
+        
+        # 把constant节点变成initialier节点
+        self.convert_constant_to_init()
+
+        # 构建graph的拓扑结构
+        self.topologize_graph()
+        
+        # initializer 设置名字、initializer的键值对字典
+        self.prepare_initializer()
+        
+        # 设置node名称索引的映射
+        self.set_index()
+        
+        # 获取graph 输入、输出、中间节点输入和输出
+        self.get_inp_oup()
+        
+        # 获取模型中所有张量的形状和类型信息，并将这些信息存储在类的属性中
+        self.get_shape_type()
 
     def set_names(self):
+        """
+        为ONNX模型图中没有名称的节点设置默认名称。
+        遍历所有节点,如果节点没有名称,则根据其操作类型和索引生成一个唯一的名称。
+        这有助于提高模型的可读性和可调试性。
+        """
         for idx, node in enumerate(self.model.graph.node):
-            if node.name == '':
-                node.name = node.op_type + "_" + str(idx)
+            if not node.name:
+                node.name = f"{node.op_type}_{idx}"
 
     def convert_constant_to_init(self):
+        """
+        将Constant节点转换为初始化器
+        """
         for node in self.model.graph.node:
             if node.op_type == 'Constant':
+                # node.attribute[0].t 是 Constant 类型节点的第一个属性，这个属性存储了一个 TensorProto 对象，表示该常量节点的张量数据。
                 tensor = onnx.numpy_helper.to_array(node.attribute[0].t)
                 self.set_initializer(node.output[0], tensor, raw=True)
 
     def prepare_initializer(self):
+        """
+        准备初始化器字典
+        """
         self.initializer.clear()
         for idx, init in enumerate(self.graph.initializer):
             self.initializer[init.name] = (init, idx)
 
     def get_inp_oup(self):
+        """
+        整理 ONNX 模型的输入输出信息，包括网络输入、网络输出、中间输入和输出
+        """
         self.network_inputs.clear()
         self.network_outputs.clear()
         self.tensor_name_shape_map.clear()
         self.input.clear()
         self.output.clear()
+        
+        # 处理网络输入
         for input in self.graph.input:
             if isinstance(self.get_tensor_producer(input.name), str) and \
                     input.name not in self.initializer:
                 self.network_inputs.append(input.name)
+        
+        # 处理网络输出
         for output in self.graph.output:
             self.network_outputs.append(output.name)
         self.input = self.network_inputs.copy()
         self.output = self.network_outputs.copy()
 
+        # 处理中间节点的输入输出
         for node in self.model.graph.node:
             for inp in node.input:
                 if inp in self.initializer and inp not in self.input:
@@ -86,17 +180,29 @@ class ONNXGraph(object):
                     self.output.append(oup)
 
     def get_shape_type(self):
+        """
+        获取张量的形状和类型信息
+        """
+        
+        # 处理输入
         for input in self.graph.input:
             if input.name in self.network_inputs:
+                # 获取模型输入的形状和类型信息
                 self.tensor_name_shape_map[input.name] = [x.dim_value for x in input.type.tensor_type.shape.dim]
                 self.value_name_type_map[input.name] = input.type.tensor_type.elem_type
 
+        # 处理输出
         for output in self.graph.output:
+            # 获取模型输出的形状和类型信息
             self.tensor_name_shape_map[output.name] = [x.dim_value for x in output.type.tensor_type.shape.dim]
             self.value_name_type_map[output.name] = output.type.tensor_type.elem_type
 
+        
+        # 获取当前的模型权重参数，把TensorProto转换成numpy
         for init in self.initializer:
             self.tensor_name_shape_map[init] = list(self.get_initializer(init).shape)
+        
+        # 处理中间结果
         inferred_value_info = self.model.graph.value_info
         for info in inferred_value_info:
             shape = [x.dim_value for x in info.type.tensor_type.shape.dim]
@@ -104,6 +210,7 @@ class ONNXGraph(object):
             self.tensor_name_shape_map[info.name] = shape
             self.value_name_type_map[info.name] = value_type
 
+        # 处理量化相关的张量
         value_names = list(self.tensor_name_shape_map.keys())
         for name in value_names:
             self.tensor_name_shape_map[name + "_q"] = self.tensor_name_shape_map[name]
@@ -116,6 +223,7 @@ class ONNXGraph(object):
                 self.tensor_name_shape_map[name + "_dq"] = self.tensor_name_shape_map[name]
                 self.value_name_type_map[name + "_dq"] = TensorProto.FLOAT
 
+    
     def get_tensor_shape(self, tensor_name):
         return self.tensor_name_shape_map[tensor_name]
 
@@ -129,6 +237,7 @@ class ONNXGraph(object):
                     return numpy_helper.to_array(node.attribute[0].t).tolist()
 
     def get_initializer(self, initializer_name):
+        # 把TensorProto 转换成numpy 数据格式
         return numpy_helper.to_array(self.initializer[initializer_name][0])
 
     def set_initializer(self, initializer_name, value_tensor, raw=True):
@@ -141,10 +250,13 @@ class ONNXGraph(object):
         else:
             if value_tensor.dtype == np.float32:
                 data_type = TensorProto.FLOAT
+                
             if value_tensor.dtype == np.uint8:
                 data_type = TensorProto.UINT8
+            
             if value_tensor.dtype == np.int8:
                 data_type = TensorProto.INT8
+            
             initializer = onnx.helper.make_tensor(name=initializer_name,
                                                   data_type=data_type,
                                                   dims=[] if value_tensor.size == 1 else list(value_tensor.shape),
@@ -159,14 +271,23 @@ class ONNXGraph(object):
         self.prepare_initializer()
 
     def topologize_graph(self):
+        
+        # 清空现有的输入和输出映射
         self.input_map.clear()
         self.output_map.clear()
+        
+        # 遍历图中的所有节点
         for idx, node in enumerate(self.graph.node):
+            # 处理节点的输出
             for output_name in node.output:
+                # 将输出张量名称映射到当前节点
                 self.output_map[output_name] = node
+            # 处理节点的输入
             for input_name in node.input:
+                # 如果输入张量名称不在映射中，初始化一个空列表
                 if input_name not in self.input_map:
                     self.input_map[input_name] = []
+                # 将当前节点添加到消费该输入的节点列表中
                 self.input_map[input_name].append(node)
 
     def get_tensor_producer(self, output_name):
@@ -234,6 +355,9 @@ class ONNXGraph(object):
     
     
     def update_model_dim(self, dim=32):
+        """
+        更新模型的维度信息
+        """
         del self.graph.value_info[:]
         for input in self.graph.input:
             if input.name in self.network_inputs:
@@ -251,24 +375,51 @@ class ONNXGraph(object):
         
 
     def copy_from(self, source_graph):
-        self.model = copy.deepcopy(source_graph.model)
-        self.graph = copy.deepcopy(source_graph.graph)
-        self.initializer = copy.deepcopy(source_graph.initializer)
-        self.input_map = copy.deepcopy(source_graph.input_map)
-        self.output_map = copy.deepcopy(source_graph.output_map)
-        self.network_inputs = copy.deepcopy(source_graph.network_inputs)
-        self.network_outputs = copy.deepcopy(source_graph.network_outputs)
-        self.tensor_name_shape_map = copy.deepcopy(source_graph.tensor_name_shape_map)
-        self.value_name_type_map = copy.deepcopy(source_graph.value_name_type_map)
-        self.input = copy.deepcopy(source_graph.input)
-        self.output = copy.deepcopy(source_graph.output)
-        self.name_idx_map = source_graph.name_idx_map.copy()
-        self.output_dir = source_graph.output_dir
-        self.deploy = source_graph.deploy
-        self.model_type = source_graph.model_type
+        """_summary_
+        深度拷贝源图的属性和数据到当前对象。
+        该方法用于将一个 ONNXGraph 对象的所有属性和数据复制到另一个对象中，
+        确保两个对象完全独立，修改不会相互影响。
+        
+        Args:
+            source_graph (_type_): _description_
+        """
+        # 复制模型结构
+        self.model = copy.deepcopy(source_graph.model)  # 复制整个 ONNX 模型
+        self.graph = copy.deepcopy(source_graph.graph)  # 复制计算图
+        self.initializer = copy.deepcopy(source_graph.initializer)  # 复制初始化器（常量，如权重）
+
+        # 复制输入输出映射
+        self.input_map = copy.deepcopy(source_graph.input_map)  # 输入张量到节点的映射
+        self.output_map = copy.deepcopy(source_graph.output_map)  # 输出张量到节点的映射
+
+        # 复制网络输入输出信息
+        self.network_inputs = copy.deepcopy(source_graph.network_inputs)  # 网络输入名称列表
+        self.network_outputs = copy.deepcopy(source_graph.network_outputs)  # 网络输出名称列表
+
+        # 复制张量形状和类型信息
+        self.tensor_name_shape_map = copy.deepcopy(source_graph.tensor_name_shape_map)  # 张量名称到形状的映射
+        self.value_name_type_map = copy.deepcopy(source_graph.value_name_type_map)  # 张量名称到类型的映射
+
+        # 复制输入输出名称列表
+        self.input = copy.deepcopy(source_graph.input)  # 所有输入名称列表
+        self.output = copy.deepcopy(source_graph.output)  # 所有输出名称列表
+            
+        # 复制节点索引映射和其他配置
+        self.name_idx_map = source_graph.name_idx_map.copy()  # 节点名称到索引的映射
+        self.output_dir = source_graph.output_dir  # 输出目录路径
+        self.deploy = source_graph.deploy  # 部署平台配置
+        self.model_type = source_graph.model_type  # 模型类型
 
 
 def setup_logger(args):
+    """配置并返回日志记录器
+    
+    Args:
+        args: 命令行参数对象
+
+    Returns:
+        logging.Logger: 配置好的日志记录器
+    """
     global logger
     fmt = '[%(asctime)s %(name)s] (%(filename)s %(lineno)d): %(levelname)s %(message)s'
     color_fmt = colored('[%(asctime)s %(name)s]', 'green') + \
@@ -484,3 +635,12 @@ def restore_data(args, input_name_list, batch_size=32):
                 batch_data = np.vstack(batch_data)
                 batch_data.tofile(f'{args.batch_data_dir}/{name}/{batch_id}.bin')
                 batch_data = []
+                
+                
+if __name__ == '__main__':
+    model_path = "/mnt/share_disk/bruce_trie/onnx_models/resnet50.onnx"
+    output_dir = "/mnt/share_disk/bruce_trie/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_adround"
+    deploy = "snpe"
+    model_type = None
+    model = onnx.load(model_path)
+    onnx_grpah = ONNXGraph(model, output_dir, deploy=deploy, model_type=model_type)

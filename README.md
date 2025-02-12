@@ -107,3 +107,59 @@ workdir
 ```
 python -m torch.distributed.launch --use_env -m dipoorlet -M model.onnx -I workdir/ -N 100 -A minmax -D trt
 ```
+
+
+# Dipoorlet 项目结构
+
+## 技术栈与模型格式
+- **技术栈**: ONNX/Onnxruntime，Pytorch（分布式）
+- **模型格式**: ONNX
+
+## 框架结构
+
+### 目录结构与功能
+- **deploy**  
+  包含如何导出每个后端的量化部署配置文件，涉及算法包括 `Minmax`, `Mse`, `Hist`。
+  
+- **tensor_cali**  
+  校准算法相关的文件，涉及 `Minmax`, `Mse`, `Hist`。
+
+- **weight_transform**  
+  权重调整算法相关的文件，涉及 `DFQ (we, bc, update_bn)`，以及其他算法如 `AdaRound`, `Brecq`, `Qdrop`。
+
+### Python 文件
+- **`__init__.py`**  
+  初始化文件。
+
+- **`__main__.py`**  
+  主函数文件，包含离线量化的全流程。
+
+- **dist_helper.py**  
+  分布式相关的函数。
+
+- **forward_net.py**  
+  获取模型输出的一些函数，包含网络输出、层输出和子模型输出。
+
+- **platform_settings.py**  
+  配置推理后端的量化设置。
+
+- **profiling.py**  
+  用于量化误差分析。
+
+- **quantize.py**  
+  包含与量化相关的函数。
+
+- **utils.py**  
+  定义了自定义图结构的 `ONNXGraph` 等功能。
+
+## 量化流程
+1. **加载ONNX模型**
+2. **校准激活/权重生成量化参数**
+3. **权重调整**  
+   提高量化精度。
+4. **量化误差分析**  
+   定位量化问题。
+5. **输出推理后端的量化配置文件**
+
+## 总结
+该框架显示了量化过程的不同环节，包括模型的导入、校准、权重调整、量化误差分析和部署配置的生成，确保量化流程的顺利进行，特别是在分布式和推理优化方面。
