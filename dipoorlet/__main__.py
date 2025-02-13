@@ -1,6 +1,6 @@
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 import sys
 import time
 import copy
@@ -121,7 +121,7 @@ else:
     if args.onnx_sim:
         model, check = simplify(model)
         assert check, "Simplified ONNX model could not be validated"
-    # assert check, "Simplified ONNX model could not be validated"
+        
 onnx_graph = ONNXGraph(model, args.output_dir, args.deploy, args.model_type)
 
 if dist.get_rank() == 0 and not args.optim_transformer:
@@ -149,6 +149,8 @@ tensor_range = copy.deepcopy(act_clip_val)
 save_clip_val(act_clip_val, weight_clip_val, args,
               act_fname='act_clip_val.json.rank{}'.format(args.rank),
               weight_fname='weight_clip_val.json.rank{}'.format(args.rank))
+
+
 dist.barrier()
 if dist.get_rank() == 0:
     reduce_clip_val(dist.get_world_size(), args)

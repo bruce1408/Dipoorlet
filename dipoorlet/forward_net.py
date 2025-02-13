@@ -281,53 +281,134 @@ def forward_get_hist(onnx_graph, stats_min_max, args):
     return statistics
 
 
+# def forward_net_octav(onnx_graph, args):
+#     # Generate Graph and Net
+#     net = copy.deepcopy(onnx_graph.model)
+#     graph = net.graph
+#     for node in reversed(graph.node):
+#         for output_name in reversed(node.output):
+#             if output_name not in [_o.name for _o in graph.output]:
+#                 graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
+#     providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
+#     ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
+#     if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
+#         logger.warning("CUDA may not be used. Please check your ort/cuda/cudnn version.")
+
+#     # Start activation quantization.
+#     statistics = {}
+#     t1 = 0
+#     rank_num = args.data_num // args.world_size
+#     data_st_idx = args.rank * rank_num
+#     data_ed_idx = min((args.rank + 1) * rank_num, args.data_num)
+        
+#     # Remove batch_size argument if it is not needed in the input_data_generator
+#     for data_batch in tqdm(input_data_generator(args.input_dir, onnx_graph.network_inputs, data_st_idx, data_ed_idx),
+#                        desc='OCTAV update rank: {}'.format(args.rank)):
+
+#         ort_inputs = {}
+#         # Use numpy vectorization to reshape inputs in batch
+#         for name in onnx_graph.network_inputs:
+#             ort_inputs[name] = data_batch[name][:].reshape(onnx_graph.get_tensor_shape(name))
+#         st = time.time()
+#         outputs = [output.name for output in ort_session.get_outputs()]
+#         ort_outputs = ort_session.run(outputs, ort_inputs)
+#         ed = time.time()
+#         t1 += ed - st
+
+#         ort_outs = OrderedDict(zip(outputs, ort_outputs))
+#         ort_inputs.update(ort_outs)
+
+#         for i in ort_inputs:
+#             data_max = ort_inputs[i].max()
+#             data_min = ort_inputs[i].min()
+
+#             # If dynamic_sym = True, Means one more bit.
+#             if np.abs(data_min - 0) < 1e-6 and 'dynamic_sym' in platform_setting_table[args.deploy]['qi_params']:
+#                 unsigned = 4
+#             else:
+#                 unsigned = 1
+
+#             abs_x = np.abs(ort_inputs[i])
+#             s_n = abs_x.sum() / abs_x[abs_x > 0].size
+
+#             # Optimized loop for calculating s_n
+#             for _ in range(20):
+#                 s_n_plus_1 = abs_x[abs_x > s_n].sum() / \
+#                     (1 / (4 ** 8) / 3 / unsigned * abs_x[abs_x <= s_n].size + abs_x[abs_x > s_n].size)
+#                 if np.abs(s_n_plus_1 - s_n) < 1e-6:
+#                     break
+#                 s_n = s_n_plus_1
+
+#             # Store statistics
+#             if i in statistics:
+#                 statistics[i]['optimal_s'].append(s_n)
+#                 statistics[i]['min'].append(data_min)
+#                 statistics[i]['max'].append(data_max)
+#             else:
+#                 statistics[i] = {
+#                     'optimal_s': [s_n],
+#                     'min': [data_min],
+#                     'max': [data_max]
+#                 }
+
+#     logger.info("Forward time: {:.2f} seconds".format(t1))
+#     return statistics
+
 def forward_net_octav(onnx_graph, args):
-    # Generate Graph and Net
+    # 生成图和网络
     net = copy.deepcopy(onnx_graph.model)
     graph = net.graph
     for node in reversed(graph.node):
         for output_name in reversed(node.output):
             if output_name not in [_o.name for _o in graph.output]:
                 graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
+    
     providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
     ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
     if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
-        logger.warning("CUDA may not used. Please check your ort/cuda/cudnn version.")
-    # Start activation quantization.
+        logger.warning("CUDA可能未被使用。请检查您的ort/cuda/cudnn版本。")
+
+    # 开始激活量化
     statistics = {}
     t1 = 0
-    ort_inputs = {}
     rank_num = args.data_num // args.world_size
     data_st_idx = args.rank * rank_num
     data_ed_idx = min((args.rank + 1) * rank_num, args.data_num)
-    for data in tqdm(input_data_generator(args.input_dir, onnx_graph.network_inputs, data_st_idx, data_ed_idx),
-                     desc='OCTAV update rank: {}'.format(args.rank)):
-        ort_inputs = {}
-        for name in onnx_graph.network_inputs:
-            ort_inputs[name] = data[name][:].reshape(onnx_graph.get_tensor_shape(name))
+    
+    outputs = [output.name for output in ort_session.get_outputs()]
+    
+    for data_batch in tqdm(input_data_generator(args.input_dir, onnx_graph.network_inputs, data_st_idx, data_ed_idx),
+                           desc='OCTAV更新 rank: {}'.format(args.rank)):
+        ort_inputs = {name: data_batch[name][:].reshape(onnx_graph.get_tensor_shape(name)) 
+                      for name in onnx_graph.network_inputs}
+        
         st = time.time()
-        outputs = [output.name for output in ort_session.get_outputs()]
         ort_outputs = ort_session.run(outputs, ort_inputs)
         ed = time.time()
         t1 += ed - st
+
         ort_outs = OrderedDict(zip(outputs, ort_outputs))
         ort_inputs.update(ort_outs)
-        for i in ort_inputs:
-            data_max = ort_inputs[i].max()
-            data_min = ort_inputs[i].min()
-            # If dynamic_sym = True, Means one more bit.
-            if np.abs(data_min - 0) < 1e-6 and 'dynamic_sym' in platform_setting_table[args.deploy]['qi_params']:
-                unsigned = 4
-            else:
-                unsigned = 1
-            abs_x = np.abs(ort_inputs[i])
-            s_n = abs_x.sum() / abs_x[abs_x > 0].size
+
+        for i, tensor in ort_inputs.items():
+            data_max = np.max(tensor)
+            data_min = np.min(tensor)
+            
+            # 如果dynamic_sym = True，意味着多一位
+            unsigned = 4 if (np.abs(data_min) < 1e-6 and 
+                             'dynamic_sym' in platform_setting_table[args.deploy]['qi_params']) else 1
+
+            abs_x = np.abs(tensor)
+            non_zero_mask = abs_x > 0
+            s_n = abs_x.sum() / np.count_nonzero(non_zero_mask)
+
             for _ in range(20):
-                s_n_plus_1 = abs_x[abs_x > s_n].sum() / \
-                    (1 / (4 ** 8) / 3 / unsigned * abs_x[abs_x <= s_n].size + abs_x[abs_x > s_n].size)
+                mask = abs_x > s_n
+                s_n_plus_1 = abs_x[mask].sum() / (1 / (4 ** 8) / 3 / unsigned * np.sum(~mask) + np.sum(mask))
                 if np.abs(s_n_plus_1 - s_n) < 1e-6:
                     break
                 s_n = s_n_plus_1
+
             if i in statistics:
                 statistics[i]['optimal_s'].append(s_n)
                 statistics[i]['min'].append(data_min)
@@ -338,9 +419,9 @@ def forward_net_octav(onnx_graph, args):
                     'min': [data_min],
                     'max': [data_max]
                 }
-    logger.info("Forward time: {:.2f} seconds".format(t1))
-    return statistics
 
+    logger.info("前向传播时间: {:.2f} 秒".format(t1))
+    return statistics
 
 def forward_get_minmax_transformer(onnx_graph, args):
     # Start minmax activation quantization.

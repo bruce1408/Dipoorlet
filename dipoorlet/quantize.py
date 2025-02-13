@@ -72,7 +72,7 @@ def insert_fake_quant_node(graph, node, act_quantized, data_range_list, args):
                                                    need_transpose)
 
         # Quantize input.
-        if in_tensor in graph.network_inputs or in_tensor not in graph.input:
+        if in_tensor in graph.network_inputs or in_tensor not in graph.all_io_input:
             # Conv   Conv    Conv
             #  |       |       |
             #  skip    Q       Q

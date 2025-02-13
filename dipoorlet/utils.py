@@ -28,8 +28,9 @@ logger = logging.getLogger("dipoorlet")
 
 
 class ONNXGraph(object):
-    """ONNX模型图处理类
-    用于加载、操作和保存ONNX模型图，提供了模型图的各类操作接口
+    """
+    自定义数据结构ONNXGraph
+    用于加载、操作和保存ONNX模型图，提供了模型图的各类操作接口，
 
     Attributes:
         model: ONNX模型对象
@@ -38,8 +39,8 @@ class ONNXGraph(object):
         deploy: 部署平台配置
         model_type: 模型类型
         initializer: 初始化器字典 (name -> (initializer, index))
-        input_map: 输入映射字典 (input_name -> list of nodes)
-        output_map: 输出映射字典 (output_name -> node)
+        input_map_node: 输入映射字典:node (input_name -> list of nodes),输入可能是多个输入
+        output_map_node: 输出映射字典:node (output_name -> node)
         network_inputs: 网络输入列表
         network_outputs: 网络输出列表
         tensor_name_shape_map: 张量名称到形状的映射
@@ -66,10 +67,10 @@ class ONNXGraph(object):
         self.initializer = {}
         
         
-        self.input_map = {}
+        self.input_map_node = {}
         
         
-        self.output_map = {}
+        self.output_map_node = {}
         
         # 模型输入
         self.network_inputs = []
@@ -87,10 +88,10 @@ class ONNXGraph(object):
         self.name_idx_map = {}
         
         # 模型输入以及各个节点输入
-        self.input = []
+        self.all_io_input = []
         
         # 模型输出以及各个节点的输出
-        self.output = []
+        self.all_io_output = []
         
         if self.model:
             self.graph = self.model.graph
@@ -155,8 +156,8 @@ class ONNXGraph(object):
         self.network_inputs.clear()
         self.network_outputs.clear()
         self.tensor_name_shape_map.clear()
-        self.input.clear()
-        self.output.clear()
+        self.all_io_input.clear()
+        self.all_io_output.clear()
         
         # 处理网络输入
         for input in self.graph.input:
@@ -167,17 +168,19 @@ class ONNXGraph(object):
         # 处理网络输出
         for output in self.graph.output:
             self.network_outputs.append(output.name)
-        self.input = self.network_inputs.copy()
-        self.output = self.network_outputs.copy()
+        
+        
+        self.all_io_input = self.network_inputs.copy()
+        self.all_io_output = self.network_outputs.copy()
 
-        # 处理中间节点的输入输出
+        # 处理中间节点的输入输出，输入必须是模型的输入或者初始化器
         for node in self.model.graph.node:
             for inp in node.input:
-                if inp in self.initializer and inp not in self.input:
-                    self.input.append(inp)
+                if inp in self.initializer and inp not in self.all_io_input:
+                    self.all_io_input.append(inp)
             for oup in node.output:
-                if oup not in self.output:
-                    self.output.append(oup)
+                if oup not in self.all_io_output:
+                    self.all_io_output.append(oup)
 
     def get_shape_type(self):
         """
@@ -273,32 +276,37 @@ class ONNXGraph(object):
     def topologize_graph(self):
         
         # 清空现有的输入和输出映射
-        self.input_map.clear()
-        self.output_map.clear()
+        self.input_map_node.clear()
+        self.output_map_node.clear()
         
         # 遍历图中的所有节点
         for idx, node in enumerate(self.graph.node):
-            # 处理节点的输出
+            
+            # 当前处理节点的输出->当前处理节点的映射
             for output_name in node.output:
+            
                 # 将输出张量名称映射到当前节点
-                self.output_map[output_name] = node
-            # 处理节点的输入
+                self.output_map_node[output_name] = node
+            
+            # 当前处理节点的多个输入->当前处理节点的映射
             for input_name in node.input:
+                
                 # 如果输入张量名称不在映射中，初始化一个空列表
-                if input_name not in self.input_map:
-                    self.input_map[input_name] = []
+                if input_name not in self.input_map_node:
+                    self.input_map_node[input_name] = []
+                
                 # 将当前节点添加到消费该输入的节点列表中
-                self.input_map[input_name].append(node)
+                self.input_map_node[input_name].append(node)
 
     def get_tensor_producer(self, output_name):
-        if output_name not in self.output_map:
+        if output_name not in self.output_map_node:
             return 'INPUT_TOKEN'
-        return self.output_map[output_name]
+        return self.output_map_node[output_name]
 
     def get_tensor_consumer(self, input_name):
-        if input_name not in self.input_map:
+        if input_name not in self.input_map_node:
             return ['OUTPUT_TOKEN']
-        return self.input_map[input_name]
+        return self.input_map_node[input_name]
 
     def save_onnx_model(self, name='tmp', size_threshold=2048):
         if self.model_type is not None:
@@ -389,8 +397,8 @@ class ONNXGraph(object):
         self.initializer = copy.deepcopy(source_graph.initializer)  # 复制初始化器（常量，如权重）
 
         # 复制输入输出映射
-        self.input_map = copy.deepcopy(source_graph.input_map)  # 输入张量到节点的映射
-        self.output_map = copy.deepcopy(source_graph.output_map)  # 输出张量到节点的映射
+        self.input_map_node = copy.deepcopy(source_graph.input_map_node)  # 输入张量到节点的映射
+        self.output_map_node = copy.deepcopy(source_graph.output_map_node)  # 输出张量到节点的映射
 
         # 复制网络输入输出信息
         self.network_inputs = copy.deepcopy(source_graph.network_inputs)  # 网络输入名称列表
@@ -401,9 +409,9 @@ class ONNXGraph(object):
         self.value_name_type_map = copy.deepcopy(source_graph.value_name_type_map)  # 张量名称到类型的映射
 
         # 复制输入输出名称列表
-        self.input = copy.deepcopy(source_graph.input)  # 所有输入名称列表
-        self.output = copy.deepcopy(source_graph.output)  # 所有输出名称列表
-            
+        self.all_io_input = copy.deepcopy(source_graph.all_io_input)  # 所有输入名称列表
+        self.all_io_output = copy.deepcopy(source_graph.all_io_output)  # 所有输出名称列表
+        
         # 复制节点索引映射和其他配置
         self.name_idx_map = source_graph.name_idx_map.copy()  # 节点名称到索引的映射
         self.output_dir = source_graph.output_dir  # 输出目录路径
@@ -427,6 +435,7 @@ def setup_logger(args):
     logger.setLevel(logging.INFO)
     logger_file = os.path.join(args.output_dir,
                                'log-{}.txt'.format(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime())))
+    
     with open(logger_file, 'w') as f:
         f.write(str(args) + '\n')
     file_handler = logging.FileHandler(logger_file)
