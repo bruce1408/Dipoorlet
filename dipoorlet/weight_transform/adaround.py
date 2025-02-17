@@ -92,18 +92,24 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
                 
                 # 这个就是初始化V的做法
                 rest = (weight / scale) - (weight / scale).floor()  
-                qw_tensor = {'scale': scale,
-                             'q_min': q_min,
-                             'q_max': q_max,
-                             'per_channel': qw_param['per_channel'],
-                             'type': 'Linear'}
+                qw_tensor = {
+                    'scale': scale,
+                    'q_min': q_min,
+                    'q_max': q_max,
+                    'per_channel': qw_param['per_channel'],
+                    'type': 'Linear'
+                }
             else:
-                qw_tensor = {'scale': None,
-                             'q_min': None,
-                             'q_max': None,
-                             'per_channel': None,
-                             'type': 'NNIE'}
+                qw_tensor = {
+                    'scale': None,
+                    'q_min': None,
+                    'q_max': None,
+                    'per_channel': None,
+                    'type': 'NNIE'
+                }
+                
                 rest = nnie_rest_init(weight)
+            
             # Learning. 判断node后面是否有relu这个激活函数，如果有就relu_flag为True，过一下relu激活函数
             relu_flag = follow_relu(graph, node)
             
@@ -111,14 +117,12 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
                 fp_tensor = torch.nn.Parameter(F.relu(torch.from_numpy(fp_out_tensor)), False)
             else:
                 fp_tensor = torch.nn.Parameter(torch.from_numpy(fp_out_tensor), False)
+            
             # Learning round mask.
             total_iter = args.ada_epoch * np.ceil(args.data_num / args.ada_bs)
             
             # 根据总的迭代次数来初始化一个正则函数，这个正则就是论文中的F正则
             reg = adaround_reg(total_iter)
-            
-            # 这个就是优化求解，构建一个torch模型，写一个自定义的qlayer
-            # print("node is ", node)
             
             if args.debug_dipoorlet:
                 print(node.output[0])
@@ -131,7 +135,10 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
                 print(relu_flag)        # false
                 print(node.op_type)     # conv
                 print(args.acti_quant)  # false
+            
+            # 这个就是优化求解，构建一个torch模型，写一个自定义的qlayer            
             ada_layer = AdaQLayer(node, weight, bias, rest, reg, qw_tensor, None, relu_flag, node.op_type, args.acti_quant)
+            
             round_mask = learning_round_mask(
                 torch.nn.Parameter(torch.from_numpy(q_in_tensor).cuda(), False),
                 fp_tensor.cuda(),
@@ -156,6 +163,7 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
             update_weight(graph_q, new_rounded_weight, node.input[1])
             graph_ada.update_model()
             graph_q.update_model()
+    
     # if dist.get_rank() == 0:
     graph_ada.save_onnx_model('adaround')
     

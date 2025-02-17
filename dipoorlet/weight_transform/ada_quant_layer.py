@@ -306,9 +306,7 @@ class AdaQLayer(torch.nn.Module):
                 self.layer.groups)
             
         elif self.type == 'Gemm':
-            x = F.linear(
-                x,
-                q_weight, self.layer.bias)
+            x = F.linear(x, q_weight, self.layer.bias)
         else:
             x = F.conv_transpose2d(
                 x,
@@ -318,14 +316,15 @@ class AdaQLayer(torch.nn.Module):
                 self.layer.output_padding,
                 self.layer.groups,
                 self.layer.dilation)
+            
         if self.relu_flag:
             x = F.relu(x)
+        
         if self.acti_quant and self.qi_tensor['type'] == 'Linear':
             x = quant_acti(x, self.qi_tensor['scale'], self.qi_tensor['q_min'],
                            self.qi_tensor['q_max'], self.drop_ratio)
         elif self.acti_quant and self.qi_tensor['type'] == 'NNIE':
             x = quant_acti_nnie(x, self.qi_tensor['max_value'], self.drop_ratio)
-        print("ada_quant_layer : ", x.shape)
         return x
 
 

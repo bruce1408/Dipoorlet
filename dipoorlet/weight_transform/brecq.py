@@ -81,17 +81,21 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
                         weight = weight.transpose(0, 1)
                     scale, q_min, q_max = get_quant_tensor(weight.shape, qw_param, weight_range)
                     rest = (weight / scale) - (weight / scale).floor()
-                    qw_tensor = {'scale': scale,
-                                 'q_min': q_min,
-                                 'q_max': q_max,
-                                 'per_channel': qw_param['per_channel'],
-                                 'type': 'Linear'}
+                    qw_tensor = {
+                        'scale': scale,
+                        'q_min': q_min,
+                        'q_max': q_max,
+                        'per_channel': qw_param['per_channel'],
+                        'type': 'Linear'
+                    }
                 else:
-                    qw_tensor = {'scale': None,
-                                 'q_min': None,
-                                 'q_max': None,
-                                 'per_channel': None,
-                                 'type': 'NNIE'}
+                    qw_tensor = {
+                        'scale': None,
+                        'q_min': None,
+                        'q_max': None,
+                        'per_channel': None,
+                        'type': 'NNIE'
+                    }
                     rest = nnie_rest_init(weight)
 
                 # Generate torch qlayer.
@@ -103,10 +107,12 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
                     acti_shape = graph.get_tensor_shape(following_node.output[0])
                     qi_param = platform_setting_table[args.deploy]['qi_params']
                     scale, q_min, q_max = get_quant_tensor(acti_shape, qi_param, acti_range)
-                    qi_tensor = {'scale': scale,
-                                 'q_min': q_min,
-                                 'q_max': q_max,
-                                 'type': 'Linear'}
+                    qi_tensor = {
+                        'scale': scale,
+                        'q_min': q_min,
+                        'q_max': q_max,
+                        'type': 'Linear'
+                    }
                 else:
                     max_value = max(abs(acti_range[0]), acti_range[1])
                     max_value = torch.from_numpy(np.array(max_value).astype(np.float32)).cuda()
