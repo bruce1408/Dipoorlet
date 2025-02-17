@@ -557,7 +557,8 @@ def load_clip_val(args, act_fname='act_clip_val.json', weight_fname='weight_clip
 
 def save_profiling_res(layer_cosine_dict, model_cosine_dict, args,
                        layer_res_fname='layer_res.json', model_res_fname='model_res.json'):
-    rank = dist.get_rank()
+    # rank = dist.get_rank()
+    rank = 0
     for k, v in layer_cosine_dict.items():
         layer_cosine_dict[k] = float(v)
     for k, v in model_cosine_dict.items():
@@ -571,7 +572,8 @@ def save_profiling_res(layer_cosine_dict, model_cosine_dict, args,
 
 
 def reduce_profiling_res(rank_size, args, layer_res_fname='layer_res.json', model_res_fname='model_res.json'):
-    '''Collect profiling res from each GPU and reduce.
+    '''
+    Collect profiling res from each GPU and reduce.
     '''
     if args.model_type is None:
         with open(os.path.join(args.output_dir, layer_res_fname + '.rank0'), 'r') as f:
@@ -650,7 +652,7 @@ def restore_data(args, input_name_list, batch_size=32):
                 batch_data.tofile(f'{args.batch_data_dir}/{name}/{batch_id}.bin')
                 batch_data = []
                 
-                
+              
 if __name__ == '__main__':
     model_path = "/mnt/share_disk/bruce_trie/onnx_models/resnet50.onnx"
     output_dir = "/mnt/share_disk/bruce_trie/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_adround"

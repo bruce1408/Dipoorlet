@@ -2,6 +2,7 @@ import copy
 import time
 import sys, os
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import onnx
@@ -504,12 +505,36 @@ def forward_net_octav_transformer(onnx_graph, args):
     return statistics
 
 
+# def input_data_generator(input_dir, input_name_list, data_st_idx, data_ed_idx):
+#     for idx in range(data_st_idx, data_ed_idx):
+#         data = {}
+#         for i in input_name_list:
+#             data[i] = np.fromfile(f'{input_dir}/{i}/{idx}.bin', 'float32')
+#         yield data
+
+from concurrent.futures import ThreadPoolExecutor
+import numpy as np
+import os
+
+def read_file(file_path):
+    return np.fromfile(file_path, dtype='float32')
+
+def load_data(input_dir, input_name_list, idx):
+    data = {}
+    for i in input_name_list:
+        file_path = f'{input_dir}/{i}/{idx}.bin'
+        data[i] = read_file(file_path)
+    return data
+
 def input_data_generator(input_dir, input_name_list, data_st_idx, data_ed_idx):
-    for idx in range(data_st_idx, data_ed_idx):
-        data = {}
-        for i in input_name_list:
-            data[i] = np.fromfile(f'{input_dir}/{i}/{idx}.bin', 'float32')
-        yield data
+    with ThreadPoolExecutor(max_workers=6) as executor:  # 增加最大线程数
+        # 提交所有任务
+        futures = [executor.submit(load_data, input_dir, input_name_list, idx) for idx in range(data_st_idx, data_ed_idx)]
+        
+        # 获取所有结果
+        for future in futures:
+            yield future.result()
+
 
 
 def forward_get_tensor(graph, net, index, args):
@@ -519,7 +544,8 @@ def forward_get_tensor(graph, net, index, args):
         for output_name in node.output:
             if output_name not in [_o.name for _o in net.graph.output]:
                 net.graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
-    rank = dist.get_rank()
+    # rank = dist.get_rank()
+    rank = 0
     device = rank % torch.cuda.device_count()
     providers = [("CUDAExecutionProvider", {'device_id': device})]
     ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)

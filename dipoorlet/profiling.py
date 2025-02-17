@@ -44,23 +44,29 @@ def quantize_profiling_multipass(graph_after_wt, graph_ori, act_clip_val, weight
     clip_val.update(weight_clip_val)
     graph_q, quant_node_list = quant_graph(graph_after_wt, clip_val, args)
 
-    rank = dist.get_rank()
-    if rank == 0:
-        graph_q.save_onnx_model(name='quant_model')
+    # rank = dist.get_rank()
+    rank = 0
+    # if rank == 0:
+    graph_q.save_onnx_model(name='quant_model')
 
     layer_cosine_dict = {}
     model_cosine_dict = {}
     single = get_output_single_map(graph_after_wt)
     fp_net = graph_ori.model
     q_net = graph_q.model
-    rank_data_size = math.ceil(args.data_num / args.world_size)
-    rank_st = rank * rank_data_size
-    rank_ed = min(rank * rank_data_size + rank_data_size, args.data_num)
-    rank_data_size = rank_ed - rank_st
-    if rank == 0:
-        data_gen = tqdm(range(rank_st, rank_ed))
-    else:
-        data_gen = range(rank_st, rank_ed)
+    # rank_data_size = math.ceil(args.data_num / args.world_size)
+    # rank_st = rank * rank_data_size
+    # rank_ed = min(rank * rank_data_size + rank_data_size, args.data_num)
+    # rank_data_size = rank_ed - rank_st
+    
+    rank_st = 0
+    rank_ed = args.data_num
+    rank_data_size = args.data_num
+    
+    # if rank == 0:
+    #     data_gen = tqdm(range(rank_st, rank_ed))
+    # else:
+    data_gen = range(rank_st, rank_ed)
     for i in data_gen:
         fp_tensors = forward_get_tensor(graph_ori, fp_net, i, args)
         q_tensors = forward_get_tensor(graph_q, q_net, i, args)
@@ -87,7 +93,7 @@ def quantize_profiling_multipass(graph_after_wt, graph_ori, act_clip_val, weight
                 else:
                     model_cosine_dict[tensor_name][0] += _cos
                     model_cosine_dict[tensor_name][1] = min(_cos, model_cosine_dict[tensor_name][1])
-            if args.savefp and rank == 0:
+            if args.savefp :
                 save_path = os.path.join(args.output_dir, 'output', tensor_name)
                 if not os.path.exists(save_path):
                     os.makedirs(save_path)
@@ -112,21 +118,26 @@ def quantize_profiling_transformer(graph_after_wt, graph_ori, act_clip_val, weig
     clip_val.update(weight_clip_val)
     graph_q, quant_node_list = quant_graph(graph_after_wt, clip_val, args)
 
-    rank = dist.get_rank()
-    if rank == 0:
-        graph_q.save_onnx_model(name='quant_model')
+    # rank = dist.get_rank()
+    # if rank == 0:
+    graph_q.save_onnx_model(name='quant_model')
 
     layer_cosine_dict = {}
     model_cosine_dict = {}
     single = get_output_single_map(graph_after_wt)
-    rank_data_size = math.ceil(args.data_num / args.world_size)
-    rank_st = rank * rank_data_size
-    rank_ed = min(rank * rank_data_size + rank_data_size, args.data_num)
-    rank_data_size = rank_ed - rank_st
-    if rank == 0:
-        data_gen = tqdm(range(0, rank_ed - rank_st))
-    else:
-        data_gen = range(0, rank_ed - rank_st)
+    # rank_data_size = math.ceil(args.data_num / args.world_size)
+    # rank_st = rank * rank_data_size
+    # rank_ed = min(rank * rank_data_size + rank_data_size, args.data_num)
+    # rank_data_size = rank_ed - rank_st
+    # if rank == 0:
+    
+    rank_st = 0
+    rank_ed = args.data_num
+    rank_data_size = args.data_num
+    
+    data_gen = tqdm(range(0, rank_ed - rank_st))
+    # else:
+    #     data_gen = range(0, rank_ed - rank_st)
 
     fp_act_cache = ActivationCache(graph_ori, args, rank_st, rank_ed)
     q_act_cache = ActivationCache(graph_q, args, rank_st, rank_ed)

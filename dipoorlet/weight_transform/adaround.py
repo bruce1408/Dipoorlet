@@ -6,7 +6,6 @@ import torch.distributed as dist
 import torch.nn.functional as F
 from onnx import numpy_helper
 from torch.nn.parallel import DistributedDataParallel as DDP
-
 from ..forward_net import ActivationCache
 from ..platform_settings import platform_setting_table
 from ..quantize import QUANT_NODE_NAME_LIST, quant_graph
@@ -14,6 +13,7 @@ from ..utils import logger
 from .ada_quant_layer import *
 from .utils import *
 from .weight_equalization import node_has_equalized
+from quant_tools.common_utils import *
 
 
 '''
@@ -25,6 +25,8 @@ param {*} weight_clip_val   权重量化参数
 param {*} args              考虑到激活和权重的量化
 return {*}
 '''
+
+@time_it
 def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
     
     # dist.barrier()
