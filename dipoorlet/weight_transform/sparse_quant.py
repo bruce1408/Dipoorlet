@@ -127,4 +127,4 @@ def learning_sparse_quant(in_tensor, fp_out_tensor, ada_layer, batch_size, max_e
             logger.info("Epoch: {:<4} L2 Loss: {:>10.6f}, LR: {:>10.6f}".format(epoch, loss, scheduler.get_lr()[0]))
     if dist.get_rank() == 0:
         logger.info("Loss: {:>10.6f}".format(loss))
-    return ada_layer.module.layer.weight
+    return ada_layer.layer.weight

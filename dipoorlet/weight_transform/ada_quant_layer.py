@@ -114,7 +114,6 @@ class adaround_reg(nn.Module):
 
 
 def L2_norm(pred, tgt):
-    print("======== L2 norm is ", pred.shape, tgt.shape)
     return (pred - tgt).pow(2.0).sum(1).mean()
 
 
@@ -163,7 +162,12 @@ class AdaQLayer(torch.nn.Module):
         
         # 保存属性名称映射
         self.attr_name_map = {}
-        
+
+        # padding 相关的配置        
+        self.padding = []
+
+        self.padding_expand = False
+                
         # 获取属性名称映射
         self.get_attr_name_map(node)
         
@@ -175,33 +179,67 @@ class AdaQLayer(torch.nn.Module):
         else:
             self.layer = self.build_torch_deconv(node, weight, bias)
             self.transposed = True
+        
         # 保存激活函数的标志
         self.relu_flag = relu_flag
+        
         # 如果激活函数标志为True，则构建激活函数
         if relu_flag:
             self.relu = nn.ReLU()
         # Init alpha.
         rest = -torch.log((reg.zeta - reg.gamma) / (rest - reg.gamma) - 1)
         self.round_mask = torch.nn.Parameter(rest.cuda(), True) # 需要训练的rest
+        
         # Init drop ratio.
         self.drop_ratio = 0.5
+        
         # Init activation quantization mode
         self.acti_quant = acti_quant
+        
 
     def get_attr_name_map(self, node):
         for attr in node.attribute:
             self.attr_name_map[attr.name] = attr
 
+    def is_padding_symmetric(self, padding):
+        # Check if the first two values are the same and the last two values are the same
+        return padding[0] == padding[1] and padding[2] == padding[3]
+
+
+    # 填充输入张量
+    def pad_input(self, x):
+        # padding 参数顺序为 (left, right, top, bottom)
+        return F.pad(x, (0, 0, 0, 16))
+    
     def build_torch_conv(self, node, weight, bias):
         dialiations = helper.get_attribute_value(self.attr_name_map['dilations'])
         groups = helper.get_attribute_value(self.attr_name_map['group'])
         kernel_size = helper.get_attribute_value(self.attr_name_map['kernel_shape'])
-        padding = helper.get_attribute_value(self.attr_name_map['pads'])[:2]
+        
+        # 按照[如果是4个的话，就是 左、右、上、下]的顺序
+        padding = helper.get_attribute_value(self.attr_name_map['pads'])
+        
+        # 如果是四维填充，判断是否对称
+        if len(padding) == 4:
+            if self.is_padding_symmetric(padding):  # 上下对称且左右对称
+                padding = [padding[0], padding[2]]  # 转换为2D填充
+                # self.padding_expand = False
+            else:
+                # 这个是特殊情况的padding
+                self.padding_expand = True
+        else:
+            # 处理没有四维填充的情况，取前两个
+            padding = padding[:2]
+            # self.padding_expand = False  # 不需要扩展填充
+        
         stride = helper.get_attribute_value(self.attr_name_map['strides'])
         o_c = weight.shape[0]
         i_c = weight.shape[1] * groups
         bias_flag = bias is not None
-        conv = torch.nn.Conv2d(i_c, o_c, kernel_size, stride, padding, dialiations, groups, bias_flag)
+        
+        # 这里padding是从onnx中获取的，如果padding为0，则不需要padding，另外conv2D是 h、w 的方向进行padding
+        conv = torch.nn.Conv2d(i_c, o_c, kernel_size, stride, padding[:2], dialiations, groups, bias_flag)
+        
         conv.weight.data = weight.data
         conv.weight.requires_grad = False
         if bias is not None:
@@ -222,6 +260,7 @@ class AdaQLayer(torch.nn.Module):
         return linear
 
     def build_torch_deconv(self, node, weight, bias):
+        
         dialiations = helper.get_attribute_value(self.attr_name_map['dilations'])
         groups = helper.get_attribute_value(self.attr_name_map['group'])
         kernel_size = helper.get_attribute_value(self.attr_name_map['kernel_shape'])
@@ -244,6 +283,10 @@ class AdaQLayer(torch.nn.Module):
         return deconv
 
     def forward(self, x):
+        
+        if self.padding_expand:
+            x = self.pad_input(x)
+
         if self.qw_tensor['type'] == 'Linear':
             q_weight = quant_weight(self.layer.weight, self.round_mask,
                                     self.qw_tensor['scale'], self.qw_tensor['q_min'], self.qw_tensor['q_max'],
@@ -252,7 +295,8 @@ class AdaQLayer(torch.nn.Module):
                 q_weight = q_weight.transpose(0, 1)
         else:
             q_weight = quant_weight_nnie(self.layer.weight, self.round_mask)
-        if self.type == 'Conv':
+        
+        if self.type == 'Conv':               
             x = F.conv2d(
                 x,
                 q_weight, self.layer.bias,
@@ -260,6 +304,7 @@ class AdaQLayer(torch.nn.Module):
                 self.layer.padding,
                 self.layer.dilation,
                 self.layer.groups)
+            
         elif self.type == 'Gemm':
             x = F.linear(
                 x,
@@ -285,7 +330,17 @@ class AdaQLayer(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    pass
+    # pass
+    
+    import onnx, os
+    from dipoorlet.utils import ONNXGraph
+                                 
+    model = onnx.load("/mnt/share_disk/bruce_trie/onnx_models/od_bev_1110.onnx")
+    # model = onnx.load("/mnt/share_disk/bruce_trie/onnx_models/od_bev_1110.onnx"
+    output_dir = "/mnt/share_disk/bruce_trie/outputs/od_bev_debug_adaround"
+    os.makedirs(output_dir, exist_ok=True)
+    onnx_graph = ONNXGraph(model, output_dir, "snpe", None)
+
     
     # adlayer = AdaQLayer(node, weight, bias, rest, reg, qw_tensor, None,
     #                               relu_flag, node.op_type, args.acti_quant)

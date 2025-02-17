@@ -506,9 +506,14 @@ def save_clip_val(act_clip_val, weight_clip_val, args, act_fname='act_clip_val.j
 
 
 def reduce_clip_val(rank_size, args, act_fname='act_clip_val.json', weight_fname='weight_clip_val.json'):
-    '''Collect activation clip val from each GPU and reduce. Weight range use rank0.
     '''
+    Collect activation clip val from each GPU and reduce. Weight range use rank0.
+    从每个GPU收集激活剪裁值并进行归约。权重范围使用rank0的值。
+    '''
+    
     act_clip_val, weight_clip_val = load_clip_val(args, act_fname + '.rank0', weight_fname + '.rank0')
+    
+    # 初始值用rank0，然后求平均，和所有值累加之后再求平均是一样的效果。非minmax就用平均，minmax就求全局的最小值和最大值。
     for k, v in act_clip_val.items():
         if args.act_quant != 'minmax':
             v[0] /= float(rank_size)

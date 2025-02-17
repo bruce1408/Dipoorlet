@@ -1,6 +1,6 @@
 import copy
 import time
-import sys
+import sys, os
 from collections import OrderedDict
 
 import numpy as np
@@ -16,33 +16,41 @@ from .platform_settings import platform_setting_table
 from .quantize import QUANT_NODE_NAME_LIST
 from .utils import ONNXGraph, logger
 
+# 设置默认的日志级别为3（警告）
 ort.set_default_logger_severity(3)
+
+# 设置递归深度限制
 sys.setrecursionlimit(2000)
 
-
 class ActivationCache(object):
+    # 假设通过序列获取张量
     # We assume get tensor by sequence.
     def __init__(self, graph, args, st=None, ed=None):
+        # 深拷贝图对象，防止修改原始图
         self.graph = copy.deepcopy(graph)
-        self.graph_list = []
-        self.ref_cnt = {}
-        self.name_to_net = {}
-        self.name_to_graph_id = {}
-        self.activation_cache = {}
-        self.args = args
-        self.st = st
-        self.ed = ed
+        self.graph_list = []        # 存储子图的列表
+        self.ref_cnt = {}           # 引用计数器
+        self.name_to_net = {}       # 名称到网络的映射
+        self.name_to_graph_id = {}  # 名称到图ID的映射
+        self.activation_cache = {}  # 激活缓存
+        self.args = args            # 参数
+        self.st = st                # 开始索引
+        self.ed = ed                # 结束索引
+        self.debug = True
+        # 设置CUDA执行提供者
         self.providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
-        self.fetch_input()
-        self._split_network()
-        self.fill_ref_cnt()
+        self.fetch_input()          # 获取模型的输入数据，并reshape成网络输入的形状
+        self._split_network()       # 分割网络
+        self.fill_ref_cnt()         # 填充引用计数
 
     def reset(self):
+        # 清空激活缓存并重新获取输入和引用计数
         self.activation_cache.clear()
         self.fetch_input()
         self.fill_ref_cnt()
 
     def fetch_input(self, in_tensor=None):
+        # 如果没有指定张量，初始化时获取所有输入
         if in_tensor is None:
             # Means We are initializing.
             for name in self.graph.network_inputs:
@@ -50,12 +58,13 @@ class ActivationCache(object):
             if self.st is None:
                 self.st = 0
                 self.ed = self.args.data_num
+            # 生成输入数据
             for data in input_data_generator(self.args.input_dir, self.graph.network_inputs, self.st, self.ed):
                 for name in self.graph.network_inputs:
                     self.activation_cache[name].append(
                         data[name][:].reshape(*self.graph.get_tensor_shape(name)).copy())
         else:
-            # Means We need specific tensor.
+            # 如果指定了张量，获取特定张量的数据.
             self.activation_cache[in_tensor] = []
             for data in input_data_generator(self.args.input_dir, self.graph.network_inputs, self.st, self.ed):
                 self.activation_cache[in_tensor].append(
@@ -70,6 +79,7 @@ class ActivationCache(object):
             yield data
 
     def __getitem__(self, tensor_name):
+        # 获取张量的值
         if tensor_name in self.graph.initializer:
             return self.graph.initializer[tensor_name][0]
         if tensor_name not in self.activation_cache:
@@ -79,6 +89,7 @@ class ActivationCache(object):
         return self.activation_cache[tensor_name]
 
     def forward_subnet(self, subnet_name, input_list):
+        # 前向传播子网络
         sub_graph = self.graph_list[self.name_to_graph_id[subnet_name]]
         for input_tensor in input_list:
             if input_tensor == '':
@@ -128,6 +139,7 @@ class ActivationCache(object):
                 del (self.activation_cache[input_tensor])
 
     def fill_ref_cnt(self):
+        # 填充引用计数
         for node in self.graph.graph.node:
             for in_tensor in node.input:
                 if in_tensor in self.ref_cnt:
@@ -136,12 +148,15 @@ class ActivationCache(object):
                     self.ref_cnt[in_tensor] = 1
 
     def _split_network(self):
+        # 分割网络为子图
         for i, node in enumerate(self.graph.graph.node):
-            inputs = []
-            outputs = []
-            inits = []
-            network_inputs = []
-            network_outputs = []
+            inputs = []  # 存储子图的输入
+            outputs = []  # 存储子图的输出
+            inits = []  # 存储子图的初始化器
+            network_inputs = []  # 存储网络输入
+            network_outputs = []  # 存储网络输出
+            
+            # 处理节点的输入
             for input in node.input:
                 if input == '':
                     continue
@@ -155,7 +170,8 @@ class ActivationCache(object):
                     network_inputs.append(input)
                 else:
                     inits.append(self.graph.initializer[input][0])
-
+            
+            # 处理节点的输出
             for output in node.output:
                 if output == '':
                     continue
@@ -167,19 +183,29 @@ class ActivationCache(object):
                 outputs.append(output_value)
                 network_outputs.append(output)
 
+            # 创建子图
             graph = make_graph(nodes=[node], name=node.name, inputs=inputs,
                                outputs=outputs, initializer=inits)
+                
             opset_import = self.graph.model.opset_import
             sub_net = make_model(graph, producer_name=node.name, opset_imports=opset_import)
             sub_graph = ONNXGraph(sub_net, self.args.output_dir)
+            
+            if self.debug:
+                # os.makedirs(self.args.output_debug_dir, exist_ok=True)
+                onnx.save(sub_net, f"/mnt/share_disk/bruce_trie/onnx_models/dipoorlet_debug_onnx_models/{node.name}.onnx")
+
             sub_graph.tensor_name_shape_map = self.graph.tensor_name_shape_map
             sub_graph.network_inputs = network_inputs
             sub_graph.network_outputs = network_outputs
             self.graph_list.append(sub_graph)
+        
+        # 更新图的id映射
         for idx, sub_graph in enumerate(self.graph_list):
             self.name_to_graph_id[sub_graph.graph.name] = idx
 
     def update_graph(self, graph):
+        # 更新图
         for i, sub_graph in enumerate(self.graph_list):
             for init_name in self.graph_list[i].initializer:
                 tensor = graph.get_initializer(init_name)
@@ -280,105 +306,42 @@ def forward_get_hist(onnx_graph, stats_min_max, args):
                 statistics[i] = [hist]
     return statistics
 
-
-# def forward_net_octav(onnx_graph, args):
-#     # Generate Graph and Net
-#     net = copy.deepcopy(onnx_graph.model)
-#     graph = net.graph
-#     for node in reversed(graph.node):
-#         for output_name in reversed(node.output):
-#             if output_name not in [_o.name for _o in graph.output]:
-#                 graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
-#     providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
-#     ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
-#     if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
-#         logger.warning("CUDA may not be used. Please check your ort/cuda/cudnn version.")
-
-#     # Start activation quantization.
-#     statistics = {}
-#     t1 = 0
-#     rank_num = args.data_num // args.world_size
-#     data_st_idx = args.rank * rank_num
-#     data_ed_idx = min((args.rank + 1) * rank_num, args.data_num)
-        
-#     # Remove batch_size argument if it is not needed in the input_data_generator
-#     for data_batch in tqdm(input_data_generator(args.input_dir, onnx_graph.network_inputs, data_st_idx, data_ed_idx),
-#                        desc='OCTAV update rank: {}'.format(args.rank)):
-
-#         ort_inputs = {}
-#         # Use numpy vectorization to reshape inputs in batch
-#         for name in onnx_graph.network_inputs:
-#             ort_inputs[name] = data_batch[name][:].reshape(onnx_graph.get_tensor_shape(name))
-#         st = time.time()
-#         outputs = [output.name for output in ort_session.get_outputs()]
-#         ort_outputs = ort_session.run(outputs, ort_inputs)
-#         ed = time.time()
-#         t1 += ed - st
-
-#         ort_outs = OrderedDict(zip(outputs, ort_outputs))
-#         ort_inputs.update(ort_outs)
-
-#         for i in ort_inputs:
-#             data_max = ort_inputs[i].max()
-#             data_min = ort_inputs[i].min()
-
-#             # If dynamic_sym = True, Means one more bit.
-#             if np.abs(data_min - 0) < 1e-6 and 'dynamic_sym' in platform_setting_table[args.deploy]['qi_params']:
-#                 unsigned = 4
-#             else:
-#                 unsigned = 1
-
-#             abs_x = np.abs(ort_inputs[i])
-#             s_n = abs_x.sum() / abs_x[abs_x > 0].size
-
-#             # Optimized loop for calculating s_n
-#             for _ in range(20):
-#                 s_n_plus_1 = abs_x[abs_x > s_n].sum() / \
-#                     (1 / (4 ** 8) / 3 / unsigned * abs_x[abs_x <= s_n].size + abs_x[abs_x > s_n].size)
-#                 if np.abs(s_n_plus_1 - s_n) < 1e-6:
-#                     break
-#                 s_n = s_n_plus_1
-
-#             # Store statistics
-#             if i in statistics:
-#                 statistics[i]['optimal_s'].append(s_n)
-#                 statistics[i]['min'].append(data_min)
-#                 statistics[i]['max'].append(data_max)
-#             else:
-#                 statistics[i] = {
-#                     'optimal_s': [s_n],
-#                     'min': [data_min],
-#                     'max': [data_max]
-#                 }
-
-#     logger.info("Forward time: {:.2f} seconds".format(t1))
-#     return statistics
-
 def forward_net_octav(onnx_graph, args):
-    # 生成图和网络
+    # 生成图和网络的深拷贝，防止对原始图的修改
     net = copy.deepcopy(onnx_graph.model)
     graph = net.graph
+    
+    # 确保所有节点的输出都在图的输出列表中
     for node in reversed(graph.node):
         for output_name in reversed(node.output):
             if output_name not in [_o.name for _o in graph.output]:
                 graph.output.insert(0, onnx.ValueInfoProto(name=output_name))
     
+    # 设置CUDA执行提供者
     providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
     ort_session = ort.InferenceSession(net.SerializeToString(), providers=providers)
+    
+    # 检查CUDA是否被使用
     if 'CUDAExecutionProvider' not in ort_session.get_provider_options():
         logger.warning("CUDA可能未被使用。请检查您的ort/cuda/cudnn版本。")
 
-    # 开始激活量化
+    # 初始化统计信息字典和计时器
     statistics = {}
     t1 = 0
+    
+    # 计算每个进程处理的数据范围
     rank_num = args.data_num // args.world_size
     data_st_idx = args.rank * rank_num
     data_ed_idx = min((args.rank + 1) * rank_num, args.data_num)
     
+    # 获取ORT会话的输出名称
     outputs = [output.name for output in ort_session.get_outputs()]
     
+    # 遍历数据批次，进行前向传播和统计
     for data_batch in tqdm(input_data_generator(args.input_dir, onnx_graph.network_inputs, data_st_idx, data_ed_idx),
                            desc='OCTAV更新 rank: {}'.format(args.rank)):
+        
+        # 准备ORT输入
         ort_inputs = {name: data_batch[name][:].reshape(onnx_graph.get_tensor_shape(name)) 
                       for name in onnx_graph.network_inputs}
         
@@ -387,14 +350,16 @@ def forward_net_octav(onnx_graph, args):
         ed = time.time()
         t1 += ed - st
 
+        # 将输出结果与输入合并
         ort_outs = OrderedDict(zip(outputs, ort_outputs))
         ort_inputs.update(ort_outs)
 
+        # 计算每个张量的统计信息
         for i, tensor in ort_inputs.items():
             data_max = np.max(tensor)
             data_min = np.min(tensor)
             
-            # 如果dynamic_sym = True，意味着多一位
+            # 判断是否使用动态对称量化 如果dynamic_sym = True，意味着多一位
             unsigned = 4 if (np.abs(data_min) < 1e-6 and 
                              'dynamic_sym' in platform_setting_table[args.deploy]['qi_params']) else 1
 
@@ -402,6 +367,7 @@ def forward_net_octav(onnx_graph, args):
             non_zero_mask = abs_x > 0
             s_n = abs_x.sum() / np.count_nonzero(non_zero_mask)
 
+            # 迭代计算最优的s_n
             for _ in range(20):
                 mask = abs_x > s_n
                 s_n_plus_1 = abs_x[mask].sum() / (1 / (4 ** 8) / 3 / unsigned * np.sum(~mask) + np.sum(mask))
@@ -409,6 +375,7 @@ def forward_net_octav(onnx_graph, args):
                     break
                 s_n = s_n_plus_1
 
+            # 更新统计信息
             if i in statistics:
                 statistics[i]['optimal_s'].append(s_n)
                 statistics[i]['min'].append(data_min)
@@ -419,7 +386,7 @@ def forward_net_octav(onnx_graph, args):
                     'min': [data_min],
                     'max': [data_max]
                 }
-
+    # 记录并输出前向传播的总时间
     logger.info("前向传播时间: {:.2f} 秒".format(t1))
     return statistics
 

@@ -64,6 +64,7 @@ def find_clip_val_octav(onnx_graph, args, **kwargs):
     for k, v in optimal_s.items():
         data_max = np.array(v['max']).max()
         data_min = np.array(v['min']).min()
+        # 确保下限不低于真实的数据分布、确保上限不高于真实的数据分布
         clip_val[k] = [max(data_min, -np.array(v['optimal_s']).mean()),
                        min(data_max, np.array(v['optimal_s']).mean())]
     return clip_val
