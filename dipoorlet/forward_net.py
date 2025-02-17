@@ -339,7 +339,7 @@ def forward_net_octav(onnx_graph, args):
     
     # 遍历数据批次，进行前向传播和统计
     for data_batch in tqdm(input_data_generator(args.input_dir, onnx_graph.network_inputs, data_st_idx, data_ed_idx),
-                           desc='OCTAV更新 rank: {}'.format(args.rank)):
+                           desc='OCTAV...'):
         
         # 准备ORT输入
         ort_inputs = {name: data_batch[name][:].reshape(onnx_graph.get_tensor_shape(name)) 
