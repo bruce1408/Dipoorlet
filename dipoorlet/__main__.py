@@ -1,6 +1,6 @@
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import sys
 import time
 import copy
@@ -22,18 +22,22 @@ from dipoorlet.utils import (ONNXGraph, load_clip_val, logger, reduce_clip_val,
 from dipoorlet.weight_transform import weight_calibration
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-M", "--model", default="/share/cdd/onnx_models/od_bev_1110.onnx", help="onnx model")
-parser.add_argument("-I", "--input_dir", default="/mnt/share_disk/bruce_trie/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_calibration_data", help="calibration data")
-parser.add_argument("-O", "--output_dir", default="/mnt/share_disk/bruce_trie/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_adround", help="output data path")
+parser.add_argument("-M", "--model", default="/share/cdd/onnx_models/od_bev_25_0219.onnx", help="onnx model")
+parser.add_argument("-I", "--input_dir", default="/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_calibration_data", help="calibration data")
+parser.add_argument("-O", "--output_dir", default="/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_0220_we", help="output data path")
 parser.add_argument("-N", "--data_num", default=128, help="num of calibration pics", type=int)
-parser.add_argument("--we", help="weight euqalization, espacily for per-tensor", action="store_true")
-parser.add_argument("--bc", help="bias correction", action="store_true")
-parser.add_argument("--update_bn", help="update BN", action="store_true")
-parser.add_argument("--adaround", help="Adaround", action="store_true", default=True)
-parser.add_argument("--brecq", help="BrecQ", action="store_true")
-parser.add_argument("--drop", help="QDrop", action="store_true")
+
+# quant configuration
+parser.add_argument("--we", help="weight euqalization, espacily for per-tensor", action="store_true", default=True)
+parser.add_argument("--bc", help="bias correction", action="store_true", default=False)
+parser.add_argument("--update_bn", help="update BN", action="store_true", default=False)
+parser.add_argument("--adaround", help="Adaround", action="store_true", default=False)
+parser.add_argument("--brecq", help="BrecQ", action="store_true", default=False)
+parser.add_argument("--drop", help="QDrop", action="store_true", default=False)
 parser.add_argument("-A", "--act_quant", help="algorithm of activation quantization, weight default set minmax", choices=['minmax', 'hist', 'mse'], default='mse')
 parser.add_argument("-D", "--deploy", default="snpe", help="deploy platform", choices=['trt', 'stpu', 'magicmind', 'rv', 'atlas', 'snpe', 'ti', 'imx'])
+
+# debug configuration
 parser.add_argument("--backbone_name", default="resnet", type=str, help="Which backbone model is used for the feature extraction part")
 parser.add_argument("--debug_dipoorlet", default=False, type=bool, help="debug dipoorlet")
 

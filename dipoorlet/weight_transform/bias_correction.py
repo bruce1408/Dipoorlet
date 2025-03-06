@@ -24,6 +24,7 @@ def update_conv_node_bias(graph_bc, node, fp_activations, q_activations):
     # 对于卷积层，在批次(0)和空间维度(2,3)上平均，保留通道维度
     # 对于全连接层(Gemm)，仅在批次维度(0)上平均
     axis = (0, 2, 3) if node.op_type == 'Conv' else (0)
+    
     bias_diff = np.squeeze(bias_diff, axis=1).mean(axis=axis)
     
     # 检查节点是否已有偏置参数(通常是input[2])
@@ -46,7 +47,7 @@ def update_conv_node_bias(graph_bc, node, fp_activations, q_activations):
             graph_bc.tensor_name_shape_map.pop(graph_bc.initializer[node.input[2]][0].name)
             
         # 将校正后的偏置添加到图的输入列表中
-        graph_bc.input.append(corrected_bias_name)
+        graph_bc.all_io_input.append(corrected_bias_name)
     else:
         
         # 如果节点没有偏置，就直接使用计算出的差异作为新偏置
@@ -62,12 +63,12 @@ def update_conv_node_bias(graph_bc, node, fp_activations, q_activations):
         graph_bc.tensor_name_shape_map[bias_name] = list(bias.shape)
         
         # 将新偏置添加到图的输入列表中
-        graph_bc.input.append(bias_name)
+        graph_bc.all_io_input.append(bias_name)
         
         # 查找并更新对应节点的输入列表，添加新偏置
         for bc_node in graph_bc.graph.node:
             if bc_node.name == node.name:
-                bc_node.input.append(bias_name)
+                bc_node.all_io_input.append(bias_name)
                 return
 
 

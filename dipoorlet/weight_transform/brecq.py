@@ -18,15 +18,15 @@ from .weight_equalization import node_has_equalized
 
 
 def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
-    dist.barrier()
-    rank = dist.get_rank()
-    num_per_rank = args.data_num // dist.get_world_size()
-    rank_st = rank * num_per_rank
-    rank_ed = rank_st + num_per_rank
+    # dist.barrier()
+    # rank = dist.get_rank()
+    # num_per_rank = args.data_num // dist.get_world_size()
+    # rank_st = rank * num_per_rank
+    # rank_ed = rank_st + num_per_rank
     clip_val = act_clip_val.copy()
     clip_val.update(weight_clip_val)
     graph_brecq = copy.deepcopy(graph)
-    fp_act_cache = ActivationCache(graph_ori, args, rank_st, rank_ed)
+    fp_act_cache = ActivationCache(graph_ori, args, 0, args.data_num)
     prev_act_cache = None
     already = []
     _log_head = 'Qdrop' if args.drop is True else 'Brecq'
@@ -42,14 +42,14 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
             if args.we:
                 if node_has_equalized(graph, block_layer_list[-1]):
                     block_layer_list.pop(-1)
-            if dist.get_rank() == 0:
-                logger.info("{} for: {}".format(_log_head, ' '.join([_node.name for _node in block_layer_list])))
+            # if dist.get_rank() == 0:
+            logger.info("{} for: {}".format(_log_head, ' '.join([_node.name for _node in block_layer_list])))
             already.extend([_node.name for _node in block_layer_list])
             
             # Using graph_brecq and restore act cache for incremental update.
             if not prev_act_cache:
                 graph_q, quant_node_list = quant_graph(graph_brecq, clip_val, args)
-                q_act_cache = ActivationCache(graph_q, args, rank_st, rank_ed)
+                q_act_cache = ActivationCache(graph_q, args, 0, args.data_num)
             else:
                 q_act_cache.update_graph(graph_q)
                 q_act_cache.activation_cache = prev_act_cache
@@ -63,7 +63,7 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
             fp_out_tensor = np.stack(fp_act_cache[block_layer_list[-1].output[0]])
             prev_act_cache = q_act_cache.activation_cache.copy()
             # Use one reg for seq.
-            total_iter = args.ada_epoch * len(block_layer_list) * np.ceil(num_per_rank / args.ada_bs)
+            total_iter = args.ada_epoch * len(block_layer_list) * np.ceil(args.data_num / args.ada_bs)
             reg = adaround_reg(total_iter)
             ada_layer_list = []
             # Get weight and build torch conv.
@@ -159,8 +159,8 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
                 update_weight(graph_q, new_rounded_weight, _node.input[1])
             graph_brecq.update_model()
             graph_q.update_model()
-    if dist.get_rank() == 0:
-        graph_brecq.save_onnx_model('brecq')
+    # if dist.get_rank() == 0:
+    graph_brecq.save_onnx_model('brecq')
     # We must use original ranges.
     return graph_brecq
 
@@ -171,7 +171,7 @@ def learning_round_mask(q_in_tensor, fp_in_tensor, fp_out_tensor, ada_block, reg
         if isinstance(layer, AdaQLayer):
             opt_list.append(layer.round_mask)
     optimizer = torch.optim.Adam(opt_list)
-    ada_block = DDP(ada_block, [torch.cuda.current_device()])
+    # ada_block = DDP(ada_block, [torch.cuda.current_device()])
     # New train precedure
     cur_iter = 0
     ratio = 0.5 if drop else 1.0
@@ -187,24 +187,31 @@ def learning_round_mask(q_in_tensor, fp_in_tensor, fp_out_tensor, ada_block, reg
             fp_output = fp_out_tensor[st:ed].squeeze(1)
             output = ada_block(input)
             loss = L2_norm(output, fp_output)
-            for layer in ada_block.module:
+            
+            # for layer in ada_block.module:
+            for layer in ada_block:
                 if isinstance(layer, AdaQLayer):
                     loss += reg(layer.round_mask, cur_iter)
             cur_iter += 1
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        if epoch % 100 == 0 and dist.get_rank() == 0:
+        # if epoch % 100 == 0 and dist.get_rank() == 0:
+        if epoch % 100 == 0:
             logger.info("Epoch: {:<5} L2 Loss: {:>10.3f} Beta: {:>3.3f}".format(epoch, loss, reg.beta))
-    for layer in ada_block.module:
+    
+    # for layer in ada_block.module:
+    for layer in ada_block:
         if isinstance(layer, AdaQLayer):
             res = adaround_reg().rectified_sigmoid(layer.round_mask)
-            if dist.get_rank() == 0:
-                logger.info("Ceil: {:>5} Floor: {:>5} Total: {:>5} Ratio: {:>.3f}".format(
-                    res[res + 1e-4 >= 1.0].numel(), res[res <= 1e-4].numel(), torch.numel(res),
-                    (res[res + 1e-4 >= 1.0].numel() + res[res <= 1e-4].numel()) / torch.numel(res)))
+            # if dist.get_rank() == 0:
+            logger.info("Ceil: {:>5} Floor: {:>5} Total: {:>5} Ratio: {:>.3f}".format(
+                res[res + 1e-4 >= 1.0].numel(), res[res <= 1e-4].numel(), torch.numel(res),
+                (res[res + 1e-4 >= 1.0].numel() + res[res <= 1e-4].numel()) / torch.numel(res)))
     round_mask_list = []
-    for layer in ada_block.module:
+    
+    # for layer in ada_block.module:
+    for layer in ada_block:
         if isinstance(layer, AdaQLayer):
             round_mask_list.append(layer.round_mask)
     return round_mask_list
