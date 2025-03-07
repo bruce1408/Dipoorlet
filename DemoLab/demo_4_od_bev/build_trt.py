@@ -11,7 +11,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = config.cuda_ids
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
 # 配置 loguru 日志
-log_file_path = f"{config.od_bev_outputs}/engine_export.log"
+log_file_path = f"{config.od_bev_outputs}/od_bev_0306_engine_export.log"
 logger.add(
     log_file_path,
     rotation="10 MB",  # 文件超过 10MB 自动创建新文件
@@ -58,24 +58,26 @@ def buildEngine(
     )
     
     parser = trt.OnnxParser(network, LOGGER)
-    config = builder.create_builder_config()
+    build_config = builder.create_builder_config()
     logger.info(f"Parsing ONNX file: {onnx_file}")
     parser.parse_from_file(onnx_file)
 
-    config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 30)
+    # build_config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 1 << 30)
+    # 增加工作空间大小
+    build_config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 4 << 30)  # 4GB
 
     if FP16_mode == True:
-        config.set_flag(trt.BuilderFlag.FP16)
+        build_config.set_flag(trt.BuilderFlag.FP16)
         logger.info("Enabled FP16 mode.")
         
 
     elif INT8_mode == True:
-        config.set_flag(trt.BuilderFlag.INT8)
-        config.int8_calibrator = Calibrator(data_loader, calibration_table_path)
+        build_config.set_flag(trt.BuilderFlag.INT8)
+        build_config.int8_calibrator = Calibrator(data_loader, calibration_table_path)
         logger.info("Enable INT8 mode with calibration.")
 
     logger.info("Building TensorRT engine...")
-    engine = builder.build_serialized_network(network, config)
+    engine = builder.build_serialized_network(network, build_config)
     if engine is None:
         logger.error("EXPORT ENGINE FAILED!")
         print("EXPORT ENGINE FAILED!")
@@ -87,9 +89,10 @@ def buildEngine(
 
 
 def main(mode):
-    onnx_file = f"{config.od_bev_onnx_models}/od_bev_1125_v2.onnx"
-    engine_file = f"{config.od_bev_outputs}/trt_od_bev_trt_intrinsic_kl/od_bev_1125_v2_{mode}.engine"
-    calibration_cache = f"{config.od_bev_outputs}/trt_od_bev_trt_intrinsic_kl/od_bev_1125_v2_calib.cache"
+    # onnx_file = f"{config.od_bev_onnx_models}/od_bev_1125_v2.onnx"
+    onnx_file = f"{config.od_bev_onnx_models}/od_bev_0306.onnx"
+    engine_file = f"{config.od_bev_outputs}/trt_od_bev_trt_intrinsic_kl/od_bev_25_0306_v2_{mode}.trt"
+    calibration_cache = f"{config.od_bev_outputs}/trt_od_bev_trt_intrinsic_kl/od_bev_25_0306_calib.cache"
 
     if mode=='fp16':
         FP16_mode = True
@@ -110,5 +113,5 @@ def main(mode):
 
 
 if __name__ == "__main__":
-    # main("fp16")
-    main("int8")
+    main("fp16")
+    # main("int8")
