@@ -11,16 +11,20 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 import time, os, copy, numpy as np
 from tqdm import tqdm
-import DemoLab.dipoorlet_utils.quant_config as config
-from DemoLab.dipoorlet_utils.dataset import get_dataset
+import dipoorlet_utils.quant_config as config
+from dipoorlet_utils.dataset import get_dataset
 from printk import *
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))
 
 # model = torch.load(f"{current_file_path}/models/2024_10_30_mobilev2_model.pth")
-model = torch.load(f"{config.export_work_dir}/best_model.pth")
+model = torch.load(f"{config.export_work_dir}/mobile_v2_epoch_38_checkpoint.pth")
+
+# 从checkpoint中获取模型状态字典
+model = model['model_state_dict']
 
 _, val_dataset, _ = get_dataset()
+
 
 dataloaders = torch.utils.data.DataLoader(
     val_dataset, batch_size=config.val_batch_size, shuffle=True, num_workers=8

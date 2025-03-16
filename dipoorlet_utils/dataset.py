@@ -79,17 +79,27 @@ def get_dataset():
         files_test.append(DIR_TEST + "images/" + filename)
         files_test = sorted(files_test)
 
-    transforms_train = transforms.Compose(
-        [
-            transforms.Resize((224, 224)),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]),
-            transforms.RandomErasing(
-                p=0.5, scale=(0.06, 0.08), ratio=(1, 3), value=0, inplace=True
-            ),
-        ]
-    )
+    # transforms_train = transforms.Compose(
+    #     [
+    #         transforms.Resize((224, 224)),
+    #         transforms.RandomHorizontalFlip(),
+    #         transforms.ToTensor(),
+    #         transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]),
+    #         transforms.RandomErasing(
+    #             p=0.5, scale=(0.06, 0.08), ratio=(1, 3), value=0, inplace=True
+    #         ),
+    #     ]
+    # )
+    
+    transforms_train = transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        transforms.RandomAffine(degrees=10, translate=(0.1, 0.1)),
+        transforms.RandomRotation(15),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
 
     transforms_val = transforms.Compose(
         [
