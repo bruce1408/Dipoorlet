@@ -92,6 +92,8 @@ def train_model(
                 running_loss += loss.item() * inputs.size(0)
                 current_mean_loss = running_loss / ((i + 1) * inputs.size(0))  # 计算到目前为止的平均loss
                 running_corrects += torch.sum(preds == labels.data)
+                current_acc = running_corrects.double() / ((i + 1) * inputs.size(0))  # 计算到目前为止的准确率
+
                 
                 # print(
                 #     "\rIteration: {}/{}, Batch Loss: {:.4f}, Average Loss: {:.4f}".format(
@@ -106,13 +108,14 @@ def train_model(
                 
                 if i % 50 == 0:
                     logger.info(
-                        "Epoch:[{}|{}], Iteration: {}/{}, Loss: {:.4f}, Average Loss: {:.4f}".format(
+                        "Train Epoch:[{}|{}], Iteration: {}/{}, Loss: {:.4f}, Accuracy: {:.4f}".format(
                             epoch + 1,
                             num_epochs, 
                             i + 1, 
                             len(dataloaders[phase]), 
                             loss.item(),  # 当前batch的loss
-                            current_mean_loss  # 到目前为止的平均loss
+                            # current_mean_loss,  # 到目前为止的平均loss
+                            current_acc  # 到目前为止的准确率
                         )
                     )
 
@@ -201,7 +204,7 @@ args = get_config()
 criterion = nn.CrossEntropyLoss()
 
 # Observe that all parameters are being optimized
-optimizer_ft = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
+optimizer_ft = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
 
 # Decay LR by a factor of 0.1 every 7 epochs
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
