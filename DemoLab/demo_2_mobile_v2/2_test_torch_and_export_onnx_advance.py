@@ -13,7 +13,7 @@ import time, os, copy, numpy as np
 from tqdm import tqdm
 import dipoorlet_utils.quant_config as config
 from dipoorlet_utils.dataset import get_dataset
-from printk import *
+from spectrautils.print_utils import *
 import argparse
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))
@@ -24,6 +24,7 @@ checkpoint = torch.load(f"{config.export_work_dir}/mobile_v2_epoch_38_checkpoint
 
 # 创建模型实例 - 与训练代码保持一致
 model = torchvision.models.mobilenet_v2(pretrained=False)
+
 # 修改分类器以适应200类输出
 model.classifier = nn.Sequential(
     nn.Dropout(0.2),
@@ -167,8 +168,7 @@ def evaluate_model(model, batch_size=32, visualize=False):
     _, val_dataset, class_names = get_dataset()
     
     dataloader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=batch_size, shuffle=False, num_workers=8
-    )
+        val_dataset, batch_size=batch_size, shuffle=False, num_workers=8)
     
     # 用于存储分类结果
     all_preds = []
