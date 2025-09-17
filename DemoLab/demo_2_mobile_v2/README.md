@@ -1,10 +1,7 @@
 # mobile_v2 模型量化实验
 
 ## float
-
 Accuracy with onnx fp16 infer : 69.11%
-
-Accuracy with onnx fp16 infer : 69.05%
 
 ## dipoorlet int8 act->mse brecq
 

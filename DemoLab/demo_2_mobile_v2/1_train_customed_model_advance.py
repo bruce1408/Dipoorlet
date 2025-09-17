@@ -3,24 +3,26 @@ import sys
 import datetime
 import torch
 import torch.nn as nn
-from printk import * 
+from spectrautils import print_utils 
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import time, os, copy, numpy as np
 from spectrautils import logging_utils, print_utils
-from dipoorlet_utils import quant_config
+# from dipoorlet_utils import quant_config
 from dipoorlet_utils.dataset import get_dataset
 import argparse
 from torch.utils.data import RandomSampler
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
+from common.configs import get_cfg_defaults
+cfg = get_cfg_defaults()
 
 # 添加命令行参数解析
 def get_config():
     parser = argparse.ArgumentParser(description='MobileNetV2训练或继续微调')
-    parser.add_argument('--resume', type=str, 
-                        # default=quant_config.export_work_dir, 
+    parser.add_argument('--resume', 
+                        type=str, 
                         default="",
                         help='加载检查点文件路径继续训练')
     parser.add_argument('--epochs', type=int, default=50, help='训练轮数，如果不指定则使用配置文件中的值')
@@ -38,7 +40,7 @@ def get_config():
 logger_manager = logging_utils.AsyncLoggerManager("./logs")
 logger = logger_manager.logger
 
-os.environ["CUDA_VISIBLE_DEVICES"] = quant_config.cuda_ids
+os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS
 num_gpus = torch.cuda.device_count()
 
 
@@ -256,7 +258,7 @@ def train_model(
                     best_model_wts = copy.deepcopy(model.state_dict())
                     
                     # 确保目录存在
-                    os.makedirs(quant_config.export_work_dir, exist_ok=True)
+                    os.makedirs(cfg.DIPOORLET.export_work_dir, exist_ok=True)
                     
                     # 保存检查点
                     torch.save({
@@ -266,7 +268,7 @@ def train_model(
                         'scheduler_state_dict': scheduler.state_dict(),
                         'best_acc': best_acc,
                         'ema_shadow': ema.shadow if use_ema else None,
-                    }, f"{quant_config.export_work_dir}/mobile_v2_epoch_{epoch + 1}_checkpoint.pth")
+                    }, f"{cfg.DIPOORLET.export_work_dir}/mobile_v2_epoch_{epoch + 1}_checkpoint.pth")
                     
                     # 重置提前停止计数器
                     patience_counter = 0
@@ -279,7 +281,7 @@ def train_model(
                     logger.info(f"连续{patience}个epoch验证准确率未提高，提前停止训练。")
                     # 提前结束训练循环
                     epoch_time = time.time() - epoch_start
-                    print_colored_box([
+                    print_utils.print_colored_box([
                         "提前停止训练!",
                         f"  最佳验证准确率: {best_acc:.4f}",
                         f"  在第{epoch + 1 - patience}个epoch获得"
@@ -301,14 +303,14 @@ def train_model(
             f"  Epoch Time: {epoch_time // 60:.0f}m {epoch_time % 60:.0f}s"
         ]
         
-        print_colored_box(epoch_summary, text_color='green', box_color='yellow')
+        print_utils.print_colored_box(epoch_summary, text_color='green', box_color='yellow')
 
     time_elapsed = time.time() - since
-    print_colored_box(
+    print_utils.print_colored_box(
         f"Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s"
     )
     
-    print_colored_box(f"Best val Acc: {best_acc:4f}", attrs=['bold'], text_color='green', box_color='yellow')
+    print_utils.print_colored_box(f"Best val Acc: {best_acc:4f}", attrs=['bold'], text_color='green', box_color='yellow')
 
     # 加载最佳模型权重
     model.load_state_dict(best_model_wts)
@@ -316,6 +318,7 @@ def train_model(
 
 
 def main():
+
     args = get_config()
     
     # 获取设备
@@ -339,13 +342,13 @@ def main():
         model = nn.DataParallel(model)
     
     # 获取数据集
-    train_dataset, val_dataset, _ = get_dataset()
+    train_dataset, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
     
     train_loaders = torch.utils.data.DataLoader(
-        train_dataset, batch_size=quant_config.train_batch_size, shuffle=True, num_workers=8
+        train_dataset, batch_size=cfg.DIPOORLET.train_batch_size, shuffle=True, num_workers=8
     )
     val_loaders = torch.utils.data.DataLoader(
-        val_dataset, batch_size=quant_config.val_batch_size, shuffle=True, num_workers=8
+        val_dataset, batch_size=cfg.DIPOORLET.val_batch_size, shuffle=True, num_workers=8
     )
     # 定义损失函数
     criterion = LabelSmoothCrossEntropyLoss(smoothing=args.label_smoothing)
@@ -357,7 +360,7 @@ def main():
     if args.scheduler == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
     elif args.scheduler == 'cosine':
-        scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs if args.epochs else quant_config.epochs)
+        scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs if args.epochs else cfg.DIPOORLET.epochs)
     else:  # plateau
         scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
     
@@ -370,7 +373,7 @@ def main():
         
         # 如果启用自动恢复，查找最新的检查点
         if args.auto_resume and not isinstance(args.auto_resume, str):
-            latest_checkpoint = find_latest_checkpoint(quant_config.export_work_dir)
+            latest_checkpoint = find_latest_checkpoint(cfg.DIPOORLET.export_work_dir)
             if latest_checkpoint:
                 checkpoint_path = latest_checkpoint
                 logger.info(f"自动加载最新检查点: {checkpoint_path}")
@@ -405,10 +408,10 @@ def main():
             logger.info("未找到有效的检查点，将从头开始训练")
     
     # 确保导出目录存在
-    os.makedirs(quant_config.export_work_dir, exist_ok=True)
+    os.makedirs(cfg.DIPOORLET.export_work_dir, exist_ok=True)
     
     # 训练模型
-    epochs = args.epochs if args.epochs else quant_config.epochs
+    epochs = args.epochs if args.epochs else cfg.DIPOORLET.epochs
     logger.info(f"开始训练，总共 {epochs} 个epochs，从epoch {start_epoch} 开始")
     
     # 记录训练配置
@@ -421,10 +424,10 @@ def main():
         f"  调度器: {args.scheduler}",
         f"  总epochs: {epochs}",
         f"  起始epoch: {start_epoch}",
-        f"  批量大小: {quant_config.train_batch_size}",
+        f"  批量大小: {cfg.DIPOORLET.train_batch_size}",
         f"  设备: {device} ({num_gpus} GPUs)" if num_gpus > 1 else f"  设备: {device}"
     ]
-    print_colored_box(config_summary, text_color='blue', box_color='yellow')
+    print_utils.print_colored_box(config_summary, text_color='blue', box_color='yellow')
     
     print()
     
@@ -453,7 +456,7 @@ def main():
     )
     
     # 保存最终模型
-    final_model_path = os.path.join(quant_config.export_work_dir, "mobile_v2_final.pth")
+    final_model_path = os.path.join(cfg.DIPOORLET.export_work_dir, "mobile_v2_final.pth")
     torch.save(model.state_dict(), final_model_path)
     logger.info(f"最终模型已保存至: {final_model_path}")
     

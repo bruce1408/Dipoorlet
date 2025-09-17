@@ -39,8 +39,8 @@ class ImagesDataset(Dataset):
             return x, self.files[index]
 
 
-def get_dataset():
-    DIR_MAIN = config.datasets_dir
+def get_dataset(datasets_dir):
+    DIR_MAIN = datasets_dir
     DIR_TRAIN = os.path.join(DIR_MAIN , "train/")
     DIR_VAL = os.path.join(DIR_MAIN , "val/")
     DIR_TEST = os.path.join(DIR_MAIN , "test/")
