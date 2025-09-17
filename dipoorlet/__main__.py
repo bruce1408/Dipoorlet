@@ -32,11 +32,9 @@ parser.add_argument("--update_bn", help="update BN", action="store_true")
 parser.add_argument("--adaround", help="Adaround", action="store_true")
 parser.add_argument("--brecq", help="BrecQ", action="store_true")
 parser.add_argument("--drop", help="QDrop", action="store_true")
-parser.add_argument("-A", "--act_quant", help="algorithm of activation quantization",
-                    choices=['minmax', 'hist', 'mse'], default='mse')
+parser.add_argument("-A", "--act_quant", choices=['minmax', 'hist', 'mse'], default='mse', help="algorithm of activation quantization")
 parser.add_argument("-D", "--deploy", help="deploy platform",
-                    choices=['trt', 'stpu', 'magicmind', 'rv', 'atlas',
-                             'snpe', 'ti', 'imx'], required=True)
+                    choices=['trt', 'stpu', 'magicmind', 'rv', 'atlas', 'snpe', 'ti', 'imx'], required=True)
 parser.add_argument("--bins", help="bins for histogram and kl", default=2048)
 parser.add_argument("--threshold", help="threshold for histogram", default=0.99999, type=float)
 parser.add_argument("--savefp", help="Save FP output of model.", action="store_true")
@@ -53,7 +51,7 @@ parser.add_argument("--pattern", help="Sparse pattern", choices=["unstruction", 
 parser.add_argument("--optim_transformer", help="Transformer model optimization", default=False, action='store_true')
 parser.add_argument("--model_type", help="Transformer model type", choices=["unet"], default=None)
 parser.add_argument("--quant_format", default="QDQ", type=str, choices=["QOP", "QDQ"])
-parser.add_argument("--onnx_sim", help="Whether use onnxsim to simplify model", action='store_true')
+parser.add_argument("--onnx_sim", action='store_true', help="Whether use onnxsim to simplify model")
 parser.add_argument("--qnode_version", help="The quant node opset version", type=int, choices=[13], default=13)
 parser.add_argument("--layerwise_error_prof", help='Profiling per-layer quantitative error', action="store_true")
 parser.add_argument("--prof_num", type=int, default=32)
@@ -131,6 +129,7 @@ if dist.get_rank() == 0 and not args.optim_transformer:
 setattr(args, 'rank', dist.get_rank())
 setattr(args, 'local_rank', dist.get_rank() % torch.cuda.device_count())
 setattr(args, 'world_size', dist.get_world_size())
+
 if dist.get_rank() == 0:
     logger.info("Do tensor calibration...")
 act_clip_val, weight_clip_val = tensor_calibration(onnx_graph, args)

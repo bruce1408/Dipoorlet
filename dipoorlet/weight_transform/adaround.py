@@ -154,13 +154,13 @@ def learning_round_mask(in_tensor, fp_out_tensor, ada_layer, reg, batch_size, ma
     # batch_size = 64 默认
     optimizer = torch.optim.Adam([ada_layer.round_mask])
     ada_layer = DDP(ada_layer, [torch.cuda.current_device()])
-    if dist.get_rank() == 0:
-        print("in_tensor shape is ========", in_tensor.shape, fp_out_tensor.shape, __file__)
+    # if dist.get_rank() == 0:
+        # print("in_tensor shape is ========", in_tensor.shape, fp_out_tensor.shape, __file__)
     # New train precedure
     cur_iter = 0
     for epoch in range(1):
         for idx in range(np.ceil(len(in_tensor) / batch_size).astype(int)):
-            print("========= the batch is ", np.ceil(len(in_tensor) / batch_size).astype(int), batch_size)
+            # print("========= the batch is ", np.ceil(len(in_tensor) / batch_size).astype(int), batch_size)
             st = idx * batch_size
             ed = st + batch_size
             print("the st is ", st, __file__)

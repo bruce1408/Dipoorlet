@@ -189,7 +189,7 @@ def learning_round_mask(q_in_tensor, fp_in_tensor, fp_out_tensor, ada_block, reg
             loss.backward()
             optimizer.step()
         if epoch % 100 == 0 and dist.get_rank() == 0:
-            logger.info("Epoch: {:<5} L2 Loss: {:>10.3f} Beta: {:>3.3f}".format(epoch, loss, reg.beta))
+            logger.info("Epoch: {:<5} L2 Loss: {:>5.3f} Beta: {:>5.3f}".format(epoch, loss, reg.beta))
     for layer in ada_block.module:
         if isinstance(layer, AdaQLayer):
             res = adaround_reg().rectified_sigmoid(layer.round_mask)

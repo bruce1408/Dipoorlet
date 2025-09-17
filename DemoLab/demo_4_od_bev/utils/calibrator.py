@@ -136,7 +136,7 @@ class CalibDataLoader:
         if self.index < self.calib_count:
             for i in range(self.batch_size):
                 image_path = self.image_list[self.index]
-                print('======== the image path is : ', image_path)
+                # print('======== the image path is : ', image_path)
                 image_data = Preprocess(image_path[i], i, self.info)
                 self.calibration_data[i] = image_data
                 # if self.index > 2 : break

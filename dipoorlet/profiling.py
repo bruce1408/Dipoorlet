@@ -226,10 +226,9 @@ def show_model_ranges(graph, act_clip_val, weight_clip_val, args):
             if 'per_channel' in platform_setting_table[args.deploy]['qw_params'] and \
                     platform_setting_table[args.deploy]['qw_params']['per_channel']:
                 per_channel = "per channel "
-            logger.info("{:<30} Shape: {:<20} Range: {}[{:<10f} {:<10f}]".format(name, str(tensor_shape),
-                                                                                 per_channel, range[0].min(), range[1].max()))
+            logger.info("{:<20} Shape: {:<20} Range: {}[{:<10f} {:<10f}]".format(name, str(tensor_shape), per_channel, range[0].min(), range[1].max()))
         else:
-            logger.info("{:<30} Shape: {:<20} Range: [{:<10f} {:<10f}]".format(name, str(tensor_shape), range[0], range[1]))
+            logger.info("{:<20} Shape: {:<20} Range: [{:<10f} {:<10f}]".format(name, str(tensor_shape), range[0], range[1]))
 
 
 def weight_need_perchannel(graph, args):
