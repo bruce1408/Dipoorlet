@@ -15,7 +15,9 @@ from dipoorlet.dist_helper import init_from_mpi, init_from_slurm
 from dipoorlet.profiling import (quantize_profiling_multipass, quantize_profiling_transformer,
                         quantize_profiling_layerwise, show_model_profiling_res, 
                         show_model_ranges, weight_need_perchannel)
+
 from dipoorlet.tensor_cali import tensor_calibration
+
 from dipoorlet.utils import (ONNXGraph, load_clip_val, logger, reduce_clip_val,
                     reduce_profiling_res, save_clip_val, save_profiling_res,
                     setup_logger, deploy_QOperator, restore_data)
@@ -58,7 +60,7 @@ parser.add_argument("--pattern", help="Sparse pattern", choices=["unstruction", 
 parser.add_argument("--optim_transformer", help="Transformer model optimization", default=False, action='store_true')
 parser.add_argument("--model_type", help="Transformer model type", choices=["unet"], default=None)
 parser.add_argument("--quant_format", default="QDQ", type=str, choices=["QOP", "QDQ"])
-parser.add_argument("--onnx_sim", default=True, help="Whether use onnxsim to simplify model", )
+parser.add_argument("--onnx_sim", action="store_true", default=True, help="Whether use onnxsim to simplify model", )
 parser.add_argument("--qnode_version", help="The quant node opset version", type=int, choices=[13], default=13)
 
 # 量化误差分析相关参数
@@ -91,6 +93,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 torch.cuda.set_device(device)
 
 if args.output_dir is None:
+    print("the output dir is ", args.output_dir)
     model_path = ('/').join(args.model.split('/')[:-1])
     output_dir = os.path.join(os.path.abspath(model_path), 'results')
     args.output_dir = output_dir

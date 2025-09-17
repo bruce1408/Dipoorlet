@@ -37,7 +37,8 @@ class ActivationCache(object):
         self.args = args            # 参数
         self.st = st                # 开始索引
         self.ed = ed                # 结束索引
-        self.debug = True
+        self.debug = False
+        
         # 设置CUDA执行提供者
         self.providers = [("CUDAExecutionProvider", {'device_id': args.local_rank})]
         self.fetch_input()          # 获取模型的输入数据，并reshape成网络输入的形状
@@ -193,8 +194,8 @@ class ActivationCache(object):
             sub_graph = ONNXGraph(sub_net, self.args.output_dir)
             
             if self.debug:
-                # os.makedirs(self.args.output_debug_dir, exist_ok=True)
-                onnx.save(sub_net, f"/mnt/share_disk/bruce_trie/onnx_models/dipoorlet_debug_onnx_models/{node.name}.onnx")
+                os.makedirs(self.args.output_debug_dir, exist_ok=True)
+                # onnx.save(sub_net, f"{self.args.output_debug_dir}/{node.name}.onnx")
 
             sub_graph.tensor_name_shape_map = self.graph.tensor_name_shape_map
             sub_graph.network_inputs = network_inputs
@@ -800,7 +801,7 @@ def forward_net_octav(onnx_graph, args):
     logger.info(f"推理执行时间: {timing_stats['inference']:.4f} 秒 ({timing_stats['inference']/timing_stats['total']*100:.2f}%)")
     logger.info(f"统计计算时间: {timing_stats['statistics_computation']:.4f} 秒 ({timing_stats['statistics_computation']/timing_stats['total']*100:.2f}%)")
     
-    logger.info("\n===== 批处理统计 =====")
+    # logger.info("\n===== 批处理统计 =====")
     if batch_times:
         logger.info(f"平均批处理时间: {sum(batch_times)/len(batch_times):.4f} 秒")
         logger.info(f"最长批处理时间: {max(batch_times):.4f} 秒")

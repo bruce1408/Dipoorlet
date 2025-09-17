@@ -334,8 +334,7 @@ if __name__ == "__main__":
     import onnx, os
     from dipoorlet.utils import ONNXGraph
                                  
-    model = onnx.load("/mnt/share_disk/bruce_trie/onnx_models/od_bev_1110.onnx")
-    # model = onnx.load("/mnt/share_disk/bruce_trie/onnx_models/od_bev_1110.onnx"
+    model = onnx.load("/share/cdd/onnx_models/od_bev_1110.onnx")
     output_dir = "/mnt/share_disk/bruce_trie/outputs/od_bev_debug_adaround"
     os.makedirs(output_dir, exist_ok=True)
     onnx_graph = ONNXGraph(model, output_dir, "snpe", None)
