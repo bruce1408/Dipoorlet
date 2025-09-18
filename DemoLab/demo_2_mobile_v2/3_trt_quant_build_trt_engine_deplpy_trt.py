@@ -3,15 +3,16 @@ import sys
 import tensorrt as trt
 from loguru import logger
 from contextlib import redirect_stdout
-from printk import print_colored_box
-import DemoLab.dipoorlet_utils.quant_config as config_param
-from DemoLab.dipoorlet_utils.calibrator import Calibrator, CalibDataLoader
+from spectrautils import print_utils
+# import dipoorlet_utils.quant_config as config_param
+from common.configs import get_cfg_defaults
+from dipoorlet_utils.calibrator import Calibrator, CalibDataLoader
 
-
+cfg = get_cfg_defaults()
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-export_dir = f"{config_param.export_work_dir}/trt_mobilev2_trt_intrinsic_kl"
+export_dir = f"{cfg.DIPOORLET.export_work_dir}/trt_mobilev2_trt_intrinsic_kl"
 
 # 配置 loguru 日志
 log_file_path = f"{export_dir}/engine_export.log"
@@ -64,8 +65,8 @@ def buildEngine(
 
 
 def main():
-    onnx_file = f"{config_param.export_work_dir}/mobilev2_model_new.onnx"
-    calibration_cache = f"{config_param.trt_calib_cache_dir}/mobilev2_model_calib.cache"
+    onnx_file = f"{cfg.DIPOORLET.export_work_dir}/mobilev2_model_new.onnx"
+    calibration_cache = f"{cfg.DIPOORLET.trt_calib_cache_dir}/mobilev2_model_calib.cache"
 
     FP16_mode = False
     INT8_mode = True
@@ -86,7 +87,7 @@ def main():
         buildEngine(
             onnx_file, engine_file, FP16_mode, INT8_mode, dataloader, calibration_cache
         )
-        print_colored_box(f"Export ENGINE success, Save as: {engine_file}")
+        print_utils.print_colored_text(f"Export ENGINE success, Save as: {engine_file}", "green")
     except Exception as e:
         logger.exception(f"Failed to export engine: {str(e)}")
 
