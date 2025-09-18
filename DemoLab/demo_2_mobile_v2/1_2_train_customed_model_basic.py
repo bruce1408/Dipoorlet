@@ -10,10 +10,8 @@ from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from torchvision import transforms
 import time, os, copy, numpy as np
 from spectrautils import logging_utils, print_utils
-# from dipoorlet_utils import quant_config
 from dipoorlet_utils.dataset import get_dataset
 from common.configs import get_cfg_defaults
-from spectrautils import logging_utils, print_utils
 
 cfg = get_cfg_defaults()
 
@@ -143,17 +141,19 @@ def train_model(
                 logger.info("验证集准确率在第{}轮后: {:.4f}".format(epoch + 1, epoch_acc))
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
-                os.makedirs(cfg.DIPOORLET.export_work_dir, exist_ok=True)
-                
+                os.makedirs(cfg.SYSTEM.MODELS_DIR, exist_ok=True)
+
+                torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic.pth")
+
                 # 保存每个epoch的模型权重
-                torch.save({
-                    'epoch': epoch + 1,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'scheduler_state_dict': scheduler.state_dict(),
-                    'best_acc': best_acc,
-                    'history': history,  # 保存训练历史
-                }, f"{cfg.DIPOORLET.export_work_dir}/mobile_v2_epoch_{epoch + 1}_checkpoint.pth")
+                # torch.save({
+                #     'epoch': epoch + 1,
+                #     'model_state_dict': model.state_dict(),
+                #     'optimizer_state_dict': optimizer.state_dict(),
+                #     'scheduler_state_dict': scheduler.state_dict(),
+                #     'best_acc': best_acc,
+                #     'history': history,  # 保存训练历史
+                # }, f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_epoch_{epoch + 1}_checkpoint.pth")
                 
                 # 重置早停计数器
                 no_improve_epochs = 0
@@ -185,7 +185,7 @@ def train_model(
             break
 
     time_elapsed = time.time() - since
-    print_colored_box(
+    print_utils.print_colored_box(
         "训练完成，总用时 {:.0f}m {:.0f}s".format(
             time_elapsed // 60, time_elapsed % 60
         )
@@ -284,13 +284,13 @@ def main():
     start_epoch = 0
     
     # 自动查找最新的检查点文件
-    if args.auto_resume and os.path.isdir(cfg.DIPOORLET.export_work_dir):
-        latest_checkpoint = find_latest_checkpoint(cfg.DIPOORLET.export_work_dir)
+    if args.auto_resume and os.path.isdir(cfg.SYSTEM.MODELS_DIR):
+        latest_checkpoint = find_latest_checkpoint(cfg.SYSTEM.MODELS_DIR)
         if latest_checkpoint:
             args.resume = latest_checkpoint
             logger.info(f"自动加载最新的检查点文件: {latest_checkpoint}")
         else:
-            logger.info(f"在目录 {cfg.DIPOORLET.export_work_dir} 中未找到检查点文件，将从头开始训练。")
+            logger.info(f"在目录 {cfg.SYSTEM.MODELS_DIR} 中未找到检查点文件，将从头开始训练。")
     
     if args.resume and os.path.isfile(args.resume):
         checkpoint = torch.load(args.resume, map_location=device)
@@ -324,8 +324,8 @@ def main():
     # 保存最终模型
     current_timestamp = datetime.datetime.now()
     formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-    torch.save(model, f"{cfg.DIPOORLET.export_work_dir}/{formatted_timestamp}_mobilev2_model.pth")
-    logger.info(f"最终模型已保存到 {cfg.DIPOORLET.export_work_dir}/{formatted_timestamp}_mobilev2_model.pth")
+    torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
+    logger.info(f"最终模型已保存到 {cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
 
 if __name__ == "__main__":
     main()

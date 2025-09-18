@@ -160,6 +160,7 @@ train_dataset, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
 train_loaders = torch.utils.data.DataLoader(
     train_dataset, batch_size=cfg.DIPOORLET.train_batch_size, shuffle=True, num_workers=8
 )
+
 val_loaders = torch.utils.data.DataLoader(
     val_dataset, batch_size=cfg.DIPOORLET.val_batch_size, shuffle=True, num_workers=8
 )

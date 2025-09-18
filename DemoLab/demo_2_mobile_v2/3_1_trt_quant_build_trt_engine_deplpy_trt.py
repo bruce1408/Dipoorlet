@@ -11,7 +11,7 @@ cfg = get_cfg_defaults()
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-export_dir = f"{cfg.DIPOORLET.export_work_dir}/trt_mobilev2_trt_intrinsic_kl"
+export_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobilev2_trt_intrinsic_kl"
 
 # 配置 loguru 日志
 log_file_path = f"{export_dir}/engine_export.log"
@@ -30,9 +30,7 @@ def buildEngine(
 ):
     logger.info("Initializing TensorRT builder and network...")
     builder = trt.Builder(LOGGER)
-    network = builder.create_network(
-        1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
-    )
+    network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
     parser = trt.OnnxParser(network, LOGGER)
     config = builder.create_builder_config()
     config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 16 * (1 << 20))
@@ -64,8 +62,8 @@ def buildEngine(
 
 
 def main():
-    onnx_file = f"{cfg.DIPOORLET.export_work_dir}/mobilev2_model_new.onnx"
-    calibration_cache = f"{cfg.DIPOORLET.trt_calib_cache_dir}/mobilev2_model_calib.cache"
+    onnx_file = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"
+    calibration_cache = f"{cfg.DIPOORLET.trt_calib_data_dir}/mobilev2_model_calib.cache"
 
     FP16_mode = False
     INT8_mode = True

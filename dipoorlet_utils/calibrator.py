@@ -11,10 +11,12 @@ import pycuda.autoinit
 
 try:
     # 尝试直接导入，适用于当前目录运行
-    import quant_config as config
+    from common.configs import get_cfg_defaults
+    config = get_cfg_defaults()
 except ImportError:
     # 如果直接导入失败，尝试使用相对导入，适用于跨目录调用
-    from . import quant_config as config
+    from . import get_cfg_defaults
+    config = get_cfg_defaults()
 
 
 
@@ -22,7 +24,7 @@ current_file_path = os.path.dirname(os.path.abspath(__file__))
 #200类，每类随机选5个
 def get_calib_data_path():
     img_paths = []
-    data_root = f"{config.datasets_dir}/val/"
+    data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/"
     data_info = pd.read_table(data_root + "val_annotations.txt")
     grouped = data_info.groupby(data_info.columns[1])
     classes = list(grouped.groups.keys())
@@ -49,14 +51,12 @@ def Preprocess(img):
 # For TRT
 class CalibDataLoader:
     def __init__(self, batch_size, calib_count):
-        self.data_root = f"{config.datasets_dir}/val/images/"
+        self.data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/images/"
         self.index = 0
         self.batch_size = batch_size
         self.calib_count = calib_count
         self.image_list = get_calib_data_path()
-        self.calibration_data = np.zeros(
-            (self.batch_size, 3, 224, 224), dtype=np.float32
-        )
+        self.calibration_data = np.zeros((self.batch_size, 3, 224, 224), dtype=np.float32)
 
     def reset(self):
         self.index = 0
@@ -111,12 +111,12 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
 
 # For Dipoorlet
 def get_dipoorlet_calib():
-    data_root = f"{config.datasets_dir}/val/images/"
+    data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/images/"
     image_list = get_calib_data_path()    
     for i, image_path in tqdm(enumerate(image_list)):
         image = Image.open(data_root + image_path).convert("RGB")
         image = Preprocess(image).numpy()
-        calibration_dir_path = f"{config.dipoorlet_calib_dir}/input.1/"
+        calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/input.1/"
         os.makedirs(calibration_dir_path, exist_ok=True)
         image.tofile(f"{calibration_dir_path}" + str(i) + ".bin")
 

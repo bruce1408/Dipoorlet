@@ -1,6 +1,5 @@
 import os, sys
 import subprocess
-# import dipoorlet_utils.quant_config as config
 from common.configs import get_cfg_defaults
 cfg = get_cfg_defaults()
 
@@ -15,7 +14,7 @@ def main():
     log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/dipoorlet_trt_mobile_v2_mse"
     os.makedirs(log_dir, exist_ok=True)
     
-    onnx_path = f"{cfg.DIPOORLET.tensorrt_export_dir}/mobilev2_model_new.onnx"
+    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"
     
     # 构建 torchrun 命令
     command = [
