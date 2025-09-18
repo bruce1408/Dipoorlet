@@ -46,9 +46,7 @@ def set_dynamic_range(config, network, blob_range):
 
 def buildEngine(onnx_file, export_engine_file, json_path):
     builder = trt.Builder(LOGGER)
-    network = builder.create_network(
-        1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
-    )
+    network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
     parser = trt.OnnxParser(network, LOGGER)
     config = builder.create_builder_config()
     parser.parse_from_file(onnx_file)
