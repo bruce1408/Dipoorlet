@@ -50,4 +50,5 @@ torch.onnx.export(
     export_params=True, 
     opset_version=11
 )
+
 print_utils.print_colored_text(f"onnx has been saved in {export_onnx_path}")

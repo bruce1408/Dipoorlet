@@ -9,9 +9,11 @@ Description: 根据trt量化参数, 生成新的 tensorrt engine
 import tensorrt as trt
 import os, sys
 import json
-from printk import print_colored_box
+from spectrautils.print_utils import *
+from common.configs import get_cfg_defaults
+
+cfg = get_cfg_defaults()
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
-import DemoLab.dipoorlet_utils.quant_config as config
 
 
 def set_dynamic_range(config, network, blob_range):
@@ -102,7 +104,7 @@ def main():
         "Load ONNX file from:%s \nStart export, Please wait a moment..." % (onnx_file)
     )
     buildEngine(onnx_file, export_engine_file, json_path)
-    print_colored_box(f"Export ENGINE success, Save as: {export_engine_file}")
+    print_colored_text(f"Export ENGINE success, Save as: {export_engine_file}", "green")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,10 @@ import time, os, sys
 import torch
 from PIL import Image
 from DemoLab.dipoorlet_utils.dataset import get_dataset
-import DemoLab.dipoorlet_utils.quant_config as config
+from common.configs import get_cfg_defaults
+cfg = get_cfg_defaults()
+
+# import DemoLab.dipoorlet_utils.quant_config as config
 
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 EXPLICIT_BATCH = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
@@ -81,10 +84,9 @@ def deserializing_engine(engine_file):
 
 
 def main(mode):
-    _, val_dataset, _ = get_dataset()
-    val_loaders = torch.utils.data.DataLoader(
-        val_dataset, batch_size=1, shuffle=True, num_workers=8
-    )
+    _, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
+    val_loaders = torch.utils.data.DataLoader(val_dataset, batch_size=1, shuffle=True, num_workers=8)
+    
     # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
     # engine_file = f"{config.export_work_dir}/mobilev2_model_trt_{mode}.engine"
     # engine_file = f"{config.export_work_dir}/trt_mobilev2_trt_intrinsic_kl/mobilev2_model_trt_{mode}.engine"
@@ -93,7 +95,7 @@ def main(mode):
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
-    engine_file = f"{config.export_work_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
+    engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
     engine = deserializing_engine(engine_file)
 
     context = engine.create_execution_context()
