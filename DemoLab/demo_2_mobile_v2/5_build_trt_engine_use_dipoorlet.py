@@ -86,9 +86,9 @@ def main():
     # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_int8.engine"
     
     # dipoorlet 使用 minmax 量化算法
-    onnx_file = f"{config.tensorrt_dir}/trt_mobile_v2_dipoorlet_minmax/quant_model.onnx"
-    json_path = f"{config.tensorrt_dir}/trt_mobile_v2_dipoorlet_minmax/trt_clip_val.json"
-    export_engine_file = f"{config.tensorrt_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_int8.engine"
+    onnx_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_minmax/quant_model.onnx"
+    json_path = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_minmax/trt_clip_val.json"
+    export_engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_int8.engine"
     
     
     # dipoorlet 使用 mse + brecq 量化算法

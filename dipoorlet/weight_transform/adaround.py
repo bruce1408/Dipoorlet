@@ -64,9 +64,9 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
 
             q_in_tensor = np.stack(q_act_cache[in_tensor_name])
             fp_out_tensor = np.stack(fp_act_cache[node.output[0]])
-            print(node.output[0])
-            print(fp_act_cache[node.output[0]].__len__())
-            print("the output shape fp out ",fp_out_tensor.shape)
+            # print(node.output[0])
+            # print(fp_act_cache[node.output[0]].__len__())
+            # print("the output shape fp out ",fp_out_tensor.shape)
             prev_act_cache = q_act_cache.activation_cache.copy()
 
             # Get weight and build torch conv.
@@ -75,7 +75,7 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
             if len(node.input) == 3:
                 bias = numpy_helper.to_array(graph_ada.initializer[node.input[2]][0])
 
-            weight = torch.from_numpy(weight).cuda()
+            weight = torch.from_numpy(weight.copy()).cuda()
             # Get quantization param.
             if args.deploy != 'nnie':
                 weight_range = clip_val[node.input[1]]
@@ -107,7 +107,7 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
             else:
                 fp_tensor = torch.nn.Parameter(torch.from_numpy(fp_out_tensor), False)
             # Learning round mask.
-            print("fp tensor.shape", fp_tensor.shape)
+            # print("fp tensor.shape", fp_tensor.shape)
             total_iter = args.ada_epoch * np.ceil(num_per_rank / args.ada_bs)
             
             # 根据总的迭代次数来初始化一个正则函数，这个正则就是论文中的F正则
@@ -115,14 +115,14 @@ def adaround(graph_ori, graph, act_clip_val, weight_clip_val, args):
             
             # 这个就是优化求解，构建一个torch模型，写一个自定义的qlayer
             # print("node is ", node)
-            print(weight.shape) # 32, 3, 3, 3
-            print(bias.shape) # 32
-            print(rest.shape) # 32, 3, 3, 3
+            # print(weight.shape) # 32, 3, 3, 3
+            # print(bias.shape) # 32
+            # print(rest.shape) # 32, 3, 3, 3
             # print("reg is: ", reg)
             # print(qw_tensor)
-            print(relu_flag)    # false
-            print(node.op_type) # conv
-            print(args.acti_quant) # false
+            # print(relu_flag)    # false
+            # print(node.op_type) # conv
+            # print(args.acti_quant) # false
             ada_layer = AdaQLayer(node, weight, bias, rest, reg, qw_tensor, None,
                                   relu_flag, node.op_type, args.acti_quant)
             round_mask = learning_round_mask(
@@ -163,13 +163,13 @@ def learning_round_mask(in_tensor, fp_out_tensor, ada_layer, reg, batch_size, ma
             # print("========= the batch is ", np.ceil(len(in_tensor) / batch_size).astype(int), batch_size)
             st = idx * batch_size
             ed = st + batch_size
-            print("the st is ", st, __file__)
-            print("the ed is ", ed, __file__)
+            # print("the st is ", st, __file__)
+            # print("the ed is ", ed, __file__)
             input = in_tensor[st:ed].squeeze(1)
             fp_output = fp_out_tensor[st:ed].squeeze(1)
             output = ada_layer(input)
-            print("the output is ", output.shape, __file__)
-            print("the fp_output is ", fp_output.shape, __file__)
+            # print("the output is ", output.shape, __file__)
+            # print("the fp_output is ", fp_output.shape, __file__)
             loss = L2_norm(output, fp_output) + reg(ada_layer.module.round_mask, cur_iter)
             cur_iter += 1
             optimizer.zero_grad()

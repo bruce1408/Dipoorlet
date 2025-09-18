@@ -69,7 +69,7 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
             # Get weight and build torch conv.
             for _node in block_layer_list:
                 weight = numpy_helper.to_array(graph_brecq.initializer[_node.input[1]][0])
-                weight = torch.from_numpy(weight).cuda()
+                weight = torch.from_numpy(weight.copy()).cuda()
                 bias = None
                 if len(_node.input) == 3:
                     bias = numpy_helper.to_array(graph_brecq.initializer[_node.input[2]][0])
@@ -132,7 +132,7 @@ def brecq(graph_ori, graph, act_clip_val, weight_clip_val, args):
             # Deploy new weight.
             for idx, _node in enumerate(block_layer_list):
                 weight = numpy_helper.to_array(graph_brecq.initializer[_node.input[1]][0])
-                weight = torch.from_numpy(weight).cuda()
+                weight = torch.from_numpy(weight.copy()).cuda()
                 round_mask = round_mask_list[idx]
                 if args.deploy != 'nnie':
                     weight_range = clip_val[_node.input[1]]

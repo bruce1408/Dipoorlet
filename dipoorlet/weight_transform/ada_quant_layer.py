@@ -205,7 +205,7 @@ class AdaQLayer(torch.nn.Module):
         conv.weight.data = weight.data
         conv.weight.requires_grad = False
         if bias is not None:
-            conv.bias.data = torch.from_numpy(bias).cuda().data
+            conv.bias.data = torch.from_numpy(bias.copy()).cuda().data
             conv.bias.requires_grad = False
         return conv
 
@@ -217,7 +217,7 @@ class AdaQLayer(torch.nn.Module):
         linear.weight.data = weight.data
         linear.weight.requires_grad = False
         if bias is not None:
-            linear.bias.data = torch.from_numpy(bias).cuda().data
+            linear.bias.data = torch.from_numpy(bias.copy()).cuda().data
             linear.bias.requires_grad = False
         return linear
 
