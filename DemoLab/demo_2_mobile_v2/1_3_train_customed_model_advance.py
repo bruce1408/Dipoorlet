@@ -9,7 +9,6 @@ from torch.optim import lr_scheduler
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import time, os, copy, numpy as np
 from spectrautils import logging_utils, print_utils
-# from dipoorlet_utils import quant_config
 from dipoorlet_utils.dataset import get_dataset
 import argparse
 from torch.utils.data import RandomSampler
@@ -18,16 +17,14 @@ from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 from common.configs import get_cfg_defaults
 cfg = get_cfg_defaults()
 
+
 # 添加命令行参数解析
 def get_config():
     parser = argparse.ArgumentParser(description='MobileNetV2训练或继续微调')
-    parser.add_argument('--resume', 
-                        type=str, 
-                        default="",
-                        help='加载检查点文件路径继续训练')
-    parser.add_argument('--epochs', type=int, default=50, help='训练轮数，如果不指定则使用配置文件中的值')
-    parser.add_argument('--lr', type=float, default=0.01, help='初始学习率设置')
-    parser.add_argument('--auto_resume', default=False, help='自动加载指定目录中最新的模型文件')
+    parser.add_argument('--resume',     default="", type=str, help='加载检查点文件路径继续训练')                        
+    parser.add_argument('--epochs',     type=int, default=50, help='训练轮数，如果不指定则使用配置文件中的值')
+    parser.add_argument('--lr',         type=float, default=0.01, help='初始学习率设置')
+    parser.add_argument('--auto_resume', default=False, type=bool, help='自动加载指定目录中最新的模型文件')
     parser.add_argument('--weight_decay', type=float, default=4e-5, help='权重衰减')
     parser.add_argument('--label_smoothing', type=float, default=0.1, help='标签平滑参数')
     parser.add_argument('--mixup', type=float, default=0.2, help='Mixup alpha参数')
@@ -36,8 +33,7 @@ def get_config():
     args = parser.parse_args()
     return args
 
-
-logger_manager = logging_utils.AsyncLoggerManager("./logs")
+logger_manager = logging_utils.AsyncLoggerManager(cfg.DIPOORLET.export_work_dir)
 logger = logger_manager.logger
 
 os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS

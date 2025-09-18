@@ -3,17 +3,17 @@ import sys
 import datetime
 import torch
 import torch.nn as nn
-from printk import * 
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 import time, os, copy, numpy as np
 
-from DemoLab.dipoorlet_utils import quant_config
-from DemoLab.dipoorlet_utils.dataset import get_dataset
+from common.configs import get_cfg_defaults
+from dipoorlet_utils.dataset import get_dataset
+from spectrautils.print_utils import *
 
-
-os.environ["CUDA_VISIBLE_DEVICES"] = quant_config.cuda_ids
+cfg = get_cfg_defaults()
+os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS
 num_gpus = torch.cuda.device_count()
 
 def train_model(
@@ -89,8 +89,8 @@ def train_model(
             if phase == "val" and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
-                os.makedirs(quant_config.export_work_dir, exist_ok=True)
-                torch.save(model, f"{quant_config.export_work_dir}/best_model.pth")
+                os.makedirs(cfg.SYSTEM.MODELS_DIR, exist_ok=True)
+                torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_best_model.pth")
 
 
         # 用列表存储所有的输出信息
@@ -121,7 +121,6 @@ def train_model(
 
 
 # model = models.resnet18(pretrained=True)
-# model = models.mobilenet_v2(pretrained=True)
 model = mobilenet_v2(weights=MobileNet_V2_Weights.IMAGENET1K_V1)
 
 # Finetune Final few layers to adjust for tiny imagenet input
@@ -134,6 +133,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 
 if num_gpus > 1:
+    
     # 使用所有可见的 GPU
     device_ids = list(range(num_gpus))  # 此时 num_gpus 会是 1，因为我们只暴露了一个 GPU
     model = torch.nn.DataParallel(model, device_ids=device_ids)
@@ -155,13 +155,13 @@ optimizer_ft = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 # Decay LR by a factor of 0.1 every 7 epochs
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 
-train_dataset, val_dataset, _ = get_dataset()
+train_dataset, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
 
 train_loaders = torch.utils.data.DataLoader(
-    train_dataset, batch_size=quant_config.train_batch_size, shuffle=True, num_workers=8
+    train_dataset, batch_size=cfg.DIPOORLET.train_batch_size, shuffle=True, num_workers=8
 )
 val_loaders = torch.utils.data.DataLoader(
-    val_dataset, batch_size=quant_config.val_batch_size, shuffle=True, num_workers=8
+    val_dataset, batch_size=cfg.DIPOORLET.val_batch_size, shuffle=True, num_workers=8
 )
 
 
@@ -180,9 +180,9 @@ model = train_model(
     criterion,
     optimizer_ft,
     exp_lr_scheduler,
-    num_epochs=quant_config.epochs,
+    num_epochs=cfg.DIPOORLET.epochs,
 )
 
 current_timestamp = datetime.datetime.now()
 formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-torch.save(model, f"{quant_config.export_work_dir}/{formatted_timestamp}_mobilev2_model.pth")
+torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")

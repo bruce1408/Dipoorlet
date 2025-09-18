@@ -4,7 +4,6 @@ import tensorrt as trt
 from loguru import logger
 from contextlib import redirect_stdout
 from spectrautils import print_utils
-# import dipoorlet_utils.quant_config as config_param
 from common.configs import get_cfg_defaults
 from dipoorlet_utils.calibrator import Calibrator, CalibDataLoader
 

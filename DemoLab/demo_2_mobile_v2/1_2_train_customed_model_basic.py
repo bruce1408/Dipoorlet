@@ -20,15 +20,12 @@ cfg = get_cfg_defaults()
 # 添加命令行参数解析
 def get_config():
     parser = argparse.ArgumentParser(description='MobileNetV2训练或继续微调')
-    parser.add_argument('--resume', 
-                        type=str, 
-                        default="",
-                        help='加载检查点文件路径继续训练')
-    parser.add_argument('--epochs', type=int, default=None, help='训练轮数，如果不指定则使用配置文件中的值')
-    parser.add_argument('--lr', type=float, default=0.0005, help='初始学习率设置')  # 降低默认学习率
-    parser.add_argument('--auto_resume', default=True, help='自动加载指定目录中最新的模型文件')
-    parser.add_argument('--optimizer', type=str, default='adam', choices=['sgd', 'adam'], help='选择优化器')
-    parser.add_argument('--scheduler', type=str, default='plateau', choices=['step', 'plateau', 'cosine'], help='学习率调度器')
+    parser.add_argument('--resume',     default="", type=str, help='加载检查点文件路径继续训练')
+    parser.add_argument('--epochs',     type=int, default=None, help='训练轮数，如果不指定则使用配置文件中的值')
+    parser.add_argument('--lr',         type=float, default=0.0005, help='初始学习率设置')  # 降低默认学习率
+    parser.add_argument('--auto_resume', default=True, type=bool, help='自动加载指定目录中最新的模型文件')
+    parser.add_argument('--optimizer',  type=str, default='adam', choices=['sgd', 'adam'], help='选择优化器')
+    parser.add_argument('--scheduler',  type=str, default='plateau', choices=['step', 'plateau', 'cosine'], help='学习率调度器')
     parser.add_argument('--batch_size', type=int, default=None, help='批次大小，如不指定则使用配置文件中的值')
     parser.add_argument('--weight_decay', type=float, default=1e-4, help='权重衰减系数')
 
@@ -298,7 +295,10 @@ def main():
     if args.resume and os.path.isfile(args.resume):
         checkpoint = torch.load(args.resume, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer_ft.load_state_dict(checkpoint['optimizer_state_dict'])
+        # optimizer_ft.load_state_dict(checkpoint['optimizer_state_dict'])
+        # 只有当checkpoint中的optimizer_state_dict存在且其'state'不为空时才加载
+        if 'optimizer_state_dict' in checkpoint and checkpoint['optimizer_state_dict']['state']:
+            optimizer_ft.load_state_dict(checkpoint['optimizer_state_dict'])
         exp_lr_scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         start_epoch = checkpoint.get('epoch', 0)
         best_acc = checkpoint.get('best_acc', 0.0)
