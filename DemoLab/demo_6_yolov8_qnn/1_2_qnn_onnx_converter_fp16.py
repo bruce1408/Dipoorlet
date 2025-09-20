@@ -9,7 +9,8 @@ def main():
     log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_fp16_{cfg.SYSTEM.TIMESTAMP}"
     os.makedirs(log_dir, exist_ok=True)
 
-    calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data.txt"
+    # calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data.txt"
+    calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data_fp16.txt"
     onnx_path = cfg.DIPOORLET.yolov8_onnx_models
 
     
@@ -17,9 +18,10 @@ def main():
     command = [
         "qnn-onnx-converter",
         "--input_network", onnx_path,
-        "--input_list", calib_data_txt,
+        # "--input_list", calib_data_txt,
+        "--float_bitwidth", "16",
         "-o", f"{log_dir}/qnn_yolov8_quant_basic.cpp",
-        "--use_per_channel_quantization",
+        # "--use_per_channel_quantization",
         # "--quantization_overrides"
         # --act_bitwidth 8 --bias_bitwidth 32 --weights_bitwidth 8
 
