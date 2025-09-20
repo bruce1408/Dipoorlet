@@ -4,18 +4,12 @@ import dipoorlet_utils.quant_config as config
 from common.configs import get_cfg_defaults
 cfg = get_cfg_defaults()
 
-# 构建 CUDA 环境变量
-os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS
-os.environ["OMP_NUM_THREADS"] = cfg.DIPOORLET.OMP_NUM_THREADS  # 设置OpenMP线程数，可以根据CPU核心数调整
-cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
-
-
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_basic_{cfg.SYSTEM.TIMESTAMP}"
+    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_int8_500_{cfg.SYSTEM.TIMESTAMP}"
     os.makedirs(log_dir, exist_ok=True)
 
-    calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data.txt"
+    calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data_500.txt"
     onnx_path = cfg.DIPOORLET.yolov8_onnx_models
 
     
