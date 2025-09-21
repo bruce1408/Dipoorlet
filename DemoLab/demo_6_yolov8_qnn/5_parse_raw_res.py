@@ -126,13 +126,16 @@ def main(info, mode):
 
     
 if __name__ == "__main__":
-    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_int8_1000_20250920_215500"
+    # log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_int8_1000_20250920_215500"
+    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_mixed_20250921_190437"
+    
     # log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_fp16_20250921_010631"
     img_path = f"{cfg.SYSTEM.coco2017_val_path}/000000556000.jpg"
 
 
     # mode = "fp16"
-    mode = "int8"
+    # mode = "int8"
+    mode = "mixed"
     main(info, mode)
 
 
