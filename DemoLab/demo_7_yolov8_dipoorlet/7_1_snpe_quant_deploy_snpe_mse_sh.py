@@ -1,6 +1,5 @@
 import os, sys
 import subprocess
-import dipoorlet_utils.quant_config as config
 from common.configs import get_cfg_defaults
 cfg = get_cfg_defaults()
 
@@ -11,33 +10,29 @@ cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
 
 
 def main():
-    # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_brecq_{cfg.SYSTEM.TIMESTAMP}"
+    # 命名规则按照 = 量化工具+平台+模型+量化算法
+    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/dipoorlet_yolov8_quant_int8_500_mse_{cfg.SYSTEM.TIMESTAMP}"
     os.makedirs(log_dir, exist_ok=True)
-
-    calibration_data = cfg.DIPOORLET.dipoorlet_calib_data_dir
-    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"   
-
     
+    onnx_path = cfg.DIPOORLET.yolov8_onnx_models
+
     # 构建 torchrun 命令
     command = [
         "torchrun",
-        "--master_port=29502",
         f"--nproc_per_node={cuda_nums}",
+        "--master_port=29501",
         "-m", "dipoorlet",
         "-M", onnx_path,
-        "-I", calibration_data,
+        "-I", f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/yolov8_calib/",
         "-O", log_dir,
         "-N", "100",
         "-A", "mse",
-        "-D", "trt",
         "--onnx_sim",
-        "--brecq"
+        "-D", "snpe"
     ]
-    
-    # 执行命令
+
+        # 执行命令
     subprocess.run(command, check=True)
 
-    
 if __name__ == "__main__":
     main()

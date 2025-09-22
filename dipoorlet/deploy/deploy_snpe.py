@@ -26,6 +26,7 @@ def gen_snpe_encodings(graph, clip_val, args, **kwargs):
             'min': float(clip_val[output_tensor][0]),
             'max': max(max(0.0, float(clip_val[output_tensor][1])), float(clip_val[output_tensor][0]) + 0.01)
         }]
+    
     encodings = {
         'activation_encodings': activation_encodings,
         'param_encodings': {}

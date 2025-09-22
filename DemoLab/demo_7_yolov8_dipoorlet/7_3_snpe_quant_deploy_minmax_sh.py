@@ -11,10 +11,8 @@ cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
 
 def main():
     # 命名规则按照 = 量化工具+平台+模型+量化算法
-    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_int8_500_{cfg.SYSTEM.TIMESTAMP}"
+    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/dipoorlet_yolov8_quant_int8_500_minmax_{cfg.SYSTEM.TIMESTAMP}"
     os.makedirs(log_dir, exist_ok=True)
-
-    calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data_500.txt"
     
     onnx_path = cfg.DIPOORLET.yolov8_onnx_models
 
@@ -22,18 +20,18 @@ def main():
     command = [
         "torchrun",
         f"--nproc_per_node={cuda_nums}",
-        "--master_port=29501",
+        "--master_port=29502",
         "-m", "dipoorlet",
         "-M", onnx_path,
-        "-I", cfg.DIPOORLET.dipoorlet_calib_data_dir,
+        "-I", f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/yolov8_calib/",
         "-O", log_dir,
-        "-N", "500",
-        "-A", "mse",
-        "--onnx_sim",
-        "-D", "snpe"
+        "-N", "100",
+        "-A", "minmax",
+        "-D", "snpe",
+        "--onnx_sim"
     ]
 
-        # 执行命令
+    # 执行命令
     subprocess.run(command, check=True)
 
 if __name__ == "__main__":

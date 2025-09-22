@@ -1,4 +1,4 @@
-import os
+import os,cv2
 import random
 import numpy as np
 import pandas as pd
@@ -19,6 +19,19 @@ except ImportError:
     config = get_cfg_defaults()
 
 
+class_names = config.DIPOORLET.COCO_labels
+
+info = {
+    "inputs_name": ["images"],
+    "outputs_name" : ["output0"],
+    "input_width": 640,
+    "input_height": 640,
+    "confidence_thres": 0.001,
+    "iou_thres": 0.7,
+    "max_det": 300,
+    "class_names": class_names,
+    "providers": ["CUDAExecutionProvider"]
+}
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))
 #200类，每类随机选5个
@@ -108,18 +121,68 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
             f.write(cache)
             f.flush()
 
-
 # For Dipoorlet
 def get_dipoorlet_calib():
+    calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/mobilvnetv2_calib/input.1/"
+    os.makedirs(calibration_dir_path, exist_ok=True)
+        
     data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/images/"
     image_list = get_calib_data_path()    
+    
     for i, image_path in tqdm(enumerate(image_list)):
         image = Image.open(data_root + image_path).convert("RGB")
         image = Preprocess(image).numpy()
-        calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/input.1/"
-        os.makedirs(calibration_dir_path, exist_ok=True)
+        
+        image.tofile(f"{calibration_dir_path}" + str(i) + ".bin")
+        
+def LetterBox(img, new_shape):
+    shape = img.shape[:2]  # current shape [height, width]
+
+    # Scale ratio (new / old)
+    r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+
+    # Compute padding
+    new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+    dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+
+    dw /= 2  # divide padding into 2 sides
+    dh /= 2
+
+    if shape[::-1] != new_unpad:  # resize
+        img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+    img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114))
+    return img
+
+
+def yolov8_process(img_path, info):
+    img = cv2.imread(img_path)
+    img_height, img_width = img.shape[:2]
+    info.update({"img_height": img_height, "img_width": img_width})
+    img = LetterBox(img, (info["input_width"], info["input_height"]))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = np.array(img) / 255.0
+    img = np.transpose(img, (2, 0, 1))
+    img = np.expand_dims(img, axis=0).astype(np.float32)
+    return img 
+    
+    
+def get_yolov8_calib(sample_num=500):
+    calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/yolov8_calib/images/"
+    os.makedirs(calibration_dir_path, exist_ok=True)
+    
+    data_root = config.SYSTEM.coco2017_val_path
+
+    image_list = os.listdir(data_root)    
+    for i, image_path in tqdm(enumerate(image_list[0:sample_num])):
+        image = yolov8_process(os.path.join(data_root, image_path), info)
         image.tofile(f"{calibration_dir_path}" + str(i) + ".bin")
 
-
 if __name__ == "__main__":
-    get_dipoorlet_calib()
+    
+    # imagenet 
+    # get_dipoorlet_calib()
+    
+    # yolov8数据集
+    get_yolov8_calib()
