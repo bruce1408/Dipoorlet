@@ -122,6 +122,10 @@ snpe_platform_settings = {
     'deploy_weight': False
 }
 
+# qnn docks https://docs.qualcomm.com/bundle/publicresource/topics/80-63442-50/quantization.html
+qnn_platform_settings = {
+    
+}
 
 # TI docs https://software-dl.ti.com/jacinto7/esd/processor-sdk-rtos-jacinto7 \
 # /07_03_00_07/exports/docs/tidl_j7_02_00_00_07/ti_dl/docs/ \
@@ -180,5 +184,6 @@ platform_setting_table = {
     'atlas': atlas_platform_settings,
     'snpe': snpe_platform_settings,
     'ti': ti_platform_settings,
-    'imx': imx_platform_settings
+    'imx': imx_platform_settings,
+    'qnn': qnn_platform_settings
 }

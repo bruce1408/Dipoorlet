@@ -17,38 +17,46 @@ from spectrautils import print_utils
 
 
 cfg = get_cfg_defaults()
-current_file_path = os.path.dirname(os.path.abspath(__file__))
 
-model = torch.load(f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic.pth")
+def evaluate_model():
+    current_file_path = os.path.dirname(os.path.abspath(__file__))
 
-_, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
+    model = torch.load(f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic.pth")
 
-dataloaders = torch.utils.data.DataLoader(
-    val_dataset, batch_size=cfg.DIPOORLET.val_batch_size, shuffle=True, num_workers=8)
+    _, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
 
-running_corrects = 0.0
-for i, (inputs, labels) in tqdm(enumerate(dataloaders)):
-    inputs = inputs.cuda()
-    labels = labels.cuda()
-    outputs = model(inputs)
-    _, preds = torch.max(outputs, 1)
-    running_corrects += torch.sum(preds == labels.data)
-print_utils.print_colored_box(f"Accuracy : {running_corrects / len(val_dataset) * 100:.2f}%")
+    dataloaders = torch.utils.data.DataLoader(
+        val_dataset, batch_size=cfg.DIPOORLET.val_batch_size, shuffle=True, num_workers=8)
 
-# convert to onnx
-if isinstance(model, torch.nn.DataParallel):
-    model = model.module
+    running_corrects = 0.0
+    for i, (inputs, labels) in tqdm(enumerate(dataloaders)):
+        inputs = inputs.cuda()
+        labels = labels.cuda()
+        outputs = model(inputs)
+        _, preds = torch.max(outputs, 1)
+        running_corrects += torch.sum(preds == labels.data)
+    print_utils.print_colored_box(f"Accuracy : {running_corrects / len(val_dataset) * 100:.2f}%")
 
 
-x = torch.randn(1, 3, 224, 224).cuda()
+def export_onnx():
+    # convert to onnx
+    if isinstance(model, torch.nn.DataParallel):
+        model = model.module
 
-export_onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"
-torch.onnx.export(
-    model, 
-    x, 
-    export_onnx_path, 
-    export_params=True, 
-    opset_version=11
-)
+    x = torch.randn(1, 3, 224, 224).cuda()
 
-print_utils.print_colored_text(f"onnx has been saved in {export_onnx_path}")
+    export_onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"
+    torch.onnx.export(
+        model, 
+        x, 
+        export_onnx_path, 
+        export_params=True, 
+        opset_version=11
+    )
+
+    print_utils.print_colored_text(f"onnx has been saved in {export_onnx_path}")
+
+
+if __name__ == "__main__":
+    evaluate_model()
+    # export_onnx()
