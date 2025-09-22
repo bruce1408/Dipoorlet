@@ -28,7 +28,7 @@ def main():
         "-N", "100",
         "-A", "hist",
         "--onnx_sim",
-        "-D", "trt"
+        "-D", "snpe"
     ]
     
     # 执行命令

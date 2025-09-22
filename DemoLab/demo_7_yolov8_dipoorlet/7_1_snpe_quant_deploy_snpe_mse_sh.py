@@ -25,13 +25,13 @@ def main():
         "-M", onnx_path,
         "-I", f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/yolov8_calib/",
         "-O", log_dir,
-        "-N", "100",
+        "-N", "12",
         "-A", "mse",
         "--onnx_sim",
         "-D", "snpe"
     ]
 
-        # 执行命令
+    # 执行命令
     subprocess.run(command, check=True)
 
 if __name__ == "__main__":
