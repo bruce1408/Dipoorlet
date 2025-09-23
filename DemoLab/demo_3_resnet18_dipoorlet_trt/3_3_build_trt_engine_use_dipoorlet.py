@@ -84,9 +84,16 @@ def main():
     # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_int8.engine"
     
     # dipoorlet 使用 minmax 量化算法
-    onnx_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_adaround/quant_model.onnx"
+    onnx_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_breq/brecq.onnx"
+    json_path = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_breq/trt_clip_val.json"
+    export_engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_breq/resnet18_dipoorlet_breq_int8.engine"
+    
+    # dipoorlet 使用 adaround 量化算法
+    onnx_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_adaround/adaround.onnx"
     json_path = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_adaround/trt_clip_val.json"
-    export_engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8.engine"
+    export_engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8_1.engine"
+    
+    # /mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/adaround.onnx
     
     
     # dipoorlet 使用 mse + brecq 量化算法

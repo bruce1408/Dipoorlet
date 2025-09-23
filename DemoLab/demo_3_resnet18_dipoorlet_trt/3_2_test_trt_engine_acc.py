@@ -188,8 +188,9 @@ if __name__ == "__main__":
     # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_mse/resnet18_model_dipoorlet_mse_int8.engine"
     # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_hist/resnet18_model_dipoorlet_hist_int8.engine"
     # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_minmax/resnet18_dipoorlet_minmax_int8.engine"
-    engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8.engine"
-    
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8.engine"
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_breq/resnet18_dipoorlet_breq_int8.engine"
+    engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8_1.engine"
     # main("fp16")
     main(quant_mode="int8", engine_file=engine_file_path)
 
