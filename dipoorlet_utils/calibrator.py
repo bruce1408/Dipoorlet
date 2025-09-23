@@ -35,9 +35,10 @@ info = {
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))
 #200类，每类随机选5个
+
 def get_calib_data_path():
     img_paths = []
-    data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/"
+    data_root = f"{config.SYSTEM.imagenet_200_dir}/val/"
     data_info = pd.read_table(data_root + "val_annotations.txt")
     grouped = data_info.groupby(data_info.columns[1])
     classes = list(grouped.groups.keys())
@@ -48,23 +49,24 @@ def get_calib_data_path():
 
     return img_paths
 
-# print(get_calib_data_path())
 
 def Preprocess(img):
-    transforms_val = transforms.Compose(
-        [
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]),
-        ]
-    )
+    
+    transforms_val = transforms.Compose([
+        transforms.Resize(248), 
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262])
+    ])
+    
+    
     img = transforms_val(img)
     return img
 
 # For TRT
 class CalibDataLoader:
     def __init__(self, batch_size, calib_count):
-        self.data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/images/"
+        self.data_root = f"{config.SYSTEM.imagenet_200_dir}/val/images/"
         self.index = 0
         self.batch_size = batch_size
         self.calib_count = calib_count
@@ -122,11 +124,12 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
             f.flush()
 
 # For Dipoorlet
-def get_dipoorlet_calib():
-    calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/mobilvnetv2_calib/input.1/"
+def get_dipoorlet_calib(input_name="input.1", dataset_name="mobilenetv2_calib"):
+    
+    calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/{dataset_name}/{input_name}/"
     os.makedirs(calibration_dir_path, exist_ok=True)
         
-    data_root = f"{config.DIPOORLET.imagenet_200_dir}/val/images/"
+    data_root = f"{config.SYSTEM.imagenet_200_dir}/val/images/"
     image_list = get_calib_data_path()    
     
     for i, image_path in tqdm(enumerate(image_list)):
@@ -185,4 +188,7 @@ if __name__ == "__main__":
     # get_dipoorlet_calib()
     
     # yolov8数据集
-    get_yolov8_calib()
+    # get_yolov8_calib()
+    
+    # resnet18数据集
+    get_dipoorlet_calib(input_name="input.1", dataset_name="resnet18_calib")

@@ -17,8 +17,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from dipoorlet_utils.dataset import get_dataset
 import dipoorlet_utils.quant_config as config
 
-
-
 """
 冻结所有层,只训练自己定制的全连接层
 https://cloud.tencent.com/developer/article/1435646
