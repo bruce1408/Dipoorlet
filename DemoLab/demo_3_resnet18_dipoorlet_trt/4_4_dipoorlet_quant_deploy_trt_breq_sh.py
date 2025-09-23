@@ -1,5 +1,6 @@
 import os, sys
 import subprocess
+import dipoorlet_utils.quant_config as config
 from common.configs import get_cfg_defaults
 cfg = get_cfg_defaults()
 
@@ -10,29 +11,33 @@ cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
 
 
 def main():
-    # 命名规则按照 = 量化工具+平台+模型+量化算法
-    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/dipoorlet_trt_mobile_v2_mse"
+    
+    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_breq"
     os.makedirs(log_dir, exist_ok=True)
     
-    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"
+    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
+    calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/"    
+
     
     # 构建 torchrun 命令
     command = [
         "torchrun",
+        "--master_port=29502",
         f"--nproc_per_node={cuda_nums}",
-        "--master_port=29501",
         "-m", "dipoorlet",
         "-M", onnx_path,
-        "-I", cfg.DIPOORLET.dipoorlet_calib_data_dir,
+        "-I", calibration_data,
         "-O", log_dir,
-        "-N", "10",
+        "-N", "100",
         "-A", "mse",
+        "-D", "trt",
         "--onnx_sim",
-        "-D", "trt"
+        "--brecq"
     ]
-
-        # 执行命令
+    
+    # 执行命令
     subprocess.run(command, check=True)
 
+    
 if __name__ == "__main__":
     main()

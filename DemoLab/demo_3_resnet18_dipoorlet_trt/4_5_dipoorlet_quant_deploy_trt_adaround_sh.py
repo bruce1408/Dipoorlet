@@ -13,14 +13,13 @@ cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
 
 @time_it
 def main():
-    # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_brecq_{cfg.SYSTEM.TIMESTAMP}"
+    
+    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_adaround"
     os.makedirs(log_dir, exist_ok=True)
     
-    calibration_data = cfg.DIPOORLET.dipoorlet_calib_data_dir
-    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"   
+    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
+    calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/"    
     
-    # 构建 torchrun 命令
     command = [
         "torchrun",
         "--master_port=29503",
@@ -29,7 +28,7 @@ def main():
         "-M", onnx_path,
         "-I", calibration_data,
         "-O", log_dir,
-        "-N", "8",
+        "-N", "100",
         "-A", "mse",
         "-D", "trt",
         "--onnx_sim",

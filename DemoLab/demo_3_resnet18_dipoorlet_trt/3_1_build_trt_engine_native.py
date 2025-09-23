@@ -10,7 +10,6 @@ from dipoorlet_utils.calibrator import Calibrator, CalibDataLoader
 cfg = get_cfg_defaults()
 LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
-current_dir = os.path.dirname(os.path.realpath(__file__))
 export_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18"
 os.makedirs(export_dir, exist_ok=True)
 
@@ -65,18 +64,13 @@ def main(mode="int8"):
     onnx_file = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
     calibration_cache = f"{export_dir}/resnet18_calib.cache"
 
-    # FP16_mode = False
-    # INT8_mode = True
-
     dataloader = CalibDataLoader(batch_size=1, calib_count=1000)
-
+    
     if not os.path.exists(onnx_file):
         logger.error(f"LOAD ONNX FILE FAILED: {onnx_file}")
         return
 
-    logger.info(
-        f"Load ONNX file from: {onnx_file} \nStart export, Please wait a moment..."
-    )
+    logger.info(f"Load ONNX file from: {onnx_file} \nStart export, Please wait a moment...")
 
     engine_file = f"{export_dir}/resnet18_trt_{mode}.engine"
 
@@ -88,9 +82,5 @@ def main(mode="int8"):
 
 
 if __name__ == "__main__":
-    # 使用 loguru 捕获全局未捕获的异常
-    logger.add(sys.stderr, level="ERROR")  # 终端输出高于 ERROR 的日志
-    try:
-        main("fp16")
-    except Exception as e:
-        logger.exception("Unhandled exception occurred!")
+    main("int8")
+   
