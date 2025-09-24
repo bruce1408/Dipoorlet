@@ -2,6 +2,7 @@ import os, sys
 import subprocess
 # import dipoorlet_utils.quant_config as config
 from common.configs import get_cfg_defaults
+from calculate_trt_engine_acc import calculate_tensorrt_acc
 cfg = get_cfg_defaults()
 
 # 构建 CUDA 环境变量
@@ -34,6 +35,7 @@ def main():
     
     # 执行命令
     subprocess.run(command, check=True)
-
+w
 if __name__ == "__main__":
     main()
+    calculate_tensorrt_acc(engine_file=f"{log_dir}/resnet18_model_dipoorlet_hist_int8.engine")

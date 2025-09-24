@@ -1,0 +1,25 @@
+#!/bin/bash
+
+export CDSP_LIBRARY_PATH="/opt/app/tmp/qnn_226/lib/hexagon-v75;/dsplib/image/dsp;/dsplib/image/dsp/cdsp0;/mnt/etc/images/dsp/"
+export CDSP0_LIBRARY_PATH="/opt/app/tmp/qnn_226/lib/hexagon-v75;/dsplib/image/dsp;/dsplib/image/dsp/cdsp0;/mnt/etc/images/dsp/"
+export CDSP1_LIBRARY_PATH="/opt/app/tmp/qnn_226/lib/hexagon-v75;/dsplib/image/dsp;/dsplib/image/dsp/cdsp1;/mnt/etc/images/dsp/"
+export HWINFO_LIB="/mnt/lib64/dll:/mnt/usr/lib64"
+export PATH="/opt/app/tmp/qnn_226/bin:$PATH"
+export VENDOR_LIB="/opt/app/tmp/qnn_226/lib"
+export ADSP_LIBRARY_PATH="/mnt/etc/images/dsp:/opt/app/tmp/qnn_232_patch_for_laneline/lib/hexagon-v75"
+export LD_LIBRARY_PATH="${HWINFO_LIB}:${VENDOR_LIB}:$LD_LIBRARY_PATH"
+export LD_PRELOAD="/ifs/lib64/libsocket.so.4"
+
+echo "处理模型 : od_bev_25_0206.1_stage.context.bin"
+
+qnn-net-run --backend libQnnHtp.so \
+    --retrieve_context /data/cdd/od_bev_0416.0.context.bin \
+    --input_list /data/cdd/inputs.txt \
+    --num_inferences 1 \
+    --profiling_level detailed \
+    --output_dir /data/cdd/ \
+    --synchronous
+    # --keep_num_outputs 0 &
+
+
+qnn-profile-viewer --input_log /data/cdd/qnn-profiling-data.log --output /data/cdd/profile_od_226.csv

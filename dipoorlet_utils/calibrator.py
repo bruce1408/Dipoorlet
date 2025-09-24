@@ -135,9 +135,9 @@ def get_dipoorlet_calib(input_name="input.1", dataset_name="mobilenetv2_calib"):
     for i, image_path in tqdm(enumerate(image_list)):
         image = Image.open(data_root + image_path).convert("RGB")
         image = Preprocess(image).numpy()
-        
         image.tofile(f"{calibration_dir_path}" + str(i) + ".bin")
         
+
 def LetterBox(img, new_shape):
     shape = img.shape[:2]  # current shape [height, width]
 

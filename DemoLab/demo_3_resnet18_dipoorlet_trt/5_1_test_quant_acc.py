@@ -14,7 +14,6 @@ import torch
 from PIL import Image
 from dipoorlet_utils.dataset import get_dataloaders
 from common.configs import get_cfg_defaults
-from spectrautils.print_utils import *
 cfg = get_cfg_defaults()
 
 
@@ -42,8 +41,9 @@ def allocate_buffers(engine):
     stream = cuda.Stream()
     for binding in engine:
         shape = engine.get_tensor_shape(binding)
+        # size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
         dtype = trt.nptype(engine.get_tensor_dtype(binding))
-
+        
         size = trt.volume(shape)
         # Allocate host and device buffers
         host_mem = cuda.pagelocked_empty(size, dtype)
@@ -90,7 +90,7 @@ def deserializing_engine(engine_file):
     return runtime.deserialize_cuda_engine(serialized_engine)
 
 
-def main(quant_mode, engine_file="", imagenet_mode="normal"):
+def main(quant_mode, imagenet_mode="normal"):
     
     if imagenet_mode == "normal":
         datasets_dir = cfg.SYSTEM.imagenet_dir
@@ -113,9 +113,9 @@ def main(quant_mode, engine_file="", imagenet_mode="normal"):
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
-    # engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18/resnet18_trt_{quant_mode}.engine"
+    engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18/resnet18_trt_{quant_mode}.engine"
     engine = deserializing_engine(engine_file)
-    input_name = engine.get_tensor_name(0)
+    input_name = engine.get_binding_name(0)
 
     context = engine.create_execution_context()
     inputs, outputs, bindings, stream = allocate_buffers(engine)
@@ -181,19 +181,9 @@ def main(quant_mode, engine_file="", imagenet_mode="normal"):
 
         # running_corrects += torch.sum(preds == labels.data)
 
-    print_colored_text(f"Accuracy with TRT {quant_mode} infer : {running_corrects / len(val_dataset) * 100}%", "green")
-    
+    print(f"Accuracy with TRT {quant_mode} infer : {running_corrects / len(val_dataset) * 100}%")
+
 
 if __name__ == "__main__":
-    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_mse/resnet18_model_dipoorlet_mse_int8.engine"
-    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_hist/resnet18_model_dipoorlet_hist_int8.engine"
-    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_minmax/resnet18_dipoorlet_minmax_int8.engine"
-    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8.engine"
-    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_breq/resnet18_dipoorlet_breq_int8.engine"
-    engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8_1.engine"
     # main("fp16")
-    main(quant_mode="int8", engine_file=engine_file_path)
-
-
-
-
+    main("int8")

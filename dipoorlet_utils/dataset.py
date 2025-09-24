@@ -1,11 +1,12 @@
 import os
+import sys
 import pandas as pd
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
 
 import logging
-
 import progressbar
+from typing import NoReturn
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
@@ -26,6 +27,47 @@ NORMALIZE_MEAN = [0.485, 0.456, 0.406]
 NORMALIZE_STD = [0.229, 0.224, 0.225]
 logger = logging.getLogger(__name__)
 
+
+def scan_and_write_paths(directory: str, output_file: str, sample_num: int = 100) -> None:
+    """
+    扫描指定目录下的所有文件，并将它们的完整路径写入一个文本文件中，每个路径占一行。
+
+    这个函数会递归地遍历所有子目录。
+
+    Args:
+        directory (str): 你想要扫描的目录的路径。
+        output_file (str): 用来保存结果的 .txt 文件的路径。
+    """
+    paths_written = 0
+    # 使用 'try...except' 结构来捕捉可能发生的错误，比如目录不存在。
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            # os.walk() 是一个非常有用的函数，它可以遍历一个目录树。
+            # root: 当前正在遍历的文件夹路径。
+            # dirs: 当前文件夹中的子文件夹列表。
+            # files: 当前文件夹中的文件列表。
+            for root, dirs, files in os.walk(directory):
+                # 遍历当前文件夹下的所有文件名。
+                for file in files:
+                    if sample_num is not None and paths_written >= sample_num:
+                        return 
+
+                    # 使用 os.path.join() 来创建一个完整的、跨平台兼容的文件路径。
+                    full_path = os.path.join(root, file)
+                    
+                    # 将完整路径写入文件，并在末尾添加一个换行符 '\n'。
+                    f.write(full_path + '\n')
+                    
+                    paths_written += 1
+        
+        print(f"成功！所有文件路径已保存到 {output_file}")
+
+    except FileNotFoundError:
+        print(f"错误：目录 '{directory}' 不存在，请检查路径是否正确。")
+    except Exception as e:
+        print(f"发生了一个预料之外的错误: {e}")
+
+    
 
 class ImageNetEvaluator:
     """
@@ -226,7 +268,6 @@ def get_dataloaders(datasets_dir: str,
     
     
     transforms_val_test = transforms.Compose([
-        # transforms.Resize((IMG_SIZE[0] + 24, IMG_SIZE[1] + 24)), 
         transforms.Resize(248), 
         transforms.CenterCrop(IMG_SIZE),
         transforms.ToTensor(),
@@ -308,10 +349,24 @@ def get_dataloaders(datasets_dir: str,
     
     return train_loader, val_loader, test_loader
 
+
 # =============================================================================
 # 5. 主程序入口，演示如何使用
 # =============================================================================
 if __name__ == "__main__":
+    
+    # 定义你要扫描的目录。'.' 表示当前目录。
+    # 你可以把它改成任何你想要的路径，例如 "C:/Users/YourUser/Documents"
+    target_directory = '/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/calibration_dataset/resnet18_calib/input.1' 
+    
+    # 定义输出文件的名字。
+    output_filename = '/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/resnet18_calib.txt'
+    
+    # 调用函数来执行扫描和写入操作。
+    scan_and_write_paths(target_directory, output_filename)
+    
+    sys.exit()
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     # --- 示例1: 加载 Tiny ImageNet 数据集 ---
@@ -368,3 +423,9 @@ if __name__ == "__main__":
             print(f"加载 'normal' 模式失败: {e}")
     else:
         print(f"路径不存在，跳过 'normal' 模式演示: {normal_imagenet_path}")
+        
+        
+        
+
+
+

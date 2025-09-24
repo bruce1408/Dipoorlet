@@ -14,6 +14,7 @@ import torch
 from PIL import Image
 from dipoorlet_utils.dataset import get_dataloaders
 from common.configs import get_cfg_defaults
+from spectrautils.print_utils import *
 cfg = get_cfg_defaults()
 
 
@@ -41,9 +42,8 @@ def allocate_buffers(engine):
     stream = cuda.Stream()
     for binding in engine:
         shape = engine.get_tensor_shape(binding)
-        # size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
         dtype = trt.nptype(engine.get_tensor_dtype(binding))
-        
+
         size = trt.volume(shape)
         # Allocate host and device buffers
         host_mem = cuda.pagelocked_empty(size, dtype)
@@ -90,7 +90,7 @@ def deserializing_engine(engine_file):
     return runtime.deserialize_cuda_engine(serialized_engine)
 
 
-def main(quant_mode, imagenet_mode="normal"):
+def calculate_tensorrt_acc(quant_mode="int8", engine_file="", imagenet_mode="normal"):
     
     if imagenet_mode == "normal":
         datasets_dir = cfg.SYSTEM.imagenet_dir
@@ -113,9 +113,9 @@ def main(quant_mode, imagenet_mode="normal"):
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
-    engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18/resnet18_trt_{quant_mode}.engine"
+    # engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18/resnet18_trt_{quant_mode}.engine"
     engine = deserializing_engine(engine_file)
-    input_name = engine.get_binding_name(0)
+    input_name = engine.get_tensor_name(0)
 
     context = engine.create_execution_context()
     inputs, outputs, bindings, stream = allocate_buffers(engine)
@@ -161,7 +161,7 @@ def main(quant_mode, imagenet_mode="normal"):
         
         total_samples = len(val_dataset.dataset) 
     
-
+    
         # print(inps.shape)
         # print(labels.shape)
         
@@ -181,37 +181,20 @@ def main(quant_mode, imagenet_mode="normal"):
 
         # running_corrects += torch.sum(preds == labels.data)
 
-    print(f"Accuracy with TRT {quant_mode} infer : {running_corrects / len(val_dataset) * 100}%")
-
+    print_colored_text(f"Accuracy with TRT {quant_mode} infer : {running_corrects / len(val_dataset) * 100}%", "green")
+    
 
 if __name__ == "__main__":
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_mse/resnet18_model_dipoorlet_mse_int8.engine"
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_hist/resnet18_model_dipoorlet_hist_int8.engine"
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_minmax/resnet18_dipoorlet_minmax_int8.engine"
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8.engine"
+    # engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_breq/resnet18_dipoorlet_breq_int8.engine"
+    engine_file_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/resnet18_dipoorlet_adaround_int8_1.engine"
     # main("fp16")
-    main("int8")
 
-# pytorch
-# Accuracy : 67.7699966430664%
-
-# trt KL INT8
-# Accuracy with TRT int8 infer : 65.06999969482422%
-
-# dipoorlet MSE INT8
-# Accuracy with TRT int8 infer : 66.54000091552734%
-
-# dipoorlet MSE+Brecq INT8
-# Accuracy with TRT int8 infer : 67.27999877929688%
+    calculate_tensorrt_acc(quant_mode="int8", engine_file=engine_file_path)
 
 
 
-
-# pytorch
-# Accuracy : 73.24%
-
-# trt fp16
-# Accuracy with TRT int8 infer : 73.28%
-
-# dipoorlet MSE INT8
-# Accuracy with TRT int8 infer : 66.54000091552734%
-
-# dipoorlet MSE+Brecq INT8
-# Accuracy with TRT int8 infer : 67.27999877929688%
 
