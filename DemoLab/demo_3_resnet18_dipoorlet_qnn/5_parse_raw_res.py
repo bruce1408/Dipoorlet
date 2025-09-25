@@ -4,6 +4,7 @@ import torch
 import subprocess
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
 import onnxruntime as ort
 from torchvision import transforms
 import dipoorlet_utils.quant_config as config
@@ -59,7 +60,7 @@ def preprocess_image(image_path: str) -> np.ndarray:
     Returns:
         np.ndarray: 经过预处理后的图像数据，格式为 NCHW，数据类型为 float32。
     """
-    print("使用 torchvision.transforms 进行图像预处理...")
+    # print("使用 torchvision.transforms 进行图像预处理...")
     
     # 1. 打开图片
     img_pil = Image.open(image_path).convert('RGB')
@@ -89,10 +90,10 @@ def preprocess_image(image_path: str) -> np.ndarray:
     #    onnxruntime 的输入需要是 NumPy 数组
     input_numpy = img_tensor.numpy()
 
-    print(f"预处理后图像的形状: {input_numpy.shape}")
+    # print(f"预处理后图像的形状: {input_numpy.shape}")
     return input_numpy
 
-def infer_with_onnx(model_path: str, image_path: str):
+def infer_with_onnx(model_path: str, image_path: str, labels_map: dict, single_pic: bool = False):
     """
     使用 ONNX Runtime 对单张图片进行 ResNet-18 推理。
     (这个函数内部没有任何改动)
@@ -114,15 +115,13 @@ def infer_with_onnx(model_path: str, image_path: str):
     predicted_class_id = np.argmax(output_tensor)
     confidence_score = np.max(output_tensor)
 
-    print("\n" + "="*24 + " onnx 推理结果 " + "="*23)
-    print(f"预测的类别ID: {predicted_class_id}")
-    print(image_path)
-
-    
-    label_path = "/mnt/share_disk/bruce_trie/workspace/imagenet1000_clsidx_to_labels.txt"
-    labels_map = parse_labels_from_file(label_path)
-    print(f"预测的类别是: {labels_map.get(predicted_class_id)}")
-    print("="*62)
+    if single_pic:
+        print("\n" + "="*24 + " onnx 推理结果 " + "="*23)
+        print(f"预测的类别ID: {predicted_class_id}")
+        print(image_path)
+        print(f"预测的类别是: {labels_map.get(predicted_class_id)}")
+        print("="*62)
+    return predicted_class_id, confidence_score
 
 
 def parse_raw_data(raw_file_path):
@@ -150,16 +149,39 @@ def main(info, mode):
 
 if __name__ == "__main__":
     
-    # --- 请在这里配置你的路径 ---
     ONNX_MODEL_PATH = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
-    IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n02687172/ILSVRC2012_val_00048573.JPEG"
-    IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n03527444/ILSVRC2012_val_00046409.JPEG"
-    
-    infer_with_onnx(ONNX_MODEL_PATH, IMAGE_PATH)
-    
-    RAW_FILE_PATH = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605_debug/Result_1/_191.raw"
-    predicted_class_id, _ = parse_raw_data(RAW_FILE_PATH)
-    print(f"qnn 预测的类别ID: {predicted_class_id}")
-    
-    
+    LABEL_PATH = "/mnt/share_disk/bruce_trie/workspace/imagenet1000_clsidx_to_labels.txt"
+    INFERENCE_SINGLE_PIC = False
+    labels_map = parse_labels_from_file(LABEL_PATH)
+
+
+    if INFERENCE_SINGLE_PIC:
+        IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n02687172/ILSVRC2012_val_00048573.JPEG"
+        IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n03527444/ILSVRC2012_val_00046409.JPEG"
+        
+        infer_with_onnx(ONNX_MODEL_PATH, IMAGE_PATH, labels_map, INFERENCE_SINGLE_PIC)
+        
+        RAW_FILE_PATH = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605_debug/Result_1/_191.raw"
+        predicted_class_id, _ = parse_raw_data(RAW_FILE_PATH)
+        print(f"qnn 预测的类别ID: {predicted_class_id}")
+    else:
+        total_num = 0
+        correct_num = 0
+        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605/resnet18_qnn_infer_res"
+        raw_dir_lists = os.listdir(raw_file_dir)
+        
+        with open(f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_jpg_data.txt", "r") as f:
+            lines = f.readlines()
+        
+        # 对qnn推理结果进行排序，保证推理结果的顺序与原始图片的顺序一致
+        sorted_raw_dir_lists = sorted(raw_dir_lists, key=lambda x: int(x.split("_")[-1]))
+        progress_bar = tqdm(zip(sorted_raw_dir_lists, lines), total=len(lines), desc="正在比较推理结果")
+        for each_dir, jpg_path in progress_bar:
+            raw_dir_path = os.path.join(raw_file_dir, each_dir, "_191.raw")
+            predicted_class_id, _ = parse_raw_data(raw_dir_path)
+            infer_class_id, _ = infer_with_onnx(ONNX_MODEL_PATH, jpg_path.strip(), labels_map)
+            if predicted_class_id == infer_class_id:
+                correct_num += 1
+            total_num += 1
+        print(f"total_num: {total_num}, correct_num: {correct_num}, accuracy: {correct_num / total_num}")
 
