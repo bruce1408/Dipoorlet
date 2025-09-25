@@ -39,6 +39,7 @@ def evaluate_model():
 
 
 def export_onnx():
+    
     # convert to onnx
     if isinstance(model, torch.nn.DataParallel):
         model = model.module

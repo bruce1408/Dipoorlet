@@ -160,10 +160,6 @@ def main(quant_mode, imagenet_mode="normal"):
         running_corrects += torch.sum(preds == labels.data)
         
         total_samples = len(val_dataset.dataset) 
-    
-
-        # print(inps.shape)
-        # print(labels.shape)
         
         # inputs[0].host = np.ascontiguousarray(inps.cpu().numpy())
         # # inps = inps.numpy()        
