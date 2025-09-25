@@ -6,25 +6,17 @@ cfg = get_cfg_defaults()
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_quant_fp16_{cfg.SYSTEM.TIMESTAMP}"
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250925_1930"
     os.makedirs(log_dir, exist_ok=True)
-
-    # calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data.txt"
-    calib_data_txt = f"{cfg.DIPOORLET.yolov8_outputs}/qnn_yolov8_calib_data_fp16.txt"
-    onnx_path = cfg.DIPOORLET.yolov8_onnx_models
+    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
 
     
     # 构建 torchrun 命令
     command = [
         "qnn-onnx-converter",
         "--input_network", onnx_path,
-        # "--input_list", calib_data_txt,
         "--float_bitwidth", "16",
-        "-o", f"{log_dir}/qnn_yolov8_quant_basic.cpp",
-        # "--use_per_channel_quantization",
-        # "--quantization_overrides"
-        # --act_bitwidth 8 --bias_bitwidth 32 --weights_bitwidth 8
-
+        "-o", f"{log_dir}/qnn_resnet18_quant_fp16.cpp"
     ]
     
     # 执行命令

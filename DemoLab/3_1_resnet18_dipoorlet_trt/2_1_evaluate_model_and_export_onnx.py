@@ -71,16 +71,13 @@ def evaluate_model():
     )
 
     
-    sample_nums = len(val_dataset.dataset)
-    running_corrects = 0.0
-    
+    sample_nums = len(val_dataset.dataset)    
     evaluator = ImageNetEvaluator(
         datasets_dir, 
         image_size=224,
         batch_size=40,
         num_workers=16
     )
-    
     evaluator.evaluate(model, use_cuda=True)
     
     
@@ -93,7 +90,7 @@ def evaluate_model():
     #     _, preds = torch.max(outputs, 1)
     #     running_corrects += torch.sum(preds == labels.data)
     # print_utils.print_colored_box(f"Accuracy : {running_corrects / sample_nums * 100:.2f}%")
-    # #resnet18 在val_mini数据集上的准确率是 70.85%
+    # # resnet18 在val_mini数据集上的准确率是 70.85%
     # ==================== 简易计算版本 =========================
     
     return model
@@ -121,4 +118,4 @@ def export_onnx(model):
 
 if __name__ == "__main__":
     model = evaluate_model()
-    export_onnx(model)
+    # export_onnx(model)

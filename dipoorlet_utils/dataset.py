@@ -198,6 +198,10 @@ class StandardImageFolder(Dataset):
         self.loader = default_loader
         
         classes, class_to_idx = self._find_classes(root)
+        # with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/dipoorlet_utils/class_to_idx.txt", "w") as f:
+        #     for class_name, class_idx in class_to_idx.items():
+        #         f.write(f"{class_name}: {class_idx}\n")
+                
         self.samples = self._make_dataset(root, class_to_idx)
         
         if not self.samples:

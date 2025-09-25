@@ -3,8 +3,7 @@
 ## fp32
 # Accuracy : 70.85%
 
-## trt fp16
-# Accuracy with TRT fp16 infer : 70.80%
+# =========== trt quant metric ================
 
 ## trt int8 native
 # Accuracy with TRT int8 infer : 70.75%
@@ -23,3 +22,12 @@
 
 ## trt int8 dipoorlet brecq
 # Accuracy with TRT int8 infer : 70.65%
+
+## trt fp16
+# Accuracy with TRT fp16 infer : 70.80%
+
+# =============================================
+
+
+## qnn int8 native
+# Accuracy: 69.9%
