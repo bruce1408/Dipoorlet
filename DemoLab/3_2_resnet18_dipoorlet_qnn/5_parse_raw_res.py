@@ -158,9 +158,7 @@ if __name__ == "__main__":
     if INFERENCE_SINGLE_PIC:
         IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n02687172/ILSVRC2012_val_00048573.JPEG"
         IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n03527444/ILSVRC2012_val_00046409.JPEG"
-        
         infer_with_onnx(ONNX_MODEL_PATH, IMAGE_PATH, labels_map, INFERENCE_SINGLE_PIC)
-        
         RAW_FILE_PATH = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605_debug/Result_1/_191.raw"
         predicted_class_id, _ = parse_raw_data(RAW_FILE_PATH)
         print(f"qnn 预测的类别ID: {predicted_class_id}")
