@@ -31,3 +31,6 @@
 
 ## qnn int8 native
 # Accuracy: 69.9%
+
+## qnn fp16
+# Accuracy: 70.8%

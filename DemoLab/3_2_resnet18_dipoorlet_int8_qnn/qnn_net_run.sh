@@ -10,16 +10,15 @@ export ADSP_LIBRARY_PATH="/mnt/etc/images/dsp:/opt/app/tmp/qnn_232_patch_for_lan
 export LD_LIBRARY_PATH="${HWINFO_LIB}:${VENDOR_LIB}:$LD_LIBRARY_PATH"
 export LD_PRELOAD="/ifs/lib64/libsocket.so.4"
 
-echo "处理模型 : od_bev_25_0206.1_stage.context.bin"
+echo "处理模型 : qnn_resnet18_raw_data_panel.context.bin"
 
 qnn-net-run --backend libQnnHtp.so \
-    --retrieve_context /data/cdd/od_bev_0416.0.context.bin \
-    --input_list /data/cdd/inputs.txt \
-    --num_inferences 1 \
-    --profiling_level detailed \
-    --output_dir /data/cdd/ \
-    --synchronous
+    --retrieve_context /var/ssd_data0/bruce/qnn_resnet18_quant_fp16.context.bin \
+    --input_list /var/ssd_data0/bruce/qnn_resnet18_raw_data_panel.txt \
+    --output_dir //var/ssd_data0/bruce/qnn_resnet18_quant_fp16_output 
+    # --synchronous
+    # --profiling_level detailed \
     # --keep_num_outputs 0 &
 
 
-qnn-profile-viewer --input_log /data/cdd/qnn-profiling-data.log --output /data/cdd/profile_od_226.csv
+# qnn-profile-viewer --input_log /data/cdd/qnn-profiling-data.log --output /data/cdd/profile_od_226.csv

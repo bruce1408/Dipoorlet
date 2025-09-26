@@ -7,8 +7,7 @@ cfg = get_cfg_defaults()
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605"
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250925_1930"
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250926_1732"
 
     
     # 构建 torchrun 命令
@@ -17,6 +16,7 @@ def main():
         "-c", f"{log_dir}/qnn_resnet18_quant_fp16.cpp",
         "-b", f"{log_dir}/qnn_resnet18_quant_fp16.bin",
         "-t", "x86_64-linux-clang",
+        "-l", "qnn_resnet18_quant_fp16",
         "-o", log_dir,
     ]
     

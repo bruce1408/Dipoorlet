@@ -1,4 +1,5 @@
 import cv2
+from pathlib import Path
 import os, sys
 import torch
 import subprocess
@@ -161,6 +162,8 @@ if __name__ == "__main__":
         IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n03527444/ILSVRC2012_val_00046409.JPEG"
         infer_with_onnx(ONNX_MODEL_PATH, IMAGE_PATH, labels_map, INFERENCE_SINGLE_PIC)
         RAW_FILE_PATH = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605_debug/Result_1/_191.raw"
+        RAW_FILE_PATH = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/qnn_resnet18_quant_fp16_20250925_1930/qnn_resnet18_quant_fp16_infer_res/Result_0/_191.raw"
+        RAW_FILE_PATH = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/qnn_resnet18_quant_fp16_output/Result_3/_191.raw"
         predicted_class_id, _ = parse_raw_data(RAW_FILE_PATH)
         print(f"qnn 预测的类别ID: {predicted_class_id}")
     
@@ -168,8 +171,13 @@ if __name__ == "__main__":
         total_num = 0
         correct_num = 0
         raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605/resnet18_qnn_infer_res"
-        raw_dir_lists = os.listdir(raw_file_dir)
-        
+        raw_file_dir = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/qnn_resnet18_quant_int8_output"
+        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250925_1930/qnn_resnet18_quant_fp16_infer_res"
+        raw_file_dir = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/qnn_resnet18_quant_fp16_output"
+        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_output"
+        raw_file_path = Path(raw_file_dir)
+        raw_dir_lists = [d.name for d in raw_file_path.iterdir() if d.is_dir()]
+                
         with open(f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_jpg_data.txt", "r") as f:
             lines = f.readlines()
         
