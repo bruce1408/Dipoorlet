@@ -8,14 +8,14 @@ os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS
 os.environ["OMP_NUM_THREADS"] = cfg.DIPOORLET.OMP_NUM_THREADS  # 设置OpenMP线程数，可以根据CPU核心数调整
 cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
 
-
 def main():
-    # 命名规则按照 = 量化工具+平台+模型+量化算法
-    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_mse"
+    
+    log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_resnet18_minmax"
     os.makedirs(log_dir, exist_ok=True)
     
     onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
-    calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/"
+    calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/"  
+
     # 构建 torchrun 命令
     command = [
         "torchrun",
@@ -26,12 +26,12 @@ def main():
         "-I", calibration_data,
         "-O", log_dir,
         "-N", "100",
-        "-A", "mse",
-        "--onnx_sim",
-        "-D", "trt"
+        "-A", "minmax",
+        "-D", "trt",
+        "--onnx_sim"
     ]
 
-        # 执行命令
+    # 执行命令
     subprocess.run(command, check=True)
 
 if __name__ == "__main__":

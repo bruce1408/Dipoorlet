@@ -7,7 +7,6 @@ cfg = get_cfg_defaults()
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250926_1732"
     log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250926_2149"
 
 

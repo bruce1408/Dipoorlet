@@ -22,7 +22,6 @@ def main():
         "--use_per_channel_quantization",
         # "--quantization_overrides"
         # --act_bitwidth 8 --bias_bitwidth 32 --weights_bitwidth 8
-
     ]
     
     # 执行命令

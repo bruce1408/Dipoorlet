@@ -1,0 +1,40 @@
+import os, sys
+import subprocess
+from common.configs import get_cfg_defaults
+cfg = get_cfg_defaults()
+
+# 构建 CUDA 环境变量
+os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS
+os.environ["OMP_NUM_THREADS"] = cfg.DIPOORLET.OMP_NUM_THREADS  # 设置OpenMP线程数，可以根据CPU核心数调整
+cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
+
+
+def main(mode="trt"):
+    # 命名规则按照 = 量化工具+平台+模型+量化算法
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/{mode}_dipoorlet_resnet18_mse"
+    os.makedirs(log_dir, exist_ok=True)
+    
+    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
+    calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/"
+    
+    # 构建 torchrun 命令
+    command = [
+        "torchrun",
+        f"--nproc_per_node={cuda_nums}",
+        "--master_port=29501",
+        "-m", "dipoorlet",
+        "-M", onnx_path,
+        "-I", calibration_data,
+        "-O", log_dir,
+        "-N", "100",
+        "-A", "mse",
+        "--onnx_sim",
+        "-D", f"{mode}"
+    ]
+    
+        # 执行命令
+    subprocess.run(command, check=True)
+
+if __name__ == "__main__":
+    # main(mode="trt")
+    main(mode="snpe")

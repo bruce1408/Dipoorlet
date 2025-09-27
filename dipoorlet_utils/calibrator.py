@@ -191,4 +191,7 @@ if __name__ == "__main__":
     # get_yolov8_calib()
     
     # resnet18数据集
-    get_dipoorlet_calib(input_name="input.1", dataset_name="resnet18_calib")
+    # get_dipoorlet_calib(input_name="input.1", dataset_name="resnet18_calib")
+    
+    
+    get_qnn_resnet18_calib()
