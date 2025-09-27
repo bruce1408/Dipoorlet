@@ -49,8 +49,8 @@ def evaluate_model():
     current_file_path = os.path.dirname(os.path.abspath(__file__))
 
     # load resnet18 model
-    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)   
-    # model.load_state_dict(torch.load(f"{cfg.SYSTEM.MODELS_DIR}/resnet18-f37072fd.pth"))
+    model = model.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)   
+    # model = torch.load("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/aimet_log/resnet18_cle_bc_pc/resnet_model_cle_bc.pt")
     
     # load mobile_v2 model
     # model = torch.load("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/models/mobile_v2_best_model_200_labels.pth")
@@ -104,7 +104,7 @@ def export_onnx(model):
 
     x = torch.randn(1, 3, 224, 224).cuda()
 
-    export_onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
+    export_onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18_cle_aimet.onnx"
     torch.onnx.export(
         model, 
         x, 
@@ -118,4 +118,5 @@ def export_onnx(model):
 
 if __name__ == "__main__":
     model = evaluate_model()
-    # export_onnx(model)
+    
+    export_onnx(model)

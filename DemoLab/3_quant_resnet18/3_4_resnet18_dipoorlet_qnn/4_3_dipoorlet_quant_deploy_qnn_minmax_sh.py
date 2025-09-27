@@ -9,23 +9,25 @@ os.environ["CUDA_VISIBLE_DEVICES"] = cfg.SYSTEM.CUDA_IDS
 os.environ["OMP_NUM_THREADS"] = cfg.DIPOORLET.OMP_NUM_THREADS  # 设置OpenMP线程数，可以根据CPU核心数调整
 cuda_nums = len(cfg.SYSTEM.CUDA_IDS.split(","))
 
-def main(mode="trt"):
+def dipoorlet_quant_deploy(mode="trt"):
+    
+    print_colored_text(f"Start dipoorlet-quant-deploy, Please wait a moment...", "green")
     # 构建 torchrun 命令
     command = [
         "torchrun",
         f"--nproc_per_node={cuda_nums}",
-        "--master_port=29501",
+        "--master_port=29503",
         "-m", "dipoorlet",
         "-M", onnx_path,
         "-I", calibration_data,
         "-O", log_dir,
         "-N", "100",
-        "-A", "mse",
+        "-A", "minmax",
         "--onnx_sim",
         "-D", f"{mode}"
     ]
     
-        # 执行命令
+    # 执行命令
     subprocess.run(command, check=True)
     
     
@@ -39,8 +41,8 @@ def qnn_onnx_converter(mode="snpe"):
         "--input_network", onnx_path,
         "--input_list", calib_data_txt,
         "-o", f"{log_dir}/qnn_resnet18_quant_basic.cpp",
-        "--use_per_channel_quantization",
-        "--quantization_overrides", overrides_path
+        "--quantization_overrides", overrides_path,
+        # "--use_per_channel_quantization",
         # --act_bitwidth 8 --bias_bitwidth 32 --weights_bitwidth 8
     ]
     
@@ -74,12 +76,11 @@ def qnn_context_binary_generator(mode="snpe"):
     subprocess.run(command, check=True)
 
 
-
 if __name__ == "__main__":
     
     MODE="snpe"
     
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/{MODE}_dipoorlet_resnet18_mse"
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/{MODE}_dipoorlet_resnet18_minmax"
     os.makedirs(log_dir, exist_ok=True)
     onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
     calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/"
@@ -87,8 +88,8 @@ if __name__ == "__main__":
     overrides_path = f"{log_dir}/snpe_encodings.json"
 
 
-    # main(mode="trt")
-    # main(mode="snpe")
+    dipoorlet_quant_deploy(MODE)
+    
     qnn_onnx_converter(MODE)
     
     qnn_model_lib_generator(MODE)

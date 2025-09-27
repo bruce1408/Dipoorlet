@@ -26,15 +26,36 @@
 ## trt fp16
 # Accuracy with TRT fp16 infer : 70.80%
 
-# =============================================
-
-
 # =========== qnn quant metric ================
 
 ## qnn int8 native
 # Accuracy: 69.9%
 
+## qnn dipoorlet mse 
+# Accuracy: 36.95%
+
+## qnn dipoorlet hist
+# Accuracy: 69.0%
+
+## qnn dipoorlet minmax
+# Accuracy: 69.85%
+
+## qnn dipoorlet adaround
+# Accuracy: 69.5%
+
+## qnn dipoorlet brecq
+# Accuracy: 69.95%
+
+## qnn dipoorlet drop
+# Accuracy: 69.65%
+
 ## qnn fp16
 # Accuracy: 70.8%
 
 # =============================================
+
+## qnn aimet cle 
+# Accuracy: 70.6%
+
+## qnn aimet adaround
+# Accuracy: 70.25%

@@ -170,8 +170,7 @@ if __name__ == "__main__":
     else:
         total_num = 0
         correct_num = 0
-        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605/resnet18_qnn_infer_res"
-        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_output_new"
+        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_aimet_adaround"
         raw_file_path = Path(raw_file_dir)
         raw_dir_lists = [d.name for d in raw_file_path.iterdir() if d.is_dir()]
                 
@@ -184,7 +183,7 @@ if __name__ == "__main__":
         
         if COMPARE_WITH_ONNX:
             for each_dir, jpg_path in progress_bar:
-                raw_dir_path = os.path.join(raw_file_dir, each_dir, "_191.raw")
+                raw_dir_path = os.path.join(raw_file_dir, each_dir, "_91.raw")
                 predicted_class_id, _ = parse_raw_data(raw_dir_path)
                 infer_class_id, _ = infer_with_onnx(ONNX_MODEL_PATH, jpg_path.strip(), labels_map)
                 if predicted_class_id == infer_class_id:
@@ -192,14 +191,14 @@ if __name__ == "__main__":
                 total_num += 1
             print(f"total_num: {total_num}, correct_num: {correct_num}, accuracy: {correct_num / total_num}")
         else:
-            with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/DemoLab/3_2_resnet18_dipoorlet_int8_qnn/class_to_idx.txt", "r") as f:
+            with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/DemoLab/3_1_resnet18_native_int8_qnn/class_to_idx.txt", "r") as f:
                 class_to_idx = f.readlines()
                 class_to_labels = {int(line.strip().split(":")[1]): line.strip().split(":")[0] for line in class_to_idx}
             
             for each_dir, jpg_path in progress_bar:
                 dir_label = jpg_path.strip().split("/")[-2]
                 
-                raw_dir_path = os.path.join(raw_file_dir, each_dir, "_191.raw")
+                raw_dir_path = os.path.join(raw_file_dir, each_dir, "_241.raw")
                 predicted_class_id, _ = parse_raw_data(raw_dir_path)
                 if dir_label == class_to_labels[predicted_class_id]:
                     correct_num += 1
