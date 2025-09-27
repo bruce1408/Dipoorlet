@@ -192,7 +192,7 @@ if __name__ == "__main__":
                 total_num += 1
             print(f"total_num: {total_num}, correct_num: {correct_num}, accuracy: {correct_num / total_num}")
         else:
-            with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/DemoLab/3_2_resnet18_native_fp16_qnn/class_to_idx.txt", "r") as f:
+            with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/DemoLab/3_quant_resnet18/class_to_idx.txt", "r") as f:
                 class_to_idx = f.readlines()
                 class_to_labels = {int(line.strip().split(":")[1]): line.strip().split(":")[0] for line in class_to_idx}
             
