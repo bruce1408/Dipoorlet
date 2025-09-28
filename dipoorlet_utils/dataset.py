@@ -369,7 +369,7 @@ if __name__ == "__main__":
     # 调用函数来执行扫描和写入操作。
     scan_and_write_paths(target_directory, output_filename)
     
-    sys.exit()
+    # sys.exit()
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

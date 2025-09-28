@@ -3,7 +3,7 @@ version: 1.0.0
 Author: BruceCui
 Date: 2024-11-13 16:57:30
 LastEditors: BruceCui
-LastEditTime: 2024-12-03 19:40:59
+LastEditTime: 2025-09-28 17:39:02
 '''
 import pycuda.autoinit
 import numpy as np
@@ -12,7 +12,7 @@ import tensorrt as trt
 import time, os, sys
 import torch
 from PIL import Image
-from dipoorlet_utils.dataset import get_dataset
+from dipoorlet_utils.dataset import get_dataloaders
 from common.configs import get_cfg_defaults
 cfg = get_cfg_defaults()
 
@@ -41,9 +41,11 @@ def allocate_buffers(engine):
     bindings = []
     stream = cuda.Stream()
     for binding in engine:
-        size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
-        dtype = trt.nptype(engine.get_binding_dtype(binding))
+        shape = engine.get_tensor_shape(binding)
+        # size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
+        dtype = trt.nptype(engine.get_tensor_dtype(binding))
         
+        size = trt.volume(shape)
         # Allocate host and device buffers
         host_mem = cuda.pagelocked_empty(size, dtype)
         device_mem = cuda.mem_alloc(host_mem.nbytes)
@@ -52,7 +54,7 @@ def allocate_buffers(engine):
         bindings.append(int(device_mem))
         
         # Append to the appropriate list.
-        if engine.binding_is_input(binding):
+        if engine.get_tensor_mode(binding) == trt.TensorIOMode.INPUT:
             inputs.append(HostDeviceMem(host_mem, device_mem))
         else:
             outputs.append(HostDeviceMem(host_mem, device_mem))
@@ -63,7 +65,9 @@ def do_inference(context, bindings, inputs, outputs, stream, batch_size=1):
     # Transfer data from CPU to the GPU.
     [cuda.memcpy_htod_async(inp.device, inp.host, stream) for inp in inputs]
     # Run inference.
-    context.execute_async(batch_size=batch_size, bindings=bindings, stream_handle=stream.handle)
+    # context.execute_async(batch_size=batch_size, bindings=bindings, stream_handle=stream.handle)
+    context.execute_async_v2(bindings=bindings, stream_handle=stream.handle)
+
     # Transfer predictions back from the GPU.
     [cuda.memcpy_dtoh_async(out.host, out.device, stream) for out in outputs]
     # Synchronize the stream
@@ -85,8 +89,9 @@ def deserializing_engine(engine_file):
 
 
 def main(mode):
-    _, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
-    val_loaders = torch.utils.data.DataLoader(val_dataset, batch_size=1, shuffle=True, num_workers=8)
+    # _, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
+    _, val_loaders, _ = get_dataloaders(cfg.SYSTEM.imagenet_200_dir, 'tiny', batch_size=1, num_workers=8)
+    # val_loaders = torch.utils.data.DataLoader(val_dataset, batch_size=1, shuffle=True, num_workers=8)
     
     # engine_file = f"{current_file_path}/trt/mobilev2_model_dipoorlet_brecq_{mode}.engine"
     # engine_file = f"{config.export_work_dir}/mobilev2_model_trt_{mode}.engine"
@@ -96,9 +101,10 @@ def main(mode):
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_mse_brecq/mobilev2_model_dipoorlet_mse_brecq_{mode}.engine"
     # engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_hist/mobilev2_model_dipoorlet_hist_{mode}.engine"
-    engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
+    # engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_minmax/mobilev2_model_dipoorlet_minmax_{mode}.engine"
+    engine_file = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobilev2_trt_intrinsic_kl/mobilev2_model_trt_int8.engine"
     engine = deserializing_engine(engine_file)
-
+    
     context = engine.create_execution_context()
     inputs, outputs, bindings, stream = allocate_buffers(engine)
 
@@ -122,7 +128,7 @@ def main(mode):
 
         running_corrects += torch.sum(preds == labels.data)
 
-    print(f"Accuracy with TRT {mode} infer : {running_corrects / len(val_dataset) * 100}%")
+    print(f"Accuracy with TRT {mode} infer : {running_corrects / len(val_loaders) * 100}%")
 
 
 if __name__ == "__main__":
