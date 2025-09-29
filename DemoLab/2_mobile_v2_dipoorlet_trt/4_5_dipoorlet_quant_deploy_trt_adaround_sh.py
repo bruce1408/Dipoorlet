@@ -17,7 +17,7 @@ def main():
     log_dir = f"{cfg.DIPOORLET.tensorrt_export_dir}/trt_mobile_v2_dipoorlet_brecq_{cfg.SYSTEM.TIMESTAMP}"
     os.makedirs(log_dir, exist_ok=True)
     
-    calibration_data = cfg.DIPOORLET.dipoorlet_calib_data_dir
+    calibration_data = f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/mobilenetv2_calib/"
     onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/mobilev2_model_trained.onnx"   
     
     # 构建 torchrun 命令

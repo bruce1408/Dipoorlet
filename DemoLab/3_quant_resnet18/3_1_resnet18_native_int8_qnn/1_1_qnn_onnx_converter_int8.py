@@ -6,12 +6,11 @@ cfg = get_cfg_defaults()
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250927_1832_cle_aimet"
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100"
     os.makedirs(log_dir, exist_ok=True)
 
     calib_data_txt = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_calib_data_100.txt"
     onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
-    onnx_path = f"{cfg.SYSTEM.MODELS_DIR}/resnet18_cle_aimet.onnx"
 
     
     # 构建 torchrun 命令

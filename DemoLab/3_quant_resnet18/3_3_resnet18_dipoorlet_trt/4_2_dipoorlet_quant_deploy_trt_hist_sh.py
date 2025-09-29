@@ -35,7 +35,7 @@ def main():
     
     # 执行命令
     subprocess.run(command, check=True)
-w
+
 if __name__ == "__main__":
     main()
-    calculate_tensorrt_acc(engine_file=f"{log_dir}/resnet18_model_dipoorlet_hist_int8.engine")
+    # calculate_tensorrt_acc(engine_file=f"{log_dir}/resnet18_model_dipoorlet_hist_int8.engine")

@@ -7,8 +7,8 @@ cfg = get_cfg_defaults()
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250924_113605"
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250927_1832_cle_aimet"
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100"
+    # log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250927_1832_cle_aimet"
 
 
     
@@ -18,8 +18,8 @@ def main():
         "-c", f"{log_dir}/qnn_resnet18_quant_basic.cpp",
         "-b", f"{log_dir}/qnn_resnet18_quant_basic.bin",
         "-t", "x86_64-linux-clang",
-        # "-l", "qnn_resnet18_quant_fp16",
         "-o", log_dir,
+        # "-l", "qnn_resnet18_quant_fp16",
     ]
     
     # 执行命令
