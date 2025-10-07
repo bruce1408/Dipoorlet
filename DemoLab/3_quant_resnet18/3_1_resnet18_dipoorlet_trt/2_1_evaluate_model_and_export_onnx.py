@@ -14,7 +14,6 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 import time, copy, numpy as np
 from common.configs import get_cfg_defaults
-# from dipoorlet_utils.dataset import get_dataset
 from dipoorlet_utils.dataset import get_dataloaders
 from spectrautils import print_utils
 from dipoorlet_utils.dataset import ImageNetEvaluator

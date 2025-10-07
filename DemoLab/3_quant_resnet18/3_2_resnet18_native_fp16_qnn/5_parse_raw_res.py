@@ -108,7 +108,7 @@ def infer_with_onnx(model_path: str, image_path: str, labels_map: dict, single_p
     input_name = session.get_inputs()[0].name
 
     input_tensor = preprocess_image(image_path)
-
+    
     result = session.run(None, {input_name: input_tensor})
     output_tensor = result[0]
     
