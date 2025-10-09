@@ -10,7 +10,7 @@ from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from torchvision import transforms
 import time, os, copy, numpy as np
 from spectrautils import logging_utils, print_utils
-from dipoorlet_utils.dataset import get_dataset
+from dipoorlet_utils.dataset import get_dataloaders
 from common.configs import get_cfg_defaults
 
 cfg = get_cfg_defaults()
@@ -19,7 +19,7 @@ cfg = get_cfg_defaults()
 def get_config():
     parser = argparse.ArgumentParser(description='MobileNetV2训练或继续微调')
     parser.add_argument('--resume',     default="", type=str, help='加载检查点文件路径继续训练')
-    parser.add_argument('--epochs',     type=int, default=None, help='训练轮数，如果不指定则使用配置文件中的值')
+    parser.add_argument('--epochs',     type=int, default=7, help='训练轮数，如果不指定则使用配置文件中的值')
     parser.add_argument('--lr',         type=float, default=0.0005, help='初始学习率设置')  # 降低默认学习率
     parser.add_argument('--auto_resume', default=True, type=bool, help='自动加载指定目录中最新的模型文件')
     parser.add_argument('--optimizer',  type=str, default='adam', choices=['sgd', 'adam'], help='选择优化器')
@@ -52,7 +52,15 @@ def find_latest_checkpoint(directory):
     return os.path.join(directory, latest_file)
 
 def train_model(
-    model, dataloaders, dataset_sizes, criterion, optimizer, scheduler, start_epoch, num_epochs=25
+    model, 
+    dataloaders, 
+    dataset_sizes,
+    criterion,
+    optimizer,
+    scheduler, 
+    start_epoch,
+    num_epochs=25, 
+    imagenet_mode="normal"
 ):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     since = time.time()
@@ -143,7 +151,7 @@ def train_model(
                 best_model_wts = copy.deepcopy(model.state_dict())
                 os.makedirs(cfg.SYSTEM.MODELS_DIR, exist_ok=True)
 
-                torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic.pth")
+                torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic_{imagenet_mode}.pth")
 
                 # 保存每个epoch的模型权重
                 # torch.save({
@@ -198,14 +206,20 @@ def train_model(
     return model
 
 
-def main():
+def main(imagenet_mode="normal"):
     args = get_config()
     
     # 加载模型
+    # model = mobilenet_v2(pretrained=True)
     model = mobilenet_v2(weights=MobileNet_V2_Weights.IMAGENET1K_V1)
     
+    if imagenet_mode == "normal":
+        class_labels = 1000
+    else:
+        class_labels = 200
+    
     # 修改分类器以适应200类输出
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 200)
+    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, class_labels)
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -256,29 +270,34 @@ def main():
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     
+    
+    if imagenet_mode == "normal":
+        datasets_dir = cfg.SYSTEM.imagenet_dir
+    else:
+        datasets_dir = cfg.SYSTEM.imagenet_200_dir
+        
+        
     # 获取数据集
-    train_dataset, val_dataset, _ = get_dataset(cfg.DIPOORLET.imagenet_200_dir)
+    train_dataset, val_dataset, _ = get_dataloaders(
+        datasets_dir=datasets_dir,
+        imagenet_mode=imagenet_mode,
+        batch_size=cfg.DIPOORLET.val_batch_size
+    )
     
     # 设置批次大小
     train_batch_size = args.batch_size if args.batch_size else cfg.DIPOORLET.train_batch_size
     val_batch_size = args.batch_size if args.batch_size else cfg.DIPOORLET.val_batch_size
     
-    train_loaders = torch.utils.data.DataLoader(
-        train_dataset, batch_size=train_batch_size, shuffle=True, num_workers=8, pin_memory=True
-    )
-    val_loaders = torch.utils.data.DataLoader(
-        val_dataset, batch_size=val_batch_size, shuffle=False, num_workers=8, pin_memory=True
-    )
-    
     dataloaders = {
-        "train": train_loaders,
-        "val": val_loaders
+        "train": train_dataset,
+        "val": val_dataset
     }
     
     dataset_sizes = {
-        "train": len(train_dataset),
-        "val": len(val_dataset)
+        "train": len(train_dataset.dataset),
+        "val": len(val_dataset.dataset)
     }
+    
     
     # 如果指定了 resume 参数，加载检查点
     start_epoch = 0
@@ -309,6 +328,7 @@ def main():
     # 如果命令行传入了 epochs 参数，则覆盖配置文件中的 epoch 数值
     num_epochs = args.epochs if args.epochs is not None else cfg.DIPOORLET.epochs
     
+    
     # 训练模型
     model = train_model(
         model,
@@ -319,13 +339,15 @@ def main():
         exp_lr_scheduler,
         start_epoch,
         num_epochs=num_epochs,
+        imagenet_mode=imagenet_mode
     )
     
     # 保存最终模型
     current_timestamp = datetime.datetime.now()
     formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-    torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
+    # torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
     logger.info(f"最终模型已保存到 {cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
 
 if __name__ == "__main__":
-    main()
+    imagenet_mode = "tiny"
+    main(imagenet_mode)

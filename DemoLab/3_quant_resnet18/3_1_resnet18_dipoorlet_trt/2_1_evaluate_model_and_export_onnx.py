@@ -40,15 +40,13 @@ def accuracy(output, target, topk=(1,)):
     return res
     
     
-def evaluate_model():
+def evaluate_model(imagenet_mode):
     
-    # normal or tiny
-    imagenet_mode = "normal"
-    
+    # normal or tiny    
     current_file_path = os.path.dirname(os.path.abspath(__file__))
 
     # load resnet18 model
-    model = model.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)   
+    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)   
     # model = torch.load("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/aimet_log/resnet18_cle_bc_pc/resnet_model_cle_bc.pt")
     
     # load mobile_v2 model
@@ -116,6 +114,9 @@ def export_onnx(model):
 
 
 if __name__ == "__main__":
-    model = evaluate_model()
     
-    export_onnx(model)
+    imagenet_mode = "normal"
+
+    model = evaluate_model(imagenet_mode)
+    
+    # export_onnx(model)

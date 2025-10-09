@@ -9,7 +9,7 @@ import progressbar
 from typing import NoReturn
 import torch
 from torch import nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torchvision import transforms
 from torchvision.datasets.folder import default_loader
 from loguru import logger
@@ -246,7 +246,7 @@ class StandardImageFolder(Dataset):
 def get_dataloaders(datasets_dir: str,
                     imagenet_mode: str,
                     batch_size: int = 64,
-                    num_workers: int = 8):
+                    num_workers: int = 16):
     """
     根据指定的模式加载数据集并返回 DataLoader。
 
@@ -341,11 +341,11 @@ def get_dataloaders(datasets_dir: str,
         test_dataset = None # 或者根据实际情况加载
 
     # --- 创建 DataLoaders ---
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     if test_dataset:
-        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
     else:
         test_loader = None
         
