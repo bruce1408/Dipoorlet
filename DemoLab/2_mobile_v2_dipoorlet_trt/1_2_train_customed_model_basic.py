@@ -9,7 +9,7 @@ from torch.optim import lr_scheduler
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from torchvision import transforms
 import time, os, copy, numpy as np
-from spectrautils import logging_utils, print_utils
+from spectrautils import logging_utils, print_utils,time_utils
 from dipoorlet_utils.dataset import get_dataloaders
 from common.configs import get_cfg_defaults
 
@@ -64,7 +64,8 @@ def train_model(
 ):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     since = time.time()
-    best_model_wts = copy.deepcopy(model.state_dict())
+    
+    best_model = copy.deepcopy(model)
     best_acc = 0.0
     
     # 添加早停机制
@@ -148,10 +149,8 @@ def train_model(
             if phase == "val" and epoch_acc > best_acc:
                 logger.info("验证集准确率在第{}轮后: {:.4f}".format(epoch + 1, epoch_acc))
                 best_acc = epoch_acc
-                best_model_wts = copy.deepcopy(model.state_dict())
-                os.makedirs(cfg.SYSTEM.MODELS_DIR, exist_ok=True)
-
-                torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic_{imagenet_mode}.pth")
+                best_model = copy.deepcopy(model)
+                
 
                 # 保存每个epoch的模型权重
                 # torch.save({
@@ -200,10 +199,7 @@ def train_model(
     )
     
     print_utils.print_colored_box("最佳验证准确率: {:4f}".format(best_acc), attrs=['bold'], text_color='green', box_color='yellow')
-
-    # load best model weights
-    model.load_state_dict(best_model_wts)
-    return model
+    return best_model
 
 
 def main(imagenet_mode="normal"):
@@ -248,13 +244,11 @@ def main(imagenet_mode="normal"):
     # 选择学习率调度器
     if args.scheduler.lower() == 'plateau':
         exp_lr_scheduler = lr_scheduler.ReduceLROnPlateau(
-            optimizer_ft, mode='max', factor=0.5, patience=3, verbose=True
-        )
+            optimizer_ft, mode='max', factor=0.5, patience=3, verbose=True)
         logger.info("使用ReduceLROnPlateau学习率调度器")
     elif args.scheduler.lower() == 'cosine':
         exp_lr_scheduler = lr_scheduler.CosineAnnealingLR(
-            optimizer_ft, T_max=10, eta_min=1e-6
-        )
+            optimizer_ft, T_max=10, eta_min=1e-6)
         logger.info("使用CosineAnnealingLR学习率调度器")
     else:
         exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
@@ -345,8 +339,9 @@ def main(imagenet_mode="normal"):
     # 保存最终模型
     current_timestamp = datetime.datetime.now()
     formatted_timestamp = current_timestamp.strftime("%Y_%m_%d")
-    # torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
-    logger.info(f"最终模型已保存到 {cfg.SYSTEM.MODELS_DIR}/{formatted_timestamp}_mobilev2_model.pth")
+    os.makedirs(cfg.SYSTEM.MODELS_DIR, exist_ok=True)
+    torch.save(model, f"{cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic_{imagenet_mode}.pth")
+    logger.info(f"最终模型已保存到 {cfg.SYSTEM.MODELS_DIR}/mobile_v2_best_model_basic_{imagenet_mode}.pth")
 
 if __name__ == "__main__":
     imagenet_mode = "tiny"

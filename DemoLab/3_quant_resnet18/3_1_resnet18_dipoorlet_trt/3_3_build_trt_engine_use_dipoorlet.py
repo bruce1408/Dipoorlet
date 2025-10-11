@@ -53,8 +53,9 @@ def buildEngine(onnx_file, export_engine_file, json_path):
 
     with open(json_path, 'r') as f:
         dipoorlet_range = json.load(f)
+    
 
-    set_dynamic_range(config, network, dipoorlet_range["blob_range"])
+    set_dynamic_range(config, network, dipoorlet_range["tensorrt"]["blob_range"])
 
     config.int8_calibrator = None
     engine = builder.build_serialized_network(network, config)
@@ -96,18 +97,20 @@ def main():
     # /mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/_outputs/tensorrt_log/trt_resnet18_adaround/adaround.onnx
     
     
+    onnx_file = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/MQBench/Examples/models/mbv2_tiny_imagenet_fixed_mse_fbn_v2_best_deploy_model.onnx"
+    json_path = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/MQBench/Examples/models/mbv2_tiny_imagenet_fixed_mse_fbn_v2_best_clip_ranges.json"
+    engine_file = "/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/MQBench/Examples/models/mbv2_tiny_imagenet_fixed_mse_fbn_v2_best_deploy_model.engine"
+    
+        
     # dipoorlet 使用 mse + brecq 量化算法
     # onnx_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/brecq.onnx"
     # json_path = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/trt_clip_val.json"
     # export_engine_file = f"{current_file_path}/trt_mobile_v2_dipoorlet_brecq/mobilev2_model_dipoorlet_mse_brecq_int8.engine"
     
-    
     if not os.path.exists(onnx_file):
         print("LOAD ONNX FILE FAILED: ", onnx_file)
 
-    print(
-        "Load ONNX file from:%s \nStart export, Please wait a moment..." % (onnx_file)
-    )
+    print("Load ONNX file from:%s \nStart export, Please wait a moment..." % (onnx_file))
     buildEngine(onnx_file, export_engine_file, json_path)
     print_colored_text(f"Export ENGINE success, Save as: \n{export_engine_file}", "green")
 
