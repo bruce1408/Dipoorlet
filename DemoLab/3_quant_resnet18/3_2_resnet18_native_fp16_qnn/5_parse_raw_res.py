@@ -150,12 +150,12 @@ def main(info, mode):
 
 if __name__ == "__main__":
     
-    ONNX_MODEL_PATH = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
-    LABEL_PATH = "/mnt/share_disk/bruce_trie/workspace/imagenet1000_clsidx_to_labels.txt"
     INFERENCE_SINGLE_PIC = False
     COMPARE_WITH_ONNX = False
+    ONNX_MODEL_PATH = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
+    LABEL_PATH = f"{cfg.DIPOORLET.resnet18_outputs}/imagenet1000_clsidx_to_labels.txt"
+    
     labels_map = parse_labels_from_file(LABEL_PATH)
-
 
     if INFERENCE_SINGLE_PIC:
         IMAGE_PATH = f"{cfg.SYSTEM.imagenet_dir}/val_mini/n02687172/ILSVRC2012_val_00048573.JPEG"
@@ -172,6 +172,7 @@ if __name__ == "__main__":
         correct_num = 0
         raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_fp16_20250925_1930/qnn_resnet18_quant_fp16_infer_res"
         raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_quant_drop"
+        raw_file_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100/qnn_resnet18_quant_fp16_infer_res_full"
         raw_file_path = Path(raw_file_dir)
         raw_dir_lists = [d.name for d in raw_file_path.iterdir() if d.is_dir()]
                 
@@ -192,7 +193,7 @@ if __name__ == "__main__":
                 total_num += 1
             print(f"total_num: {total_num}, correct_num: {correct_num}, accuracy: {correct_num / total_num}")
         else:
-            with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/DemoLab/3_quant_resnet18/class_to_idx.txt", "r") as f:
+            with open(f"{cfg.DIPOORLET.resnet18_outputs}/class_to_idx.txt", "r") as f:
                 class_to_idx = f.readlines()
                 class_to_labels = {int(line.strip().split(":")[1]): line.strip().split(":")[0] for line in class_to_idx}
             
