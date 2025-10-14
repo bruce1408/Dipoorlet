@@ -13,9 +13,10 @@ export LD_PRELOAD="/ifs/lib64/libsocket.so.4"
 echo "处理模型 : qnn_resnet18_raw_data_panel.context.bin"
 
 qnn-net-run --backend libQnnHtp.so \
-    --retrieve_context /var/ssd_data0/bruce/qnn_resnet18_quant_fp16.context.bin \
+    --retrieve_context /var/ssd_data0/bruce/qnn_resnet18_quant_fp16_config.bin \
     --input_list /var/ssd_data0/bruce/qnn_resnet18_raw_data_panel.txt \
-    --output_dir //var/ssd_data0/bruce/qnn_resnet18_quant_fp16_output 
+    --config_file /var/ssd_data0/bruce/be_htp.json \
+    --output_dir /var/ssd_data0/bruce/qnn_resnet18_quant_fp16_output 
     # --synchronous
     # --profiling_level detailed \
     # --keep_num_outputs 0 &
