@@ -124,7 +124,7 @@ class Calibrator(trt.IInt8EntropyCalibrator2):
             f.flush()
 
 # For Dipoorlet
-def get_dipoorlet_calib(input_name="input.1", dataset_name="mobilenetv2_calib"):
+def generate_dipoorlet_calib(input_name="input.1", dataset_name="mobilenetv2_calib"):
     
     calibration_dir_path = f"{config.DIPOORLET.dipoorlet_calib_data_dir}/{dataset_name}/{input_name}/"
     os.makedirs(calibration_dir_path, exist_ok=True)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     # get_yolov8_calib()
     
     # resnet18数据集
-    # get_dipoorlet_calib(input_name="input.1", dataset_name="resnet18_calib")
+    generate_dipoorlet_calib(input_name="input.1", dataset_name="resnet18_calib")
     
     
-    get_qnn_resnet18_calib()
+    # get_qnn_resnet18_calib()
