@@ -1,37 +1,52 @@
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import sys
 import time
 import copy
 import onnx
 import torch
 import torch.distributed as dist
-
+from common import get_cfg_defaults
 from onnxsim import simplify
-
 from dipoorlet.deploy import to_deploy
+from dipoorlet.tensor_cali import tensor_calibration
+from dipoorlet.weight_transform import weight_calibration
 from dipoorlet.dist_helper import init_from_mpi, init_from_slurm
 from dipoorlet.profiling import (quantize_profiling_multipass, quantize_profiling_transformer,
                         quantize_profiling_layerwise, show_model_profiling_res, 
                         show_model_ranges, weight_need_perchannel)
 
-from dipoorlet.tensor_cali import tensor_calibration
 
 from dipoorlet.utils import (ONNXGraph, load_clip_val, logger, reduce_clip_val,
                     reduce_profiling_res, save_clip_val, save_profiling_res,
                     setup_logger, deploy_QOperator, restore_data)
-from dipoorlet.weight_transform import weight_calibration
 
+cfg = get_cfg_defaults()
 parser = argparse.ArgumentParser()
-parser.add_argument("-M", "--model", default="/share/cdd/onnx_models/od_bev_25_0219.onnx", help="onnx model")
-parser.add_argument("-I", "--input_dir", default="/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_calibration_data", help="calibration data")
-parser.add_argument("-O", "--output_dir", default="/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_0220_we", help="output data path")
-parser.add_argument("-N", "--data_num", default=128, help="num of calibration pics", type=int)
+parser.add_argument("-M", 
+                    "--model", 
+                    default="/home/bruce_ultra/workspace/quant_workspace/Quantizer-Tools/QuantiFly/test/resnet18.onnx",
+                    help="onnx model")
+
+parser.add_argument("-I",
+                    "--input_dir", 
+                    # default="/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/outputs/dipoorlet_log/3_dipoorlet_models_od_bev/od_bev_calibration_data", 
+                    default=f"{cfg.DIPOORLET.dipoorlet_calib_data_dir}/resnet18_calib/",
+                    help="calibration data")
+
+parser.add_argument("-O",
+                    "--output_dir", 
+                    default="./dipoorlet_outputs", help="output data path")
+
+parser.add_argument("-N", "--data_num", default=2, help="num of calibration pics", type=int)
 
 # quant configuration
-parser.add_argument("--we", help="weight euqalization, espacily for per-tensor", action="store_true", default=True)
-parser.add_argument("--bc", help="bias correction", action="store_true", default=False)
+parser.add_argument("--we", 
+                    # action="store_true", 
+                    default=False,
+                    help="weight euqalization, espacily for per-tensor")
+parser.add_argument("--bc", help="bias correction", default=True)
 parser.add_argument("--update_bn", help="update BN", action="store_true", default=False)
 parser.add_argument("--adaround", help="Adaround", action="store_true", default=False)
 parser.add_argument("--brecq", help="BrecQ", action="store_true", default=False)
@@ -174,10 +189,10 @@ act_clip_val, weight_clip_val = load_clip_val(args)
 # Weight Transform.
 # if dist.get_rank() == 0:
 logger.info("Weight transform...")
-graph, graph_ori, act_clip_val, weight_clip_val = \
-    weight_calibration(onnx_graph, act_clip_val, weight_clip_val, args)
+graph, graph_ori, act_clip_val, weight_clip_val = weight_calibration(onnx_graph, act_clip_val, weight_clip_val, args)
 # dist.barrier()
 
+exit(0)
 # Profiling Distributed.
 # if dist.get_rank() == 0:
 logger.info("Profiling...")
