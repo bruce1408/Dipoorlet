@@ -7,7 +7,8 @@ cfg = get_cfg_defaults()
 
 def main():
     # 命名规则按照 = 平台+模型+量化工具+量化算法
-    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100"
+    log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_120"
+    # log_dir = "/home/bruce_ultra/workspace/Quantization_Optimization/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/qnn_resnet18_int8_100_20260401_144233_version_0241_param_True_act_False_perchannel_True"
     
     # log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_20250927_1832_cle_aimet"
 
@@ -29,5 +30,6 @@ def main():
     
 if __name__ == "__main__":
     main()
+
 
 

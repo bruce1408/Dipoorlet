@@ -10,12 +10,17 @@ def main():
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
     param_is_symmetric = True
-    bias_is_symmetric = True
-    param_is_per_channel = True
+    act_is_symmetric = True
+    is_per_channel = False
+    is_per_row = False
     
     # 命名规则按照 = 平台+模型+量化工具+量化算法+时间戳
     log_dir = (f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_100_{timestamp}_version_0241_"
-               f"param_{param_is_symmetric}_bias_{bias_is_symmetric}_perchannel_{param_is_per_channel}")
+               f"param_{param_is_symmetric}_act_{act_is_symmetric}_perchannel_{is_per_channel}")
+
+    
+    # log_dir = f"{cfg.DIPOORLET.resnet18_outputs}/qnn_resnet18_int8_120"
+
 
     os.makedirs(log_dir, exist_ok=True)
     
@@ -32,8 +37,6 @@ def main():
         "--input_network", onnx_path,
         "--input_list", calib_data_txt,
         "-o", f"{log_dir}/qnn_resnet18_quant_basic.cpp",
-        # "--use_per_channel_quantization",
-        # --act_bitwidth 8 --bias_bitwidth 32 --weights_bitwidth 8
     ]
     
     # 根据 param_is_symmetric 添加参数
@@ -44,18 +47,23 @@ def main():
         command.extend(["--param_quantizer_schema", "asymmetric"])
         print(f"参数设置: 权重使用非对称量化 (asymmetric)")
         
-    if bias_is_symmetric:
+    if act_is_symmetric:
         command.extend(["--act_quantizer_schema", "symmetric"])
-        print(f"参数设置: 偏置使用对称量化 (symmetric)")
+        print(f"参数设置: 激活使用对称量化 (symmetric)")
     else:
         command.extend(["--act_quantizer_schema", "asymmetric"])
-        print(f"参数设置: 偏置使用非对称量化 (asymmetric)")
+        print(f"参数设置: 激活使用非对称量化 (asymmetric)")
         
-    if param_is_per_channel:
+    if is_per_channel:
         command.extend(["--use_per_channel_quantization"])
         print(f"参数设置: 权重使用逐通道量化")
-    else:
+        
+    if is_per_row:
         command.extend(["--use_per_row_quantization"])
+        print(f"参数设置: 权重使用逐行量化")
+    # else:
+    #     command.extend(["--use_per_channel_quantization"])
+    #     print(f"参数设置: 权重使用逐通道量化")
     
     print(f"执行命令: {' '.join(command)}")
     

@@ -151,7 +151,7 @@ def main(info, mode):
 if __name__ == "__main__":
     
     ONNX_MODEL_PATH = f"{cfg.SYSTEM.MODELS_DIR}/resnet18.onnx"
-    LABEL_PATH = "/mnt/share_disk/bruce_trie/workspace/imagenet1000_clsidx_to_labels.txt"
+    LABEL_PATH = "/home/bruce_ultra/workspace/Quantization_Optimization/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/imagenet1000_clsidx_to_labels.txt"
     INFERENCE_SINGLE_PIC = False
     COMPARE_WITH_ONNX = False
     labels_map = parse_labels_from_file(LABEL_PATH)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
                 total_num += 1
             print(f"total_num: {total_num}, correct_num: {correct_num}, accuracy: {correct_num / total_num}")
         else:
-            with open("/mnt/share_disk/bruce_trie/workspace/Quantizer-Tools/Dipoorlet/DemoLab/3_1_resnet18_native_int8_qnn/class_to_idx.txt", "r") as f:
+            with open("/home/bruce_ultra/workspace/Quantization_Optimization/Quantizer-Tools/_outputs/dipoorlet_log/3_dipoorlet_models_resnet18/class_to_idx.txt", "r") as f:
                 class_to_idx = f.readlines()
                 class_to_labels = {int(line.strip().split(":")[1]): line.strip().split(":")[0] for line in class_to_idx}
             
