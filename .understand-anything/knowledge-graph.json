@@ -1,0 +1,4321 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Dipoorlet",
+    "languages": [
+      "python"
+    ],
+    "frameworks": [
+      "PyTorch",
+      "ONNX",
+      "ONNXRuntime-GPU",
+      "ONNXSIM"
+    ],
+    "description": "An offline quantization tool for ONNX models supporting multiple activation calibration algorithms (Mse, Minmax, Hist), weight transformation techniques (BiasCorrection, WeightEqualization, Adaround, Brecq, Qdrop), and generates quantitative parameters for multiple platforms (TensorRT, SNPE, RV, ATLAS, STPU, TI, i.MX, MagicMind, QNN).",
+    "analyzedAt": "2026-05-17T18:00:00Z",
+    "gitCommitHash": "af2762db87747ebfaf44db3578697e5e630cffa0"
+  },
+  "nodes": [
+    {
+      "id": "file:dipoorlet/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "summary": "Package initialization file declaring the library version as 0.1.0.",
+      "tags": [
+        "dipoorlet",
+        "package-init"
+      ],
+      "filePath": "dipoorlet/__init__.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/__main__.py",
+      "type": "file",
+      "name": "__main__.py",
+      "summary": "CLI entry point for Dipoorlet quantization tool. Orchestrates the full quantization pipeline: tensor calibration, weight transformation, profiling, and deployment to target platforms (TensorRT, MagicMind, RV, Atlas, SNPE, TI, IMX).",
+      "tags": [
+        "cli",
+        "entry-point",
+        "quantization-pipeline"
+      ],
+      "filePath": "dipoorlet/__main__.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/deploy/__init__.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "__init__.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "__init__.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/__init__.py"
+    },
+    {
+      "id": "file:dipoorlet/forward_net.py",
+      "type": "file",
+      "name": "forward_net.py",
+      "summary": "Provides forward pass utilities for ONNX models including ActivationCache for caching intermediate activations, and functions for minmax/histogram/OCTAV-based tensor statistics collection during calibration.",
+      "tags": [
+        "forward-pass",
+        "activation-cache",
+        "calibration",
+        "onnx"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/platform_settings.py",
+      "type": "file",
+      "name": "platform_settings.py",
+      "summary": "Defines quantization settings for multiple deployment platforms (TensorRT, STPU, MagicMind, RV, Atlas, SNPE, TI, IMX, QNN). Contains layer type lists, quantization parameters (bit_width, per_channel, symmetric), and node configurations.",
+      "tags": [
+        "platform-settings",
+        "quantization-config",
+        "deployment"
+      ],
+      "filePath": "dipoorlet/platform_settings.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/profiling.py",
+      "type": "file",
+      "name": "profiling.py",
+      "summary": "Implements quantization profiling to measure layer-wise and model-level cosine similarity between floating-point and quantized outputs. Supports multipass and transformer-specific profiling modes.",
+      "tags": [
+        "profiling",
+        "quantization-error",
+        "cosine-similarity"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/quantize.py",
+      "type": "file",
+      "name": "quantize.py",
+      "summary": "Core quantization logic for inserting fake quantization nodes into ONNX graphs. Handles QuantizeLinear/DequantizeLinear node insertion, weight/input quantization, and graph topology management.",
+      "tags": [
+        "quantization",
+        "fake-quant-nodes",
+        "onnx"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/dist_helper.py",
+      "type": "file",
+      "name": "dist_helper.py",
+      "summary": "Distributed training initialization helpers for MPI and SLURM environments. Provides init_from_mpi() and init_from_slurm() functions to configure PyTorch distributed training.",
+      "tags": [
+        "distributed",
+        "mpi",
+        "slurm",
+        "pytorch"
+      ],
+      "filePath": "dipoorlet/dist_helper.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/utils.py",
+      "type": "file",
+      "name": "utils.py",
+      "summary": "Contains the ONNXGraph class for ONNX model manipulation, logging setup, clip value save/load utilities, profiling result aggregation, and input data generation for calibration.",
+      "tags": [
+        "utils",
+        "onnx-graph",
+        "logger",
+        "calibration-data"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/tensor_cali/__init__.py",
+      "type": "file",
+      "name": "tensor_cali/__init__.py",
+      "summary": "Tensor calibration module initialization exporting tensor_calibration and find_clip_val_minmax_weight.",
+      "tags": [
+        "tensor-calibration",
+        "module-init"
+      ],
+      "filePath": "dipoorlet/tensor_cali/__init__.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "type": "file",
+      "name": "tensor_cali/basic_algorithm.py",
+      "summary": "Implements calibration algorithms using a dispatcher pattern: minmax, histogram, and MSE (OCTAV). Provides find_clip_val_minmax_weight for weight quantization range extraction.",
+      "tags": [
+        "calibration-algorithm",
+        "minmax",
+        "histogram",
+        "mse",
+        "dispatcher"
+      ],
+      "filePath": "dipoorlet/tensor_cali/basic_algorithm.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/tensor_cali/tensor_cali_base.py",
+      "type": "file",
+      "name": "tensor_cali/tensor_cali_base.py",
+      "summary": "Base tensor calibration entry point. Orchestrates weight calibration via minmax and activation calibration via the dispatcher-selected algorithm (minmax/hist/mse).",
+      "tags": [
+        "calibration",
+        "base"
+      ],
+      "filePath": "dipoorlet/tensor_cali/tensor_cali_base.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:setup.py",
+      "type": "file",
+      "name": "setup.py",
+      "summary": "Package setup configuration defining Dipoorlet as a setuptools package with versioning from git tags.",
+      "tags": [
+        "setup",
+        "packaging"
+      ],
+      "filePath": "setup.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:.flake8",
+      "type": "config",
+      "name": ".flake8",
+      "summary": "Flake8 configuration file specifying linting rules: max line length 130, complexity 18, excludes proto directory.",
+      "tags": [
+        "flake8",
+        "linter-config"
+      ],
+      "filePath": ".flake8",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:dipoorlet/forward_net.py:ActivationCache",
+      "type": "class",
+      "name": "ActivationCache",
+      "summary": "Caches intermediate activation tensors during ONNX model forward passes for efficient layer-by-layer quantization profiling. Supports sub-network splitting and CUDA execution providers.",
+      "tags": [
+        "activation-cache",
+        "forward-pass",
+        "onnx"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_get_minmax",
+      "type": "function",
+      "name": "forward_get_minmax",
+      "summary": "Collects min/max statistics from model inputs and outputs for activation quantization calibration.",
+      "tags": [
+        "minmax",
+        "calibration",
+        "statistics"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_get_hist",
+      "type": "function",
+      "name": "forward_get_hist",
+      "summary": "Collects histogram statistics from model inputs/outputs for histogram-based activation quantization calibration.",
+      "tags": [
+        "histogram",
+        "calibration",
+        "statistics"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_net_octav",
+      "type": "function",
+      "name": "forward_net_octav",
+      "summary": "Collects OCTAV-based optimal scale statistics for MSE-based activation quantization calibration.",
+      "tags": [
+        "octav",
+        "mse",
+        "calibration"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_get_minmax_transformer",
+      "type": "function",
+      "name": "forward_get_minmax_transformer",
+      "summary": "Collects min/max statistics for transformer models using ActivationCache for efficient memory handling.",
+      "tags": [
+        "transformer",
+        "minmax",
+        "calibration"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_get_hist_transformer",
+      "type": "function",
+      "name": "forward_get_hist_transformer",
+      "summary": "Collects histogram statistics for transformer models using ActivationCache.",
+      "tags": [
+        "transformer",
+        "histogram",
+        "calibration"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_net_octav_transformer",
+      "type": "function",
+      "name": "forward_net_octav_transformer",
+      "summary": "Collects OCTAV statistics for transformer models using ActivationCache.",
+      "tags": [
+        "transformer",
+        "octav",
+        "mse"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:input_data_generator",
+      "type": "function",
+      "name": "input_data_generator",
+      "summary": "Generator function yielding calibration input data (float32 binary files) for model inputs.",
+      "tags": [
+        "data-generator",
+        "calibration-input"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_get_tensor",
+      "type": "function",
+      "name": "forward_get_tensor",
+      "summary": "Runs single forward pass and returns tensors for a specific input index.",
+      "tags": [
+        "forward-pass",
+        "tensor-extraction"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/forward_net.py:forward_get_output",
+      "type": "function",
+      "name": "forward_get_output",
+      "summary": "Runs forward pass on batch data directory and returns model outputs.",
+      "tags": [
+        "forward-pass",
+        "output-extraction"
+      ],
+      "filePath": "dipoorlet/forward_net.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:dipoorlet/utils.py:ONNXGraph",
+      "type": "class",
+      "name": "ONNXGraph",
+      "summary": "Wrapper class for ONNX model manipulation. Handles initializer management, tensor shapes/types, graph topology, quantization node insertion, and model serialization.",
+      "tags": [
+        "onnx-graph",
+        "model-wrapper",
+        "quantization"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:setup_logger",
+      "type": "function",
+      "name": "setup_logger",
+      "summary": "Configures logging with colored console output and file logging to output directory.",
+      "tags": [
+        "logging",
+        "setup"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:cos_similarity",
+      "type": "function",
+      "name": "cos_similarity",
+      "summary": "Computes cosine similarity between two numpy arrays for profiling quantization error.",
+      "tags": [
+        "cosine-similarity",
+        "profiling"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:max_abs_gap",
+      "type": "function",
+      "name": "max_abs_gap",
+      "summary": "Computes maximum absolute gap between two numpy arrays for profiling.",
+      "tags": [
+        "max-abs-gap",
+        "profiling"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:dispatch_functool",
+      "type": "function",
+      "name": "dispatch_functool",
+      "summary": "Decorator-based dispatcher pattern for selecting calibration algorithms by name.",
+      "tags": [
+        "dispatcher",
+        "pattern",
+        "calibration"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:save_clip_val",
+      "type": "function",
+      "name": "save_clip_val",
+      "summary": "Saves activation and weight clip values (min/max ranges) to JSON files.",
+      "tags": [
+        "save",
+        "clip-values",
+        "json"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:load_clip_val",
+      "type": "function",
+      "name": "load_clip_val",
+      "summary": "Loads activation and weight clip values from JSON files.",
+      "tags": [
+        "load",
+        "clip-values",
+        "json"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:reduce_clip_val",
+      "type": "function",
+      "name": "reduce_clip_val",
+      "summary": "Collects and reduces clip values across distributed GPUs (min for minmax, average for hist/mse).",
+      "tags": [
+        "distributed",
+        "clip-values",
+        "reduce"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:save_profiling_res",
+      "type": "function",
+      "name": "save_profiling_res",
+      "summary": "Saves layer-wise and model-level profiling results (cosine similarities) to JSON files.",
+      "tags": [
+        "save",
+        "profiling-results",
+        "json"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:reduce_profiling_res",
+      "type": "function",
+      "name": "reduce_profiling_res",
+      "summary": "Collects and reduces profiling results across distributed GPUs.",
+      "tags": [
+        "distributed",
+        "profiling-results",
+        "reduce"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:deploy_QOperator",
+      "type": "function",
+      "name": "deploy_QOperator",
+      "summary": "Alternative deployment using ONNXRuntime quantizer for QOperator format.",
+      "tags": [
+        "deploy",
+        "qoperator",
+        "onnxruntime"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:input_data_generator",
+      "type": "function",
+      "name": "input_data_generator",
+      "summary": "Generator yielding calibration input data from binary files.",
+      "tags": [
+        "data-generator",
+        "calibration-input"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/utils.py:restore_data",
+      "type": "function",
+      "name": "restore_data",
+      "summary": "Restructures calibration data into batch files for layerwise profiling.",
+      "tags": [
+        "data-restructuring",
+        "batch-data"
+      ],
+      "filePath": "dipoorlet/utils.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/quantize.py:quant_graph",
+      "type": "function",
+      "name": "quant_graph",
+      "summary": "Creates quantized graph by inserting fake quantization nodes for specified layers.",
+      "tags": [
+        "quantization",
+        "graph-transformation"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/quantize.py:insert_fake_quant_node",
+      "type": "function",
+      "name": "insert_fake_quant_node",
+      "summary": "Inserts QuantizeLinear/DequantizeLinear nodes for input tensors and weights of a node.",
+      "tags": [
+        "quant-node-insertion",
+        "quantization"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/quantize.py:insert_fake_quant_node_output",
+      "type": "function",
+      "name": "insert_fake_quant_node_output",
+      "summary": "Inserts fake quantization nodes for network outputs when required by platform.",
+      "tags": [
+        "quant-node-insertion",
+        "output-quantization"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/quantize.py:delete_fake_quant_node",
+      "type": "function",
+      "name": "delete_fake_quant_node",
+      "summary": "Removes fake quantization nodes from a node for layerwise profiling error calculation.",
+      "tags": [
+        "quant-node-removal",
+        "profiling"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/quantize.py:get_qnode_by_param",
+      "type": "function",
+      "name": "get_qnode_by_param",
+      "summary": "Creates QuantizeLinear/DequantizeLinear subgraphs based on quantization parameters (bit_width, per_channel, symmetric).",
+      "tags": [
+        "quant-node-creation",
+        "parameters"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/quantize.py:make_quant_dequant",
+      "type": "function",
+      "name": "make_quant_dequant",
+      "summary": "Constructs ONNX subgraph with QuantizeLinear and DequantizeLinear nodes with scale/zero_point tensors.",
+      "tags": [
+        "subgraph-creation",
+        "onnx-helper"
+      ],
+      "filePath": "dipoorlet/quantize.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:update_node_quant_profiling",
+      "type": "function",
+      "name": "update_node_quant_profiling",
+      "summary": "Updates layer-wise cosine similarity dictionary for a node's output tensors.",
+      "tags": [
+        "profiling",
+        "cosine-similarity"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:quantize_profiling_multipass",
+      "type": "function",
+      "name": "quantize_profiling_multipass",
+      "summary": "Profiles quantization error for standard CNN models (non-transformer) using per-sample forward passes.",
+      "tags": [
+        "profiling",
+        "multipass",
+        "cnn"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:quantize_profiling_transformer",
+      "type": "function",
+      "name": "quantize_profiling_transformer",
+      "summary": "Profiles quantization error for transformer models using ActivationCache for memory efficiency.",
+      "tags": [
+        "profiling",
+        "transformer",
+        "activation-cache"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:update_quant_model_cosine",
+      "type": "function",
+      "name": "update_quant_model_cosine",
+      "summary": "Updates model-level cosine similarity with running average and minimum tracking.",
+      "tags": [
+        "profiling",
+        "model-level",
+        "cosine-similarity"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:get_output_single_map",
+      "type": "function",
+      "name": "get_output_single_map",
+      "summary": "Determines which outputs are single-value (prod of spatial dims <= 10) vs batched.",
+      "tags": [
+        "output-analysis",
+        "single-value"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:show_model_ranges",
+      "type": "function",
+      "name": "show_model_ranges",
+      "summary": "Logs tensor name, shape, and value ranges for activations and weights.",
+      "tags": [
+        "logging",
+        "ranges",
+        "tensor-stats"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:weight_need_perchannel",
+      "type": "function",
+      "name": "weight_need_perchannel",
+      "summary": "Identifies Conv layers where per-channel quantization is beneficial vs per-layer.",
+      "tags": [
+        "weight-quantization",
+        "per-channel",
+        "conv"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:show_model_profiling_res",
+      "type": "function",
+      "name": "show_model_profiling_res",
+      "summary": "Logs top 20 most quantization-sensitive layers and model output cosine similarities.",
+      "tags": [
+        "logging",
+        "profiling-results"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/profiling.py:quantize_profiling_layerwise",
+      "type": "function",
+      "name": "quantize_profiling_layerwise",
+      "summary": "Profiles quantization error by removing each quantized layer individually to find sensitive layers.",
+      "tags": [
+        "profiling",
+        "layerwise",
+        "sensitivity"
+      ],
+      "filePath": "dipoorlet/profiling.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/dist_helper.py:init_from_mpi",
+      "type": "function",
+      "name": "init_from_mpi",
+      "summary": "Initializes PyTorch distributed training from OpenMPI environment variables.",
+      "tags": [
+        "distributed",
+        "mpi",
+        "initialization"
+      ],
+      "filePath": "dipoorlet/dist_helper.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/dist_helper.py:init_from_slurm",
+      "type": "function",
+      "name": "init_from_slurm",
+      "summary": "Initializes PyTorch distributed training from SLURM environment variables.",
+      "tags": [
+        "distributed",
+        "slurm",
+        "initialization"
+      ],
+      "filePath": "dipoorlet/dist_helper.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax",
+      "type": "function",
+      "name": "find_clip_val_minmax",
+      "summary": "Minmax calibration algorithm dispatcher registered implementation.",
+      "tags": [
+        "minmax",
+        "calibration",
+        "dispatcher"
+      ],
+      "filePath": "dipoorlet/tensor_cali/basic_algorithm.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_hist",
+      "type": "function",
+      "name": "find_clip_val_hist",
+      "summary": "Histogram calibration algorithm dispatcher registered implementation.",
+      "tags": [
+        "histogram",
+        "calibration",
+        "dispatcher"
+      ],
+      "filePath": "dipoorlet/tensor_cali/basic_algorithm.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_octav",
+      "type": "function",
+      "name": "find_clip_val_octav",
+      "summary": "MSE/OCTAV calibration algorithm dispatcher registered implementation.",
+      "tags": [
+        "mse",
+        "octav",
+        "calibration",
+        "dispatcher"
+      ],
+      "filePath": "dipoorlet/tensor_cali/basic_algorithm.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax_weight",
+      "type": "function",
+      "name": "find_clip_val_minmax_weight",
+      "summary": "Extracts per-channel min/max ranges from layer weights (Conv, Gemm, etc.) for weight quantization.",
+      "tags": [
+        "weight",
+        "minmax",
+        "calibration"
+      ],
+      "filePath": "dipoorlet/tensor_cali/basic_algorithm.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:dipoorlet/tensor_cali/tensor_cali_base.py:tensor_calibration",
+      "type": "function",
+      "name": "tensor_calibration",
+      "summary": "Main tensor calibration entry point: computes weight clip values via minmax and activation clip values via the selected algorithm.",
+      "tags": [
+        "calibration",
+        "entry-point"
+      ],
+      "filePath": "dipoorlet/tensor_cali/tensor_cali_base.py",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_base.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_base.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_base.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_base.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_default.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_default.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_default.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_default.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_atlas.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_atlas.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_atlas.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_atlas.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_imx.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_imx.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_imx.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_imx.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_magicmind.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_magicmind.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_magicmind.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_magicmind.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_qnn.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_qnn.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_qnn.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_qnn.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_rv.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_rv.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_rv.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_rv.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_snpe.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_snpe.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_snpe.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_snpe.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_stpu.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_stpu.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_stpu.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_stpu.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_ti.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_ti.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_ti.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_ti.py"
+    },
+    {
+      "id": "file:dipoorlet/deploy/deploy_trt.py",
+      "fileCategory": "code",
+      "language": "python",
+      "package": "dipoorlet.deploy",
+      "name": "deploy_trt.py",
+      "complexity": "moderate",
+      "type": "file",
+      "summary": "deploy_trt.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet/deploy/deploy_trt.py"
+    },
+    {
+      "id": "function:unknown:weight_calibration",
+      "name": "weight_calibration",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/weight_trans_base.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 15
+      },
+      "complexity": "moderate",
+      "summary": "weight_calibration - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:nnie_rest_init",
+      "name": "nnie_rest_init",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 12
+      },
+      "complexity": "moderate",
+      "summary": "nnie_rest_init - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:quant_acti",
+      "name": "quant_acti",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 31
+      },
+      "complexity": "moderate",
+      "summary": "quant_acti - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:quant_weight",
+      "name": "quant_weight",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 42
+      },
+      "complexity": "moderate",
+      "summary": "quant_weight - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:quant_weight_nnie",
+      "name": "quant_weight_nnie",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 56
+      },
+      "complexity": "moderate",
+      "summary": "quant_weight_nnie - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:quant_acti_nnie",
+      "name": "quant_acti_nnie",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 79
+      },
+      "complexity": "moderate",
+      "summary": "quant_acti_nnie - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:adaround_reg",
+      "name": "adaround_reg",
+      "type": "class",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 99
+      },
+      "complexity": "moderate",
+      "summary": "adaround_reg - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:L2_norm",
+      "name": "L2_norm",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 65
+      },
+      "complexity": "moderate",
+      "summary": "L2_norm - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:TempDecay",
+      "name": "TempDecay",
+      "type": "class",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 121
+      },
+      "complexity": "moderate",
+      "summary": "TempDecay - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:AdaQLayer",
+      "name": "AdaQLayer",
+      "type": "class",
+      "file_path": "dipoorlet/weight_transform/ada_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 137
+      },
+      "complexity": "moderate",
+      "summary": "AdaQLayer - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:adaround",
+      "name": "adaround",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/adaround.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 28
+      },
+      "complexity": "moderate",
+      "summary": "adaround - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:learning_round_mask",
+      "name": "learning_round_mask",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/brecq.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 162
+      },
+      "complexity": "moderate",
+      "summary": "learning_round_mask - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:update_conv_node_bias",
+      "name": "update_conv_node_bias",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/bias_correction.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 9
+      },
+      "complexity": "moderate",
+      "summary": "update_conv_node_bias - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:bias_correction",
+      "name": "bias_correction",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/bias_correction.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 34
+      },
+      "complexity": "moderate",
+      "summary": "bias_correction - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:brecq",
+      "name": "brecq",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/brecq.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 20
+      },
+      "complexity": "moderate",
+      "summary": "brecq - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:sparse_quant",
+      "name": "sparse_quant",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 19
+      },
+      "complexity": "moderate",
+      "summary": "sparse_quant - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:learning_sparse_quant",
+      "name": "learning_sparse_quant",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 107
+      },
+      "complexity": "moderate",
+      "summary": "learning_sparse_quant - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:STE",
+      "name": "STE",
+      "type": "class",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 9
+      },
+      "complexity": "moderate",
+      "summary": "STE - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:quant_weight_wo_roundmask",
+      "name": "quant_weight_wo_roundmask",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 20
+      },
+      "complexity": "moderate",
+      "summary": "quant_weight_wo_roundmask - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:create_unstruction_mask",
+      "name": "create_unstruction_mask",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 31
+      },
+      "complexity": "moderate",
+      "summary": "create_unstruction_mask - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:create_nv24_mask",
+      "name": "create_nv24_mask",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 42
+      },
+      "complexity": "moderate",
+      "summary": "create_nv24_mask - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:prune_weight",
+      "name": "prune_weight",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 57
+      },
+      "complexity": "moderate",
+      "summary": "prune_weight - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:SparseQLayer",
+      "name": "SparseQLayer",
+      "type": "class",
+      "file_path": "dipoorlet/weight_transform/sparse_quant_layer.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 69
+      },
+      "complexity": "moderate",
+      "summary": "SparseQLayer - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:update_bn_node",
+      "name": "update_bn_node",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/update_bn.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 12
+      },
+      "complexity": "moderate",
+      "summary": "update_bn_node - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:update_bn_multipass",
+      "name": "update_bn_multipass",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/update_bn.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 26
+      },
+      "complexity": "moderate",
+      "summary": "update_bn_multipass - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:update_bn_onepass",
+      "name": "update_bn_onepass",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/update_bn.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 51
+      },
+      "complexity": "moderate",
+      "summary": "update_bn_onepass - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:dipoorlet/weight_transform/update_bn.py$update_bn",
+      "name": "update_bn",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/update_bn.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 66
+      },
+      "complexity": "moderate",
+      "summary": "update_bn - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:dipoorlet/weight_transform/utils.py$LEARNABLE_LAYER_TYPES",
+      "name": "LEARNABLE_LAYER_TYPES",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/utils.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 7
+      },
+      "complexity": "moderate",
+      "summary": "LEARNABLE_LAYER_TYPES - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:follow_relu",
+      "name": "follow_relu",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/utils.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 11
+      },
+      "complexity": "moderate",
+      "summary": "follow_relu - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:following_relu",
+      "name": "following_relu",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/utils.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 17
+      },
+      "complexity": "moderate",
+      "summary": "following_relu - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:update_weight",
+      "name": "update_weight",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/utils.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 24
+      },
+      "complexity": "moderate",
+      "summary": "update_weight - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:get_quant_tensor",
+      "name": "get_quant_tensor",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/utils.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 29
+      },
+      "complexity": "moderate",
+      "summary": "get_quant_tensor - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:get_block_from_first",
+      "name": "get_block_from_first",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/utils.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 54
+      },
+      "complexity": "moderate",
+      "summary": "get_block_from_first - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:find_successor",
+      "name": "find_successor",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/weight_equalization.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 15
+      },
+      "complexity": "moderate",
+      "summary": "find_successor - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:node_has_equalized",
+      "name": "node_has_equalized",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/weight_equalization.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 38
+      },
+      "complexity": "moderate",
+      "summary": "node_has_equalized - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:weight_equalization",
+      "name": "weight_equalization",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/weight_equalization.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 43
+      },
+      "complexity": "moderate",
+      "summary": "weight_equalization - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "function:unknown:converged",
+      "name": "converged",
+      "type": "function",
+      "file_path": "dipoorlet/weight_transform/weight_equalization.py",
+      "metadata": {
+        "language": "python",
+        "fileCategory": "code",
+        "lineNumber": 102
+      },
+      "complexity": "moderate",
+      "summary": "converged - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:dipoorlet_utils/__init__.py",
+      "type": "file",
+      "data": {
+        "category": "code",
+        "language": "python",
+        "path": "dipoorlet_utils/__init__.py",
+        "lineCount": 1,
+        "description": "Dipoorlet utilities package initialization"
+      },
+      "complexity": "moderate",
+      "name": "dipoorlet_utils/__init__.py",
+      "summary": "dipoorlet_utils/__init__.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet_utils/__init__.py"
+    },
+    {
+      "id": "file:dipoorlet_utils/calibrator.py",
+      "type": "file",
+      "data": {
+        "category": "code",
+        "language": "python",
+        "path": "dipoorlet_utils/calibrator.py",
+        "lineCount": 198,
+        "description": "Calibration utilities for TensorRT and Dipoorlet quantization"
+      },
+      "complexity": "moderate",
+      "name": "dipoorlet_utils/calibrator.py",
+      "summary": "dipoorlet_utils/calibrator.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet_utils/calibrator.py"
+    },
+    {
+      "id": "file:dipoorlet_utils/dataset.py",
+      "type": "file",
+      "data": {
+        "category": "code",
+        "language": "python",
+        "path": "dipoorlet_utils/dataset.py",
+        "lineCount": 436,
+        "description": "Dataset utilities for ImageNet loading, evaluation and preprocessing"
+      },
+      "complexity": "moderate",
+      "name": "dipoorlet_utils/dataset.py",
+      "summary": "dipoorlet_utils/dataset.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "dipoorlet_utils/dataset.py"
+    },
+    {
+      "id": "file:DemoLab/1_random_data/mock_data.py",
+      "type": "file",
+      "data": {
+        "category": "code",
+        "language": "python",
+        "path": "DemoLab/1_random_data/mock_data.py",
+        "lineCount": 11,
+        "description": "Mock data generator for demo testing"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/1_random_data/mock_data.py",
+      "summary": "DemoLab/1_random_data/mock_data.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/1_random_data/mock_data.py"
+    },
+    {
+      "id": "file:DemoLab/1_random_data/run.py",
+      "type": "file",
+      "data": {
+        "category": "code",
+        "language": "python",
+        "path": "DemoLab/1_random_data/run.py",
+        "lineCount": 38,
+        "description": "Demo runner script using torchrun for Dipoorlet quantization"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/1_random_data/run.py",
+      "summary": "DemoLab/1_random_data/run.py - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/1_random_data/run.py"
+    },
+    {
+      "id": "file:DemoLab/1_random_data/run_demo_1.sh",
+      "type": "file",
+      "data": {
+        "category": "script",
+        "language": "shell",
+        "path": "DemoLab/1_random_data/run_demo_1.sh",
+        "lineCount": 22,
+        "description": "Shell script to run demo_1 with Dipoorlet quantization"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/1_random_data/run_demo_1.sh",
+      "summary": "DemoLab/1_random_data/run_demo_1.sh - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/1_random_data/run_demo_1.sh"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/README.md",
+      "type": "file",
+      "data": {
+        "category": "docs",
+        "language": "markdown",
+        "path": "DemoLab/2_mobile_v2_dipoorlet_trt/README.md",
+        "lineCount": 28,
+        "description": "MobileNetV2 quantization experiments documentation"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/2_mobile_v2_dipoorlet_trt/README.md",
+      "summary": "DemoLab/2_mobile_v2_dipoorlet_trt/README.md - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/README.md"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/run.sh",
+      "type": "file",
+      "data": {
+        "category": "script",
+        "language": "shell",
+        "path": "DemoLab/2_mobile_v2_dipoorlet_trt/run.sh",
+        "lineCount": 21,
+        "description": "Shell script to run MobileNetV2 Dipoorlet TRT quantization"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/2_mobile_v2_dipoorlet_trt/run.sh",
+      "summary": "DemoLab/2_mobile_v2_dipoorlet_trt/run.sh - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/run.sh"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/README.md",
+      "type": "file",
+      "data": {
+        "category": "docs",
+        "language": "markdown",
+        "path": "DemoLab/3_quant_resnet18/README.md",
+        "lineCount": 34,
+        "description": "ResNet18 quantization experiments documentation with accuracy metrics"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/3_quant_resnet18/README.md",
+      "summary": "DemoLab/3_quant_resnet18/README.md - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/3_quant_resnet18/README.md"
+    },
+    {
+      "id": "file:DemoLab/5_yolov8_dipoorlet/README.md",
+      "type": "file",
+      "data": {
+        "category": "docs",
+        "language": "markdown",
+        "path": "DemoLab/5_yolov8_dipoorlet/README.md",
+        "lineCount": 1,
+        "description": "YOLOv8 Dipoorlet quantization documentation placeholder"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/5_yolov8_dipoorlet/README.md",
+      "summary": "DemoLab/5_yolov8_dipoorlet/README.md - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/5_yolov8_dipoorlet/README.md"
+    },
+    {
+      "id": "file:DemoLab/4_od_bev/config/config.yaml",
+      "type": "file",
+      "data": {
+        "category": "config",
+        "language": "yaml",
+        "path": "DemoLab/4_od_bev/config/config.yaml",
+        "lineCount": 66,
+        "description": "Object detection BEV multi-stage quantization configuration"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/4_od_bev/config/config.yaml",
+      "summary": "DemoLab/4_od_bev/config/config.yaml - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/4_od_bev/config/config.yaml"
+    },
+    {
+      "id": "file:DemoLab/4_od_bev/config/config_only_one_stage.yaml",
+      "type": "file",
+      "data": {
+        "category": "config",
+        "language": "yaml",
+        "path": "DemoLab/4_od_bev/config/config_only_one_stage.yaml",
+        "lineCount": 44,
+        "description": "Object detection BEV single-stage quantization configuration"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/4_od_bev/config/config_only_one_stage.yaml",
+      "summary": "DemoLab/4_od_bev/config/config_only_one_stage.yaml - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "DemoLab/4_od_bev/config/config_only_one_stage.yaml"
+    },
+    {
+      "id": "file:README.md",
+      "type": "file",
+      "data": {
+        "category": "docs",
+        "language": "markdown",
+        "path": "README.md",
+        "lineCount": 110,
+        "description": "Dipoorlet project documentation - offline quantization tool for ONNX models"
+      },
+      "complexity": "moderate",
+      "name": "README.md",
+      "summary": "README.md - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "README.md"
+    },
+    {
+      "id": "file:ONBOARD.md",
+      "type": "file",
+      "data": {
+        "category": "docs",
+        "language": "markdown",
+        "path": "ONBOARD.md",
+        "lineCount": 182,
+        "description": "Dipoorlet onboarding guide with usage examples and architecture overview"
+      },
+      "complexity": "moderate",
+      "name": "ONBOARD.md",
+      "summary": "ONBOARD.md - no summary available",
+      "tags": [
+        "untagged"
+      ],
+      "filePath": "ONBOARD.md"
+    },
+    {
+      "id": "module:dipoorlet_utils",
+      "type": "module",
+      "data": {
+        "name": "dipoorlet_utils",
+        "description": "Dipoorlet utilities module containing calibrator and dataset utilities"
+      },
+      "complexity": "moderate",
+      "name": "dipoorlet_utils",
+      "summary": "dipoorlet_utils - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/1_random_data",
+      "type": "module",
+      "data": {
+        "name": "1_random_data",
+        "description": "Demo lab for random data quantization workflow"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/1_random_data",
+      "summary": "DemoLab/1_random_data - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt",
+      "type": "module",
+      "data": {
+        "name": "2_mobile_v2_dipoorlet_trt",
+        "description": "MobileNetV2 TensorRT quantization demo"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/2_mobile_v2_dipoorlet_trt",
+      "summary": "DemoLab/2_mobile_v2_dipoorlet_trt - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18",
+      "type": "module",
+      "data": {
+        "name": "3_quant_resnet18",
+        "description": "ResNet18 quantization experiments"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/3_quant_resnet18",
+      "summary": "DemoLab/3_quant_resnet18 - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/5_yolov8_dipoorlet",
+      "type": "module",
+      "data": {
+        "name": "5_yolov8_dipoorlet",
+        "description": "YOLOv8 Dipoorlet quantization demo"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/5_yolov8_dipoorlet",
+      "summary": "DemoLab/5_yolov8_dipoorlet - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/4_od_bev",
+      "type": "module",
+      "data": {
+        "name": "4_od_bev",
+        "description": "Object detection BEV quantization configuration"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/4_od_bev",
+      "summary": "DemoLab/4_od_bev - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/4_od_bev/config",
+      "type": "module",
+      "data": {
+        "name": "config",
+        "description": "BEV quantization configuration files"
+      },
+      "complexity": "moderate",
+      "name": "DemoLab/4_od_bev/config",
+      "summary": "DemoLab/4_od_bev/config - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:CalibDataLoader",
+      "type": "class",
+      "data": {
+        "file": "dipoorlet_utils/calibrator.py",
+        "lineStart": 67,
+        "lineEnd": 93,
+        "description": "Calibration data loader for TensorRT INT8 calibration"
+      },
+      "complexity": "moderate",
+      "name": "CalibDataLoader",
+      "summary": "CalibDataLoader - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:Calibrator",
+      "type": "class",
+      "data": {
+        "file": "dipoorlet_utils/calibrator.py",
+        "lineStart": 95,
+        "lineEnd": 124,
+        "description": "TensorRT INT8 entropy calibrator class"
+      },
+      "complexity": "moderate",
+      "name": "Calibrator",
+      "summary": "Calibrator - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:ImageNetEvaluator",
+      "type": "class",
+      "data": {
+        "file": "dipoorlet_utils/dataset.py",
+        "lineStart": 72,
+        "lineEnd": 155,
+        "description": "ImageNet validation evaluator with accuracy metrics"
+      },
+      "complexity": "moderate",
+      "name": "ImageNetEvaluator",
+      "summary": "ImageNetEvaluator - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:TinyImageNetDataset",
+      "type": "class",
+      "data": {
+        "file": "dipoorlet_utils/dataset.py",
+        "lineStart": 164,
+        "lineEnd": 186,
+        "description": "Dataset class for Tiny ImageNet structure"
+      },
+      "complexity": "moderate",
+      "name": "TinyImageNetDataset",
+      "summary": "TinyImageNetDataset - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "class:unknown:StandardImageFolder",
+      "type": "class",
+      "data": {
+        "file": "dipoorlet_utils/dataset.py",
+        "lineStart": 193,
+        "lineEnd": 240,
+        "description": "Dataset class for standard ImageFolder structure"
+      },
+      "complexity": "moderate",
+      "name": "StandardImageFolder",
+      "summary": "StandardImageFolder - no summary available",
+      "tags": [
+        "untagged"
+      ]
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py",
+      "type": "file",
+      "name": "1_1_train_torch_pretrained_model.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py",
+      "summary": "Train MobileNetV2 model using pretrained ImageNet weights on TinyImageNet (200 classes). Uses SGD optimizer with StepLR scheduler, trains for configurable epochs, saves best model based on validation accuracy.",
+      "tags": [
+        "training",
+        "pytorch",
+        "mobilenetv2",
+        "imagenet"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py:train_model",
+      "type": "function",
+      "name": "train_model",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py",
+      "summary": "Training loop for MobileNetV2 with train/val phases, early stopping based on validation accuracy, best model checkpointing to .pth file.",
+      "tags": [
+        "training",
+        "pytorch",
+        "mobilenetv2"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "type": "file",
+      "name": "1_2_train_customed_model_basic.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "summary": "Train customized MobileNetV2 with command-line arguments for resume training, optimizer selection (SGD/Adam), scheduler (Step/Plateau/Cosine), early stopping with patience=10, and auto-checkpoint finding.",
+      "tags": [
+        "training",
+        "pytorch",
+        "mobilenetv2",
+        "resume-training"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:get_config",
+      "type": "function",
+      "name": "get_config",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "summary": "Parse command-line arguments for training configuration: resume path, epochs, learning rate, auto_resume, optimizer, scheduler, batch_size, weight_decay.",
+      "tags": [
+        "config",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:find_latest_checkpoint",
+      "type": "function",
+      "name": "find_latest_checkpoint",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "summary": "Scan directory for latest checkpoint file ending with _checkpoint.pth based on modification time.",
+      "tags": [
+        "training",
+        "checkpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:train_model",
+      "type": "function",
+      "name": "train_model",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "summary": "Training loop with train/val phases, early stopping with configurable patience, learning rate scheduling (ReduceLROnPlateau, StepLR, CosineAnnealing), training history tracking.",
+      "tags": [
+        "training",
+        "pytorch",
+        "early-stopping"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "summary": "Main training entry point loading MobileNetV2 pretrained weights, configuring optimizer/scheduler based on args, applying data augmentation transforms, resuming from checkpoint if specified.",
+      "tags": [
+        "training",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "type": "file",
+      "name": "1_3_train_customed_model_advance.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Advanced MobileNetV2 training with LabelSmoothCrossEntropyLoss, Mixup data augmentation, EMA (Exponential Moving Average) model averaging, gradient clipping, cosine annealing scheduler, early stopping with patience=5.",
+      "tags": [
+        "training",
+        "pytorch",
+        "mobilenetv2",
+        "advanced",
+        "mixup",
+        "ema"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:LabelSmoothCrossEntropyLoss",
+      "type": "class",
+      "name": "LabelSmoothCrossEntropyLoss",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Custom loss function implementing label smoothing for better generalization.",
+      "tags": [
+        "loss",
+        "label-smoothing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:EMA",
+      "type": "class",
+      "name": "EMA",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Exponential Moving Average wrapper for model weights with shadow/bckup mechanism for validation and restore operations.",
+      "tags": [
+        "training",
+        "ema",
+        "model-averaging"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:mixup_data",
+      "type": "function",
+      "name": "mixup_data",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Apply Mixup data augmentation by mixing input pairs with random lambda.",
+      "tags": [
+        "training",
+        "data-augmentation",
+        "mixup"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:mixup_criterion",
+      "type": "function",
+      "name": "mixup_criterion",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Compute mixed loss for Mixup augmented batches by combining losses from both original and mixed labels.",
+      "tags": [
+        "training",
+        "mixup",
+        "loss"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:train_model",
+      "type": "function",
+      "name": "train_model",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Advanced training loop with Mixup augmentation, EMA updates, gradient clipping (max_norm=1.0), ReduceLROnPlateau/cosine/step scheduling, early stopping with patience=5.",
+      "tags": [
+        "training",
+        "pytorch",
+        "advanced"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "summary": "Main entry with configurable training: label smoothing, mixup, EMA, multiple schedulers, checkpoint resume with auto-resume support.",
+      "tags": [
+        "training",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "type": "file",
+      "name": "2_1_evaluate_model_and_export_onnx.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Evaluate PyTorch model accuracy on validation set and export to ONNX format for quantization deployment.",
+      "tags": [
+        "evaluation",
+        "onnx",
+        "export"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:evaluate_model",
+      "type": "function",
+      "name": "evaluate_model",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Load MobileNetV2 model from checkpoint and evaluate on TinyImageNet validation set, report accuracy percentage.",
+      "tags": [
+        "evaluation",
+        "accuracy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:export_onnx",
+      "type": "function",
+      "name": "export_onnx",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Export PyTorch model to ONNX format with opset_version=11, shape (1,3,224,224).",
+      "tags": [
+        "export",
+        "onnx"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "type": "file",
+      "name": "6_test_quant_acc.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "summary": "Test TensorRT quantized model inference accuracy on TinyImageNet. Deserializes TRT engine, allocates buffers, runs inference, compares predictions with labels.",
+      "tags": [
+        "tensorrt",
+        "quantization",
+        "inference",
+        "accuracy"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:HostDeviceMem",
+      "type": "class",
+      "name": "HostDeviceMem",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "summary": "Helper class managing CPU/GPU memory buffers for TensorRT inference.",
+      "tags": [
+        "tensorrt",
+        "memory-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:allocate_buffers",
+      "type": "function",
+      "name": "allocate_buffers",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "summary": "Allocate pagelocked host memory and GPU device memory for all engine bindings.",
+      "tags": [
+        "tensorrt",
+        "memory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:do_inference",
+      "type": "function",
+      "name": "do_inference",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "summary": "Execute TensorRT inference: copy input to GPU, run async execution, copy output back to CPU.",
+      "tags": [
+        "tensorrt",
+        "inference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:deserializing_engine",
+      "type": "function",
+      "name": "deserializing_engine",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "summary": "Deserialize TensorRT engine from .engine file.",
+      "tags": [
+        "tensorrt",
+        "deserialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "summary": "Main function loading TensorRT engine, running inference on TinyImageNet val set, calculating and printing accuracy.",
+      "tags": [
+        "tensorrt",
+        "accuracy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "type": "file",
+      "name": "4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "summary": "Deploy quantized TensorRT model using MSE (Mean Squared Error) calibration algorithm via dipoorlet CLI module. Executes torchrun with -m dipoorlet.",
+      "tags": [
+        "quantization",
+        "tensorrt",
+        "mse",
+        "deployment"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "summary": "Run dipoorlet quantization with MSE algorithm for TensorRT deployment, specifying calibration data dir and output log directory.",
+      "tags": [
+        "quantization",
+        "mse"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "type": "file",
+      "name": "4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "summary": "Deploy quantized TensorRT model using Histogram calibration algorithm via dipoorlet CLI.",
+      "tags": [
+        "quantization",
+        "tensorrt",
+        "histogram",
+        "deployment"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "summary": "Run dipoorlet quantization with histogram algorithm for TensorRT deployment.",
+      "tags": [
+        "quantization",
+        "histogram"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "type": "file",
+      "name": "4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "summary": "Deploy quantized TensorRT model using MinMax calibration algorithm via dipoorlet CLI.",
+      "tags": [
+        "quantization",
+        "tensorrt",
+        "minmax",
+        "deployment"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "summary": "Run dipoorlet quantization with minmax algorithm for TensorRT deployment.",
+      "tags": [
+        "quantization",
+        "minmax"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "type": "file",
+      "name": "4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "summary": "Deploy quantized TensorRT model using BRECQ algorithm via dipoorlet CLI with --brecq flag.",
+      "tags": [
+        "quantization",
+        "tensorrt",
+        "brecq",
+        "deployment"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "summary": "Run dipoorlet quantization with BRECQ algorithm for TensorRT deployment.",
+      "tags": [
+        "quantization",
+        "brecq"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "type": "file",
+      "name": "4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "summary": "Deploy quantized TensorRT model using AdaRound algorithm via dipoorlet CLI with --adaround flag.",
+      "tags": [
+        "quantization",
+        "tensorrt",
+        "adaround",
+        "deployment"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "summary": "Run dipoorlet quantization with AdaRound algorithm for TensorRT deployment, decorated with @time_it for profiling.",
+      "tags": [
+        "quantization",
+        "adaround"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "type": "file",
+      "name": "2_1_evaluate_model_and_export_onnx.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Evaluate ResNet18 pretrained model and export to ONNX for quantization. Uses ImageNetEvaluator class for accuracy assessment.",
+      "tags": [
+        "evaluation",
+        "resnet18",
+        "onnx",
+        "export"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:accuracy",
+      "type": "function",
+      "name": "accuracy",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Compute top-k accuracy given model output and target labels.",
+      "tags": [
+        "evaluation",
+        "accuracy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:evaluate_model",
+      "type": "function",
+      "name": "evaluate_model",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Load ResNet18 with pretrained weights, evaluate on ImageNet val set using ImageNetEvaluator.",
+      "tags": [
+        "evaluation",
+        "resnet18"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:export_onnx",
+      "type": "function",
+      "name": "export_onnx",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "summary": "Export ResNet18 model to ONNX with opset_version=11.",
+      "tags": [
+        "export",
+        "onnx",
+        "resnet18"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "type": "file",
+      "name": "5_1_test_quant_acc.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "summary": "Test ResNet18 TensorRT quantized model inference accuracy on ImageNet. Handles variable batch sizes, sets dynamic input shapes.",
+      "tags": [
+        "tensorrt",
+        "resnet18",
+        "quantization",
+        "inference"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:HostDeviceMem",
+      "type": "class",
+      "name": "HostDeviceMem",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "summary": "Helper class for CPU/GPU memory buffer management in TensorRT inference.",
+      "tags": [
+        "tensorrt",
+        "memory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:allocate_buffers",
+      "type": "function",
+      "name": "allocate_buffers",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "summary": "Allocate host/device buffers for all TensorRT engine bindings.",
+      "tags": [
+        "tensorrt",
+        "memory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:do_inference",
+      "type": "function",
+      "name": "do_inference",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "summary": "Execute TensorRT async inference with CPU-GPU memory transfers.",
+      "tags": [
+        "tensorrt",
+        "inference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:deserializing_engine",
+      "type": "function",
+      "name": "deserializing_engine",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "summary": "Deserialize TensorRT engine from .engine file.",
+      "tags": [
+        "tensorrt",
+        "deserialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "summary": "Main function for ResNet18 TensorRT inference accuracy testing with dynamic batch handling.",
+      "tags": [
+        "tensorrt",
+        "resnet18",
+        "accuracy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "type": "file",
+      "name": "calculate_trt_engine_acc.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "summary": "Calculate TensorRT engine accuracy for ResNet18 on ImageNet. Similar to 5_1_test_quant_acc.py but uses get_tensor_name instead of get_binding_name for newer TRT API.",
+      "tags": [
+        "tensorrt",
+        "resnet18",
+        "accuracy"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:HostDeviceMem",
+      "type": "class",
+      "name": "HostDeviceMem",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "summary": "Helper class for CPU/GPU memory buffer management in TensorRT inference.",
+      "tags": [
+        "tensorrt",
+        "memory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:allocate_buffers",
+      "type": "function",
+      "name": "allocate_buffers",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "summary": "Allocate host/device buffers for TensorRT engine bindings.",
+      "tags": [
+        "tensorrt",
+        "memory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:do_inference",
+      "type": "function",
+      "name": "do_inference",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "summary": "Execute TensorRT async inference.",
+      "tags": [
+        "tensorrt",
+        "inference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:deserializing_engine",
+      "type": "function",
+      "name": "deserializing_engine",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "summary": "Deserialize TensorRT engine from file.",
+      "tags": [
+        "tensorrt",
+        "deserialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:calculate_tensorrt_acc",
+      "type": "function",
+      "name": "calculate_tensorrt_acc",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "summary": "Main function to load engine, run inference on ImageNet val set, calculate accuracy. Uses get_tensor_name API for context.",
+      "tags": [
+        "tensorrt",
+        "accuracy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "type": "file",
+      "name": "4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "summary": "Deploy ResNet18 quantized model to TensorRT using MSE calibration algorithm via dipoorlet CLI. Supports mode parameter for target platform (trt/snpe).",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "tensorrt",
+        "mse"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "summary": "Run dipoorlet quantization for ResNet18 with MSE algorithm targeting TRT or SNPE.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "mse"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "type": "file",
+      "name": "4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "summary": "Deploy ResNet18 quantized model to TensorRT using histogram calibration algorithm. After quantization, automatically calculates TRT engine accuracy.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "tensorrt",
+        "histogram"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "summary": "Run dipoorlet histogram quantization then call calculate_tensorrt_acc to verify accuracy.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "histogram"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "type": "file",
+      "name": "4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "summary": "Deploy ResNet18 quantized model to TensorRT using MinMax calibration algorithm via dipoorlet CLI.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "tensorrt",
+        "minmax"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "summary": "Run dipoorlet quantization with minmax algorithm for ResNet18 TensorRT deployment.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "minmax"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "type": "file",
+      "name": "4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "summary": "Deploy ResNet18 quantized model to TensorRT using BRECQ algorithm via dipoorlet CLI with --brecq flag.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "tensorrt",
+        "brecq"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "summary": "Run dipoorlet quantization with BRECQ algorithm for ResNet18 TensorRT deployment.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "brecq"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "type": "file",
+      "name": "4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "summary": "Deploy ResNet18 quantized model to TensorRT using AdaRound algorithm via dipoorlet CLI with --adaround flag, decorated with @time_it.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "tensorrt",
+        "adaround"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "summary": "Run dipoorlet quantization with AdaRound algorithm for ResNet18 TensorRT deployment.",
+      "tags": [
+        "quantization",
+        "resnet18",
+        "adaround"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py",
+      "type": "file",
+      "name": "1_qnn_onnx_converter_fp16.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py",
+      "summary": "Convert ResNet18 ONNX model to QNN FP16 format using qnn-onnx-converter CLI tool.",
+      "tags": [
+        "qnn",
+        "fp16",
+        "onnx",
+        "converter"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py",
+      "summary": "Run qnn-onnx-converter with --float_bitwidth 16 to convert ResNet18 ONNX to QNN FP16 cpp library.",
+      "tags": [
+        "qnn",
+        "fp16"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py",
+      "type": "file",
+      "name": "2_qnn_model_lib_generate.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py",
+      "summary": "Generate QNN model library from cpp output using qnn-model-lib-generator for x86_64-linux-clang target.",
+      "tags": [
+        "qnn",
+        "model-library",
+        "build"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py",
+      "summary": "Run qnn-model-lib-generator to create .so library from cpp model description.",
+      "tags": [
+        "qnn",
+        "library"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py",
+      "type": "file",
+      "name": "3_qnn_context_binary_generate.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py",
+      "summary": "Generate QNN context binary from model library using qnn-context-binary-generator with HTP backend.",
+      "tags": [
+        "qnn",
+        "context-binary",
+        "htp"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py",
+      "summary": "Run qnn-context-binary-generator with HTP backend to create context binary for inference.",
+      "tags": [
+        "qnn",
+        "context"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py",
+      "type": "file",
+      "name": "4_1_qnn_net_run_infer.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py",
+      "summary": "Run QNN inference using qnn-net-run with HTP backend, retrieving context binary and processing input list.",
+      "tags": [
+        "qnn",
+        "inference",
+        "htp"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py",
+      "summary": "Execute qnn-net-run for batch inference on full dataset.",
+      "tags": [
+        "qnn",
+        "inference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_2_qnn_net_run_infer_single.py",
+      "type": "file",
+      "name": "4_2_qnn_net_run_infer_single.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_2_qnn_net_run_infer_single.py",
+      "summary": "Run single image QNN inference using qnn-net-run with debug output directory.",
+      "tags": [
+        "qnn",
+        "inference",
+        "single"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_2_qnn_net_run_infer_single.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_2_qnn_net_run_infer_single.py",
+      "summary": "Execute qnn-net-run for single image inference with debug output.",
+      "tags": [
+        "qnn",
+        "inference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "type": "file",
+      "name": "5_parse_raw_res.py",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "summary": "Parse and evaluate QNN raw inference output (.raw files). Supports single pic inference, ONNX comparison, and batch accuracy calculation against ground truth labels.",
+      "tags": [
+        "qnn",
+        "postprocessing",
+        "accuracy"
+      ],
+      "language": "python",
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:parse_labels_from_file",
+      "type": "function",
+      "name": "parse_labels_from_file",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "summary": "Parse ImageNet label file (format: index:'label') into dictionary.",
+      "tags": [
+        "qnn",
+        "labels"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:preprocess_image",
+      "type": "function",
+      "name": "preprocess_image",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "summary": "Preprocess image for ResNet18: resize to 248, center crop to 224, convert to tensor, normalize with ImageNet mean/std.",
+      "tags": [
+        "preprocessing",
+        "resnet18"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:infer_with_onnx",
+      "type": "function",
+      "name": "infer_with_onnx",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "summary": "Run ONNX Runtime inference on single image, return predicted class ID and confidence score.",
+      "tags": [
+        "onnx",
+        "inference"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:parse_raw_data",
+      "type": "function",
+      "name": "parse_raw_data",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "summary": "Parse QNN raw output file (.raw) reshape to (1,1000) and extract predicted class via argmax.",
+      "tags": [
+        "qnn",
+        "parsing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/qnn_net_run.sh",
+      "type": "file",
+      "name": "qnn_net_run.sh",
+      "filePath": "DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/qnn_net_run.sh",
+      "summary": "Shell script to run QNN inference with environment setup for DSP libraries, LD_LIBRARY_PATH, and hexagon-v75 architecture.",
+      "tags": [
+        "qnn",
+        "shell",
+        "inference"
+      ],
+      "language": "shell",
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:dipoorlet_quantization",
+      "type": "concept",
+      "name": "Dipoorlet Quantization Pipeline",
+      "summary": "Offline quantization tool for ONNX models supporting multiple calibration algorithms (MSE, Histogram, MinMax, BRECQ, AdaRound) and deployment platforms (TensorRT, QNN). Entry point is dipoorlet CLI module invoked via torchrun.",
+      "tags": [
+        "quantization",
+        "tool",
+        "onnx",
+        "tensorrt",
+        "qnn"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:tensorrt_inference",
+      "type": "concept",
+      "name": "TensorRT Inference Pipeline",
+      "summary": "End-to-end pipeline for quantized model inference: deserialize engine, allocate buffers, run async inference, post-process outputs, calculate accuracy.",
+      "tags": [
+        "tensorrt",
+        "inference",
+        "gpu"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:qnn_deployment",
+      "type": "concept",
+      "name": "QNN Deployment Pipeline",
+      "summary": "Complete QNN workflow: ONNX conversion to FP16, model library generation, context binary creation, net run inference, raw result parsing.",
+      "tags": [
+        "qnn",
+        "htp",
+        "dsp",
+        "inference"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "file:dipoorlet/deploy/__init__.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "file:dipoorlet/dist_helper.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "file:dipoorlet/profiling.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "file:dipoorlet/tensor_cali/__init__.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "file:dipoorlet/utils.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/deploy/__init__.py",
+      "target": "file:dipoorlet/deploy/deploy_base.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/forward_net.py",
+      "target": "file:dipoorlet/platform_settings.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/forward_net.py",
+      "target": "file:dipoorlet/quantize.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/forward_net.py",
+      "target": "file:dipoorlet/utils.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "file:dipoorlet/forward_net.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "file:dipoorlet/platform_settings.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "file:dipoorlet/quantize.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "file:dipoorlet/utils.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/quantize.py",
+      "target": "file:dipoorlet/platform_settings.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/quantize.py",
+      "target": "file:dipoorlet/utils.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/utils.py",
+      "target": "file:dipoorlet/platform_settings.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/__init__.py",
+      "target": "file:dipoorlet/tensor_cali/tensor_cali_base.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/__init__.py",
+      "target": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/tensor_cali_base.py",
+      "target": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "file:dipoorlet/forward_net.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "file:dipoorlet/platform_settings.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "file:dipoorlet/utils.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:setup.py",
+      "target": "file:dipoorlet/__init__.py",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/profiling.py:quantize_profiling_multipass",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/profiling.py:quantize_profiling_transformer",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/profiling.py:quantize_profiling_layerwise",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/profiling.py:show_model_profiling_res",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/profiling.py:show_model_ranges",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/profiling.py:weight_need_perchannel",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/tensor_cali/tensor_cali_base.py:tensor_calibration",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:setup_logger",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:save_clip_val",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:load_clip_val",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:reduce_clip_val",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:reduce_profiling_res",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:save_profiling_res",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/__main__.py",
+      "target": "function:dipoorlet/utils.py:restore_data",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/forward_net.py:forward_get_tensor",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/forward_net.py:forward_get_output",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/quantize.py:quant_graph",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/quantize.py:delete_fake_quant_node",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/quantize.py:insert_fake_quant_node",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/utils.py:cos_similarity",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/profiling.py",
+      "target": "function:dipoorlet/utils.py:max_abs_gap",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/forward_net.py:forward_get_minmax",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/forward_net.py:forward_get_hist",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/forward_net.py:forward_net_octav",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/forward_net.py:forward_get_minmax_transformer",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/forward_net.py:forward_get_hist_transformer",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/forward_net.py:forward_net_octav_transformer",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/utils.py:dispatch_functool",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/tensor_cali/basic_algorithm.py",
+      "target": "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax_weight",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/quantize.py",
+      "target": "class:dipoorlet/utils.py:ONNXGraph",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:dipoorlet/forward_net.py",
+      "target": "class:dipoorlet/utils.py:ONNXGraph",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge_contained_by_dipoorlet_utils_init",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/__init__.py",
+      "target": "module:dipoorlet_utils",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_dipoorlet_utils_calibrator",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/calibrator.py",
+      "target": "module:dipoorlet_utils",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_dipoorlet_utils_dataset",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/dataset.py",
+      "target": "module:dipoorlet_utils",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo1_mock_data",
+      "type": "contains",
+      "source": "file:DemoLab/1_random_data/mock_data.py",
+      "target": "file:DemoLab/1_random_data",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo1_run",
+      "type": "contains",
+      "source": "file:DemoLab/1_random_data/run.py",
+      "target": "file:DemoLab/1_random_data",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo1_sh",
+      "type": "contains",
+      "source": "file:DemoLab/1_random_data/run_demo_1.sh",
+      "target": "file:DemoLab/1_random_data",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo2_readme",
+      "type": "contains",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/README.md",
+      "target": "file:DemoLab/2_mobile_v2_dipoorlet_trt",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo2_run",
+      "type": "contains",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/run.sh",
+      "target": "file:DemoLab/2_mobile_v2_dipoorlet_trt",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo3_readme",
+      "type": "contains",
+      "source": "file:DemoLab/3_quant_resnet18/README.md",
+      "target": "file:DemoLab/3_quant_resnet18",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo5_readme",
+      "type": "contains",
+      "source": "file:DemoLab/5_yolov8_dipoorlet/README.md",
+      "target": "file:DemoLab/5_yolov8_dipoorlet",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo4_config",
+      "type": "contains",
+      "source": "file:DemoLab/4_od_bev/config/config.yaml",
+      "target": "file:DemoLab/4_od_bev/config",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_contained_by_demo4_config_one",
+      "type": "contains",
+      "source": "file:DemoLab/4_od_bev/config/config_only_one_stage.yaml",
+      "target": "file:DemoLab/4_od_bev/config",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_parent_config_4_od_bev",
+      "type": "contains",
+      "source": "file:DemoLab/4_od_bev/config",
+      "target": "file:DemoLab/4_od_bev",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_defines_CalibDataLoader",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/calibrator.py",
+      "target": "class:unknown:CalibDataLoader",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_defines_Calibrator",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/calibrator.py",
+      "target": "class:unknown:Calibrator",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_defines_ImageNetEvaluator",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/dataset.py",
+      "target": "class:unknown:ImageNetEvaluator",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_defines_TinyImageNetDataset",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/dataset.py",
+      "target": "class:unknown:TinyImageNetDataset",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge_defines_StandardImageFolder",
+      "type": "contains",
+      "source": "file:dipoorlet_utils/dataset.py",
+      "target": "class:unknown:StandardImageFolder",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "id": "edge:1_1_train_calls_train_model",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py:train_model",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_2_train_calls_get_config",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:get_config",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_2_train_calls_find_latest_checkpoint",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:find_latest_checkpoint",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_2_train_calls_train_model_fn",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:train_model",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_2_train_calls_main",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:main",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_defines_LabelSmoothCrossEntropyLoss",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "class:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:LabelSmoothCrossEntropyLoss",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_defines_EMA",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "class:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:EMA",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_defines_mixup_data",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:mixup_data",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_defines_mixup_criterion",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:mixup_criterion",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_defines_train_model_fn",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:train_model",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_defines_main_fn",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:main",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:1_3_train_calls_train_model_fn",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:train_model",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:2_1_eval_defines_evaluate_model",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:evaluate_model",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:2_1_eval_defines_export_onnx",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:export_onnx",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:6_test_quant_calls_deserializing_engine",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:deserializing_engine",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:6_test_quant_calls_allocate_buffers",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:allocate_buffers",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:6_test_quant_calls_do_inference",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "target": "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:do_inference",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:6_test_quant_defines_HostDeviceMem",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+      "target": "class:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:HostDeviceMem",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:4_1_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:4_2_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:4_3_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:4_4_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:4_5_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_eval_defines_accuracy",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:accuracy",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_eval_defines_evaluate_model",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:evaluate_model",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_eval_defines_export_onnx",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:export_onnx",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_test_quant_defines_HostDeviceMem",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "target": "class:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:HostDeviceMem",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_test_quant_calls_deserializing_engine",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:deserializing_engine",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_test_quant_calls_allocate_buffers",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:allocate_buffers",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_test_quant_calls_do_inference",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:do_inference",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:calc_trt_acc_defines_HostDeviceMem",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "target": "class:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:HostDeviceMem",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:calc_trt_acc_calls_deserializing_engine",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:deserializing_engine",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:calc_trt_acc_calls_allocate_buffers",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:allocate_buffers",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:calc_trt_acc_calls_do_inference",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:do_inference",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:calc_trt_acc_defines_calculate_tensorrt_acc",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:calculate_tensorrt_acc",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_4_1_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_4_2_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_4_2_deploy_calls_calculate_trt_acc",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:calculate_tensorrt_acc",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_4_3_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_4_4_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_4_5_deploy_invokes_dipoorlet",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_5_parse_defines_parse_labels_from_file",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:parse_labels_from_file",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_5_parse_defines_preprocess_image",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:preprocess_image",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_5_parse_defines_infer_with_onnx",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:infer_with_onnx",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_5_parse_defines_parse_raw_data",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "target": "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:parse_raw_data",
+      "type": "contains",
+      "weight": 1,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:mobilenetv2_train_pipeline_related",
+      "source": "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "related",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_eval_related_dipoorlet",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+      "target": "concept:dipoorlet_quantization",
+      "type": "related",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:mobilenetv2_trt_inference_pipeline",
+      "source": "concept:dipoorlet_quantization",
+      "target": "concept:tensorrt_inference",
+      "type": "related",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:resnet18_qnn_deployment_pipeline",
+      "source": "concept:dipoorlet_quantization",
+      "target": "concept:qnn_deployment",
+      "type": "related",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_1_to_qnn_2_workflow",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py",
+      "target": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py",
+      "type": "depends_on",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_2_to_qnn_3_workflow",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py",
+      "target": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py",
+      "type": "depends_on",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_3_to_qnn_4_workflow",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py",
+      "target": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py",
+      "type": "depends_on",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:qnn_4_to_qnn_5_workflow",
+      "source": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py",
+      "target": "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+      "type": "depends_on",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "id": "edge:deploy_sh_to_test_quant_workflow",
+      "source": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+      "target": "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:cli-entry-point",
+      "name": "CLI Entry Point",
+      "description": "CLI entry point orchestrating the full quantization pipeline: tensor calibration, weight transformation, profiling, and deployment. Invoked via torchrun with -m dipoorlet.",
+      "nodeIds": [
+        "file:dipoorlet/__main__.py",
+        "file:dipoorlet/__init__.py",
+        "file:dipoorlet/dist_helper.py"
+      ]
+    },
+    {
+      "id": "layer:core-quantization",
+      "name": "Core Quantization",
+      "description": "Core quantization logic for inserting fake quantization nodes into ONNX graphs. Handles QuantizeLinear/DequantizeLinear node insertion, weight/input quantization, and graph topology management. Also includes profiling (cosine similarity) and forward pass utilities.",
+      "nodeIds": [
+        "file:dipoorlet/quantize.py",
+        "file:dipoorlet/forward_net.py",
+        "file:dipoorlet/profiling.py",
+        "file:dipoorlet/utils.py",
+        "class:dipoorlet/forward_net.py:ActivationCache",
+        "class:dipoorlet/utils.py:ONNXGraph",
+        "function:dipoorlet/forward_net.py:forward_get_minmax",
+        "function:dipoorlet/forward_net.py:forward_get_hist",
+        "function:dipoorlet/forward_net.py:forward_net_octav",
+        "function:dipoorlet/forward_net.py:forward_get_minmax_transformer",
+        "function:dipoorlet/forward_net.py:forward_get_hist_transformer",
+        "function:dipoorlet/forward_net.py:forward_net_octav_transformer",
+        "function:dipoorlet/forward_net.py:forward_get_tensor",
+        "function:dipoorlet/forward_net.py:forward_get_output",
+        "function:dipoorlet/forward_net.py:input_data_generator",
+        "function:dipoorlet/quantize.py:quant_graph",
+        "function:dipoorlet/quantize.py:insert_fake_quant_node",
+        "function:dipoorlet/quantize.py:insert_fake_quant_node_output",
+        "function:dipoorlet/quantize.py:delete_fake_quant_node",
+        "function:dipoorlet/quantize.py:get_qnode_by_param",
+        "function:dipoorlet/quantize.py:make_quant_dequant",
+        "function:dipoorlet/profiling.py:update_node_quant_profiling",
+        "function:dipoorlet/profiling.py:quantize_profiling_multipass",
+        "function:dipoorlet/profiling.py:quantize_profiling_transformer",
+        "function:dipoorlet/profiling.py:update_quant_model_cosine",
+        "function:dipoorlet/profiling.py:get_output_single_map",
+        "function:dipoorlet/profiling.py:show_model_ranges",
+        "function:dipoorlet/profiling.py:weight_need_perchannel",
+        "function:dipoorlet/profiling.py:show_model_profiling_res",
+        "function:dipoorlet/profiling.py:quantize_profiling_layerwise",
+        "function:dipoorlet/utils.py:setup_logger",
+        "function:dipoorlet/utils.py:cos_similarity",
+        "function:dipoorlet/utils.py:max_abs_gap",
+        "function:dipoorlet/utils.py:dispatch_functool",
+        "function:dipoorlet/utils.py:save_clip_val",
+        "function:dipoorlet/utils.py:load_clip_val",
+        "function:dipoorlet/utils.py:reduce_clip_val",
+        "function:dipoorlet/utils.py:save_profiling_res",
+        "function:dipoorlet/utils.py:reduce_profiling_res",
+        "function:dipoorlet/utils.py:deploy_QOperator",
+        "function:dipoorlet/utils.py:input_data_generator",
+        "function:dipoorlet/utils.py:restore_data"
+      ]
+    },
+    {
+      "id": "layer:tensor-calibration",
+      "name": "Tensor Calibration",
+      "description": "Implements calibration algorithms using a dispatcher pattern: minmax, histogram, and MSE (OCTAV). Orchestrates weight calibration via minmax and activation calibration via the dispatcher-selected algorithm.",
+      "nodeIds": [
+        "file:dipoorlet/tensor_cali/__init__.py",
+        "file:dipoorlet/tensor_cali/basic_algorithm.py",
+        "file:dipoorlet/tensor_cali/tensor_cali_base.py",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_hist",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_octav",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax_weight",
+        "function:dipoorlet/tensor_cali/tensor_cali_base.py:tensor_calibration"
+      ]
+    },
+    {
+      "id": "layer:weight-transformation",
+      "name": "Weight Transformation",
+      "description": "Advanced weight quantization techniques including AdaRound (learning-based rounding), BRECQ (bias correction), SparseQuant (channel-level pruning and quantization), weight equalization, and batch norm updates.",
+      "nodeIds": [
+        "file:dipoorlet/weight_transform/update_bn.py$update_bn",
+        "file:dipoorlet/weight_transform/utils.py$LEARNABLE_LAYER_TYPES"
+      ]
+    },
+    {
+      "id": "layer:deployment-platforms",
+      "name": "Deployment Platforms",
+      "description": "Platform-specific deployment modules for multiple targets: TensorRT, QNN (Qualcomm Neural Network), MagicMind, RV, Atlas, SNPE, TI, IMX, STPU. Each platform may have specific quantization requirements and operator mappings.",
+      "nodeIds": [
+        "file:dipoorlet/deploy/__init__.py",
+        "file:dipoorlet/deploy/deploy_base.py",
+        "file:dipoorlet/deploy/deploy_default.py",
+        "file:dipoorlet/deploy/deploy_atlas.py",
+        "file:dipoorlet/deploy/deploy_imx.py",
+        "file:dipoorlet/deploy/deploy_magicmind.py",
+        "file:dipoorlet/deploy/deploy_qnn.py",
+        "file:dipoorlet/deploy/deploy_rv.py",
+        "file:dipoorlet/deploy/deploy_snpe.py",
+        "file:dipoorlet/deploy/deploy_stpu.py",
+        "file:dipoorlet/deploy/deploy_ti.py",
+        "file:dipoorlet/deploy/deploy_trt.py"
+      ]
+    },
+    {
+      "id": "layer:platform-settings",
+      "name": "Platform Settings",
+      "description": "Defines quantization settings for multiple deployment platforms (TensorRT, STPU, MagicMind, RV, Atlas, SNPE, TI, IMX, QNN). Contains layer type lists, quantization parameters (bit_width, per_channel, symmetric), and node configurations.",
+      "nodeIds": [
+        "file:dipoorlet/platform_settings.py"
+      ]
+    },
+    {
+      "id": "layer:utilities",
+      "name": "Utilities",
+      "description": "Utility modules for dataset handling, calibration data loading, and evaluation. Supports ImageNet/TinyImageNet datasets, TensorRT entropy calibrator, and accuracy evaluation metrics.",
+      "nodeIds": [
+        "module:dipoorlet_utils",
+        "file:dipoorlet_utils/__init__.py",
+        "file:dipoorlet_utils/calibrator.py",
+        "file:dipoorlet_utils/dataset.py"
+      ]
+    },
+    {
+      "id": "layer:demos-and-examples",
+      "name": "Demos and Examples",
+      "description": "Demo laboratory scripts and examples for running quantization on various models (MobileNetV2, ResNet18, YOLOv8, BEV). Includes training scripts, ONNX export, TensorRT inference testing, and QNN deployment pipelines.",
+      "nodeIds": [
+        "file:DemoLab/1_random_data/mock_data.py",
+        "file:DemoLab/1_random_data/run.py",
+        "file:DemoLab/1_random_data/run_demo_1.sh",
+        "file:DemoLab/1_random_data",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/README.md",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/run.sh",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+        "file:DemoLab/3_quant_resnet18/README.md",
+        "file:DemoLab/3_quant_resnet18",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py",
+        "file:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_2_qnn_net_run_infer_single.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py",
+        "file:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/qnn_net_run.sh",
+        "file:DemoLab/4_od_bev/config/config.yaml",
+        "file:DemoLab/4_od_bev/config/config_only_one_stage.yaml",
+        "file:DemoLab/4_od_bev/config",
+        "file:DemoLab/4_od_bev",
+        "file:DemoLab/5_yolov8_dipoorlet/README.md",
+        "file:DemoLab/5_yolov8_dipoorlet",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_1_train_torch_pretrained_model.py:train_model",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:get_config",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:find_latest_checkpoint",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:train_model",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_2_train_customed_model_basic.py:main",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:mixup_data",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:mixup_criterion",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:train_model",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:main",
+        "class:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:LabelSmoothCrossEntropyLoss",
+        "class:DemoLab/2_mobile_v2_dipoorlet_trt/1_3_train_customed_model_advance.py:EMA",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:evaluate_model",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:export_onnx",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:allocate_buffers",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:do_inference",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:deserializing_engine",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:main",
+        "class:DemoLab/2_mobile_v2_dipoorlet_trt/6_test_quant_acc.py:HostDeviceMem",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py:main",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py:main",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py:main",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py:main",
+        "function:DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py:main",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:accuracy",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:evaluate_model",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/2_1_evaluate_model_and_export_onnx.py:export_onnx",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:allocate_buffers",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:do_inference",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:deserializing_engine",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:main",
+        "class:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/5_1_test_quant_acc.py:HostDeviceMem",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:allocate_buffers",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:do_inference",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:deserializing_engine",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:calculate_tensorrt_acc",
+        "class:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/calculate_trt_engine_acc.py:HostDeviceMem",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py:main",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_2_dipoorlet_quant_deploy_trt_hist_sh.py:main",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_3_dipoorlet_quant_deploy_trt_minmax_sh.py:main",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_4_dipoorlet_quant_deploy_trt_breq_sh.py:main",
+        "function:DemoLab/3_quant_resnet18/3_1_resnet18_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py:main",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/1_qnn_onnx_converter_fp16.py:main",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/2_qnn_model_lib_generate.py:main",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/3_qnn_context_binary_generate.py:main",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_1_qnn_net_run_infer.py:main",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/4_2_qnn_net_run_infer_single.py:main",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:parse_labels_from_file",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:preprocess_image",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:infer_with_onnx",
+        "function:DemoLab/3_quant_resnet18/3_2_resnet18_native_fp16_qnn/5_parse_raw_res.py:parse_raw_data"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation",
+      "description": "Project documentation including README with project overview, ONBOARD guide with usage examples and architecture overview, and per-demo README files.",
+      "nodeIds": [
+        "file:README.md",
+        "file:ONBOARD.md"
+      ]
+    },
+    {
+      "id": "layer:project-configuration",
+      "name": "Project Configuration",
+      "description": "Project configuration and metadata files including setup.py for package definition, requirements.txt for dependencies, and .flake8 for linting rules.",
+      "nodeIds": [
+        "file:setup.py",
+        "config:.flake8"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Dipoorlet is an offline quantization tool for ONNX models. It supports multiple calibration algorithms (MSE, MinMax, Histogram), weight transformation techniques (AdaRound, BRECQ, Bias Correction, Weight Equalization), and targets deployment platforms including TensorRT, QNN, MagicMind, RV, Atlas, SNPE, TI, and IMX.",
+      "nodeIds": [
+        "file:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "CLI Entry Point",
+      "description": "The quantization pipeline is invoked via `python -m dipoorlet` using torchrun. The entry point at `dipoorlet/__main__.py` orchestrates the full workflow: tensor calibration, weight transformation, profiling, and deployment to target platforms. It uses distributed training helpers (MPI/SLURM) for multi-GPU calibration.",
+      "nodeIds": [
+        "file:dipoorlet/__main__.py",
+        "file:dipoorlet/__init__.py",
+        "file:dipoorlet/dist_helper.py"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Tensor Calibration — Activation Algorithms",
+      "description": "Dipoorlet offers three activation calibration algorithms, selectable at runtime via a dispatcher pattern: MinMax (simplest), Histogram (histogram-based percentile), and MSE/OCTAV (minimizes mean-squared error). The dispatcher in `tensor_cali/basic_algorithm.py` routes to the selected algorithm implementation. Calibration collects statistics from forward passes over a calibration dataset.",
+      "nodeIds": [
+        "file:dipoorlet/tensor_cali/__init__.py",
+        "file:dipoorlet/tensor_cali/basic_algorithm.py",
+        "file:dipoorlet/tensor_cali/tensor_cali_base.py",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_hist",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_octav",
+        "function:dipoorlet/tensor_cali/basic_algorithm.py:find_clip_val_minmax_weight"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Forward Pass and Activation Statistics",
+      "description": "Before calibration can run, the tool needs to collect activation statistics from the model. `forward_net.py` provides the forward pass utilities including `ActivationCache` for caching intermediate tensors, and specialized collectors for minmax (`forward_get_minmax`), histogram (`forward_get_hist`), and OCTAV/MSE (`forward_net_octav`) statistics. Transformer-specific variants handle memory-efficient collection for large models.",
+      "nodeIds": [
+        "file:dipoorlet/forward_net.py",
+        "class:dipoorlet/forward_net.py:ActivationCache",
+        "function:dipoorlet/forward_net.py:forward_get_minmax",
+        "function:dipoorlet/forward_net.py:forward_get_hist",
+        "function:dipoorlet/forward_net.py:forward_net_octav",
+        "function:dipoorlet/forward_net.py:forward_get_minmax_transformer",
+        "function:dipoorlet/forward_net.py:forward_get_hist_transformer",
+        "function:dipoorlet/forward_net.py:forward_net_octav_transformer"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Core Quantization — Inserting Fake Quant Nodes",
+      "description": "Once calibration yields clip values (min/max ranges), `quantize.py` transforms the ONNX graph by inserting QuantizeLinear/DequantizeLinear nodes. The `quant_graph` function orchestrates graph-wide insertion, while `insert_fake_quant_node` handles per-node insertion for weights and inputs. The `ONNXGraph` class in `utils.py` manages all ONNX model manipulation including topology changes and serialization.",
+      "nodeIds": [
+        "file:dipoorlet/quantize.py",
+        "class:dipoorlet/utils.py:ONNXGraph",
+        "function:dipoorlet/quantize.py:quant_graph",
+        "function:dipoorlet/quantize.py:insert_fake_quant_node",
+        "function:dipoorlet/quantize.py:insert_fake_quant_node_output",
+        "function:dipoorlet/quantize.py:delete_fake_quant_node",
+        "function:dipoorlet/quantize.py:get_qnode_by_param",
+        "function:dipoorlet/quantize.py:make_quant_dequant"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Weight Transformation — SOTA Finetune Algorithms",
+      "description": "Beyond basic calibration, Dipoorlet implements advanced weight transformation techniques to improve quantization accuracy: AdaRound (learning-based rounding of weights), BRECQ (bias correction for quantized layers), SparseQuant (channel-level pruning with quantization), Weight Equalization (balancing weight ranges across layers), and BatchNorm updates. These SOTA algorithms correct quantization error that basic calibration cannot address.",
+      "nodeIds": [
+        "function:unknown:adaround",
+        "class:unknown:adaround_reg",
+        "function:unknown:brecq",
+        "function:unknown:bias_correction",
+        "function:unknown:sparse_quant",
+        "function:unknown:weight_equalization",
+        "function:unknown:update_bn_node"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Quantization Profiling and Analysis",
+      "description": "Dipoorlet provides detailed quantitative analysis to identify accuracy bottlenecks. The profiling module measures layer-wise and model-level cosine similarity between floating-point and quantized outputs. It supports multipass profiling (for standard CNNs) and transformer-specific profiling (using ActivationCache for memory efficiency). Layer-wise profiling removes quantized layers individually to find the most quantization-sensitive layers.",
+      "nodeIds": [
+        "file:dipoorlet/profiling.py",
+        "function:dipoorlet/profiling.py:quantize_profiling_multipass",
+        "function:dipoorlet/profiling.py:quantize_profiling_transformer",
+        "function:dipoorlet/profiling.py:quantize_profiling_layerwise",
+        "function:dipoorlet/profiling.py:update_node_quant_profiling",
+        "function:dipoorlet/profiling.py:show_model_profiling_res",
+        "function:dipoorlet/profiling.py:show_model_ranges",
+        "function:dipoorlet/profiling.py:weight_need_perchannel"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Deployment Platform Settings",
+      "description": "Different deployment platforms (TensorRT, STPU, MagicMind, RV, Atlas, SNPE, TI, IMX, QNN) have distinct quantization requirements. `platform_settings.py` defines per-platform configuration including which layer types to quantize, bit_width, per_channel vs per_layer granularity, and symmetric vs asymmetric quantization. The `deploy/` directory contains platform-specific deployment logic.",
+      "nodeIds": [
+        "file:dipoorlet/platform_settings.py",
+        "file:dipoorlet/deploy/__init__.py",
+        "file:dipoorlet/deploy/deploy_base.py",
+        "file:dipoorlet/deploy/deploy_default.py"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Platform-Specific Deployment Modules",
+      "description": "Each target hardware platform has its own deployment module: TensorRT (`deploy_trt.py`), QNN (`deploy_qnn.py`), MagicMind (`deploy_magicmind.py`), RV (`deploy_rv.py`), Atlas (`deploy_atlas.py`), SNPE (`deploy_snpe.py`), STPU (`deploy_stpu.py`), TI (`deploy_ti.py`), and IMX (`deploy_imx.py`). These modules adapt the quantized model output to each platform's required format and quantization parameters.",
+      "nodeIds": [
+        "file:dipoorlet/deploy/deploy_trt.py",
+        "file:dipoorlet/deploy/deploy_qnn.py",
+        "file:dipoorlet/deploy/deploy_magicmind.py",
+        "file:dipoorlet/deploy/deploy_rv.py",
+        "file:dipoorlet/deploy/deploy_atlas.py",
+        "file:dipoorlet/deploy/deploy_snpe.py",
+        "file:dipoorlet/deploy/deploy_stpu.py",
+        "file:dipoorlet/deploy/deploy_ti.py",
+        "file:dipoorlet/deploy/deploy_imx.py"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Utilities — Logging, Data, and Distributed Support",
+      "description": "Supporting infrastructure includes: logging setup (`setup_logger`), clip value save/load for reusing calibration results, profiling result aggregation, input data generation for calibration batches, and distributed GPU coordination for multi-GPU calibration. The `dipoorlet_utils` module provides calibration utilities including TensorRT entropy calibrator and ImageNet/TinyImageNet dataset loaders.",
+      "nodeIds": [
+        "file:dipoorlet/utils.py",
+        "function:dipoorlet/utils.py:setup_logger",
+        "function:dipoorlet/utils.py:save_clip_val",
+        "function:dipoorlet/utils.py:load_clip_val",
+        "function:dipoorlet/utils.py:reduce_clip_val",
+        "function:dipoorlet/utils.py:save_profiling_res",
+        "function:dipoorlet/utils.py:reduce_profiling_res",
+        "module:dipoorlet_utils",
+        "file:dipoorlet_utils/calibrator.py",
+        "file:dipoorlet_utils/dataset.py"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Demo Labs — End-to-End Workflows",
+      "description": "The DemoLab directory contains complete end-to-end examples: MobileNetV2 quantization with all calibration algorithms targeting TensorRT; ResNet18 quantization targeting both TensorRT and QNN (Qualcomm Neural Network); YOLOv8 quantization; and BEV object detection model quantization. Each demo includes training scripts, ONNX export, quantization deployment, and accuracy testing.",
+      "nodeIds": [
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/README.md",
+        "file:DemoLab/3_quant_resnet18/README.md",
+        "file:DemoLab/5_yolov8_dipoorlet/README.md",
+        "file:DemoLab/4_od_bev/config/config.yaml",
+        "file:DemoLab/1_random_data/run_demo_1.sh",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_1_dipoorlet_quant_deploy_trt_mse_sh.py",
+        "file:DemoLab/2_mobile_v2_dipoorlet_trt/4_5_dipoorlet_quant_deploy_trt_adaround_sh.py"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Onboarding Guide",
+      "description": "The ONBOARD.md file provides a practical getting-started guide with usage examples, architecture overview, and step-by-step instructions for running quantization on your own models. It is the best starting point after reading this tour.",
+      "nodeIds": [
+        "file:ONBOARD.md"
+      ]
+    }
+  ]
+}

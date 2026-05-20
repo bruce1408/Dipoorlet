@@ -1,0 +1,778 @@
+{
+  "version": "1.0.0",
+  "project": {},
+  "nodes": [
+    {
+      "id": "domain-model-quantization-pipeline",
+      "type": "domain",
+      "name": "Model Quantization Pipeline",
+      "summary": "End-to-end ONNX model quantization workflow with weight transformation",
+      "tags": [
+        "domain",
+        "quantization"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [],
+        "businessRules": [],
+        "crossDomainInteractions": []
+      }
+    },
+    {
+      "id": "flow-onnx-quantization-workflow",
+      "type": "flow",
+      "name": "ONNX Quantization Workflow",
+      "summary": "CLI-driven quantization workflow for ONNX models",
+      "tags": [
+        "flow",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "python -m dipoorlet",
+        "entryType": "cli"
+      }
+    },
+    {
+      "id": "step-model-loading",
+      "type": "step",
+      "name": "Model Loading",
+      "summary": "Model Loading",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-graph-analysis",
+      "type": "step",
+      "name": "Graph Analysis",
+      "summary": "Graph Analysis",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-calibration",
+      "type": "step",
+      "name": "Tensor Calibration",
+      "summary": "Tensor Calibration",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-qdq-injection",
+      "type": "step",
+      "name": "Q/DQ Node Injection",
+      "summary": "Q/DQ Node Injection",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-model-export",
+      "type": "step",
+      "name": "Model Export",
+      "summary": "Model Export",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-validation",
+      "type": "step",
+      "name": "Validation",
+      "summary": "Validation",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow-weight-calibration",
+      "type": "flow",
+      "name": "Weight Calibration",
+      "summary": "Post-calibration weight optimizations including AdaRound, Brecq, and BiasCorrection",
+      "tags": [
+        "flow",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "python -m dipoorlet",
+        "entryType": "cli"
+      }
+    },
+    {
+      "id": "step-bias-correction",
+      "type": "step",
+      "name": "Bias Correction",
+      "summary": "Bias Correction",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-weight-equalization",
+      "type": "step",
+      "name": "Weight Equalization",
+      "summary": "Weight Equalization",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-adaround",
+      "type": "step",
+      "name": "AdaRound",
+      "summary": "AdaRound",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-brecq",
+      "type": "step",
+      "name": "Brecq",
+      "summary": "Brecq",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-sparse-quant",
+      "type": "step",
+      "name": "Sparse Quantization",
+      "summary": "Sparse Quantization",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-bn-update",
+      "type": "step",
+      "name": "BN Update",
+      "summary": "BN Update",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "domain-calibration",
+      "type": "domain",
+      "name": "Calibration",
+      "summary": "Activation range collection for tensor quantization",
+      "tags": [
+        "domain",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [],
+        "businessRules": [],
+        "crossDomainInteractions": []
+      }
+    },
+    {
+      "id": "flow-activation-calibration",
+      "type": "flow",
+      "name": "Activation Calibration",
+      "summary": "Collect activation ranges using MinMax, Histogram, or MSE methods",
+      "tags": [
+        "flow",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "python -m dipoorlet",
+        "entryType": "cli"
+      }
+    },
+    {
+      "id": "step-minmax-collection",
+      "type": "step",
+      "name": "MinMax Collection",
+      "summary": "MinMax Collection",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-histogram-collection",
+      "type": "step",
+      "name": "Histogram Collection",
+      "summary": "Histogram Collection",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-mse-collection",
+      "type": "step",
+      "name": "MSE Collection",
+      "summary": "MSE Collection",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-cache-storage",
+      "type": "step",
+      "name": "Cache Storage",
+      "summary": "Cache Storage",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "domain-deployment",
+      "type": "domain",
+      "name": "Deployment",
+      "summary": "Platform-specific export and configuration for deployment targets",
+      "tags": [
+        "domain",
+        "quantization"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [],
+        "businessRules": [],
+        "crossDomainInteractions": []
+      }
+    },
+    {
+      "id": "flow-platform-export",
+      "type": "flow",
+      "name": "Platform Export",
+      "summary": "Export quantized models to platform-specific formats",
+      "tags": [
+        "flow",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "python -m dipoorlet",
+        "entryType": "cli"
+      }
+    },
+    {
+      "id": "step-platform-selection",
+      "type": "step",
+      "name": "Platform Selection",
+      "summary": "Platform Selection",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-config-generation",
+      "type": "step",
+      "name": "Config Generation",
+      "summary": "Config Generation",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-model-conversion",
+      "type": "step",
+      "name": "Model Conversion",
+      "summary": "Model Conversion",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-optimization",
+      "type": "step",
+      "name": "Platform Optimization",
+      "summary": "Platform Optimization",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-export",
+      "type": "step",
+      "name": "Export",
+      "summary": "Export",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-validation",
+      "type": "step",
+      "name": "Validation",
+      "summary": "Validation",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "domain-model-analysis",
+      "type": "domain",
+      "name": "Model Analysis",
+      "summary": "Profiling and quantization error analysis",
+      "tags": [
+        "domain",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [],
+        "businessRules": [],
+        "crossDomainInteractions": []
+      }
+    },
+    {
+      "id": "flow-profiling-error-analysis",
+      "type": "flow",
+      "name": "Profiling and Error Analysis",
+      "summary": "Layer-wise quantization error profiling and analysis",
+      "tags": [
+        "flow",
+        "quantization"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "python -m dipoorlet",
+        "entryType": "cli"
+      }
+    },
+    {
+      "id": "step-forward-pass",
+      "type": "step",
+      "name": "Forward Pass",
+      "summary": "Forward Pass",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-error-computation",
+      "type": "step",
+      "name": "Error Computation",
+      "summary": "Error Computation",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-layer-analysis",
+      "type": "step",
+      "name": "Layer Analysis",
+      "summary": "Layer Analysis",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-cos-similarity",
+      "type": "step",
+      "name": "Cos Similarity",
+      "summary": "Cos Similarity",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step-report-generation",
+      "type": "step",
+      "name": "Report Generation",
+      "summary": "Report Generation",
+      "tags": [
+        "step"
+      ],
+      "complexity": "simple",
+      "filePath": "",
+      "lineRange": [
+        0,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "domain-model-quantization-pipeline",
+      "target": "flow-onnx-quantization-workflow",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow-onnx-quantization-workflow",
+      "target": "step-model-loading",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.0
+    },
+    {
+      "source": "flow-onnx-quantization-workflow",
+      "target": "step-graph-analysis",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow-onnx-quantization-workflow",
+      "target": "step-calibration",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow-onnx-quantization-workflow",
+      "target": "step-qdq-injection",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow-onnx-quantization-workflow",
+      "target": "step-model-export",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow-onnx-quantization-workflow",
+      "target": "step-validation",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain-model-quantization-pipeline",
+      "target": "flow-weight-calibration",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow-weight-calibration",
+      "target": "step-bias-correction",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.0
+    },
+    {
+      "source": "flow-weight-calibration",
+      "target": "step-weight-equalization",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow-weight-calibration",
+      "target": "step-adaround",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow-weight-calibration",
+      "target": "step-brecq",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow-weight-calibration",
+      "target": "step-sparse-quant",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow-weight-calibration",
+      "target": "step-bn-update",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain-calibration",
+      "target": "flow-activation-calibration",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow-activation-calibration",
+      "target": "step-minmax-collection",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.0
+    },
+    {
+      "source": "flow-activation-calibration",
+      "target": "step-histogram-collection",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow-activation-calibration",
+      "target": "step-mse-collection",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow-activation-calibration",
+      "target": "step-cache-storage",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain-deployment",
+      "target": "flow-platform-export",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow-platform-export",
+      "target": "step-platform-selection",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.0
+    },
+    {
+      "source": "flow-platform-export",
+      "target": "step-config-generation",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow-platform-export",
+      "target": "step-model-conversion",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow-platform-export",
+      "target": "step-optimization",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow-platform-export",
+      "target": "step-export",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow-platform-export",
+      "target": "step-validation",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain-model-analysis",
+      "target": "flow-profiling-error-analysis",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow-profiling-error-analysis",
+      "target": "step-forward-pass",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.0
+    },
+    {
+      "source": "flow-profiling-error-analysis",
+      "target": "step-error-computation",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow-profiling-error-analysis",
+      "target": "step-layer-analysis",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow-profiling-error-analysis",
+      "target": "step-cos-similarity",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow-profiling-error-analysis",
+      "target": "step-report-generation",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    }
+  ],
+  "layers": [],
+  "tour": []
+}

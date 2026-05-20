@@ -1,0 +1,136 @@
+{
+  "layers": [
+    {
+      "name": "CLI / Entry Point",
+      "description": "Command-line interface and main orchestration. Parses args, initializes distributed training, loads ONNX model, drives the quantization pipeline.",
+      "file_nodes": [
+        "dipoorlet/__main__.py"
+      ]
+    },
+    {
+      "name": "Graph Utilities (ONNX Manipulation)",
+      "description": "Core ONNX graph abstraction. Provides ONNXGraph class for node/tensor/initializer manipulation, topological ordering, shape inference, quantization helpers, serialization, and dataset utilities.",
+      "file_nodes": [
+        "dipoorlet/utils.py"
+      ]
+    },
+    {
+      "name": "Distributed Training",
+      "description": "Multi-GPU / multi-node coordination wrappers for MPI and SLURM environments.",
+      "file_nodes": [
+        "dipoorlet/dist_helper.py"
+      ]
+    },
+    {
+      "name": "Platform Configuration",
+      "description": "Central registry mapping deploy target (trt, snpe, qnn, rv, magicmind, ti, imx, atlas, stpu) to quantization parameters: bit-widths, symmetric/asymmetric mode, per-channel/per-tensor settings, which layers to quantize, and deploy-specific flags.",
+      "file_nodes": [
+        "dipoorlet/platform_settings.py"
+      ]
+    },
+    {
+      "name": "Tensor Calibration (Activation Quantization)",
+      "description": "Collects activation ranges from calibration data via ONNXRuntime forward passes. Implements three calibration algorithms: MinMax, Histogram (with KL thresholding), and MSE (OCTAV). Includes weight-only minmax clipping.",
+      "file_nodes": [
+        "dipoorlet/tensor_cali/tensor_cali_base.py",
+        "dipoorlet/tensor_cali/basic_algorithm.py"
+      ],
+      "sub_modules": {
+        "minmax": "forward_get_minmax / forward_get_minmax_transformer",
+        "histogram": "forward_get_hist / forward_get_hist_transformer",
+        "mse": "forward_net_octav / forward_net_octav_transformer"
+      }
+    },
+    {
+      "name": "Forward Network (ONNXRuntime Inference Engine)",
+      "description": "ONNXRuntime-based inference for calibration data collection. Provides per-subnet caching for transformer models (ActivationCache) and standalone forward functions for classic models.",
+      "file_nodes": [
+        "dipoorlet/forward_net.py"
+      ]
+    },
+    {
+      "name": "Quantization (Graph Rewriting)",
+      "description": "Injects Q/DQ (QuantizeLinear/DequantizeLinear) fake-quantization nodes into the ONNX graph, setting up scale/zero-point tensors. Supports per-channel and per-tensor quantization, symmetric and asymmetric modes, and channel-last transpose for ConvTranspose.",
+      "file_nodes": [
+        "dipoorlet/quantize.py"
+      ]
+    },
+    {
+      "name": "Weight Transformation",
+      "description": "Post-calibration weight transformations that improve quantized model accuracy. Includes BiasCorrection, WeightEqualization, Adaround, BrecQ/QDrop, sparse quantization, and BN update. Orchestrated by weight_calibration in weight_trans_base.py.",
+      "file_nodes": [
+        "dipoorlet/weight_transform/weight_trans_base.py",
+        "dipoorlet/weight_transform/adaround.py",
+        "dipoorlet/weight_transform/brecq.py",
+        "dipoorlet/weight_transform/bias_correction.py",
+        "dipoorlet/weight_transform/weight_equalization.py",
+        "dipoorlet/weight_transform/sparse_quant.py",
+        "dipoorlet/weight_transform/sparse_quant_layer.py",
+        "dipoorlet/weight_transform/ada_quant_layer.py",
+        "dipoorlet/weight_transform/update_bn.py",
+        "dipoorlet/weight_transform/utils.py"
+      ],
+      "sub_modules": {
+        "adaround": "Activation-based range optimization for weight rounding",
+        "brecq": "Bit-level reconstruction; QDrop adds stochastic drop",
+        "bias_correction": "Corrects bias after quantization",
+        "weight_equalization": "Equalizes per-channel ranges across layers",
+        "sparse_quant": "Structured sparsity via mask generation"
+      }
+    },
+    {
+      "name": "Profiling (Quantization Error Analysis)",
+      "description": "Layer-wise and model-wise quantization error profiling using cosine similarity and max-abs-gap metrics. Supports multipass and transformer architectures. Outputs per-layer and aggregated profiling JSON.",
+      "file_nodes": [
+        "dipoorlet/profiling.py"
+      ]
+    },
+    {
+      "name": "Deployment (Platform-Specific Export)",
+      "description": "Writes quantized model and range files in target accelerator's format. Base dispatcher routes to platform-specific generators for TensorRT, SNPE, QNN, RV, MagicMind, TI, IMX, Atlas, STPU. Each deploy_*.py registers with the dispatcher and writes config blobs.",
+      "file_nodes": [
+        "dipoorlet/deploy/deploy_base.py",
+        "dipoorlet/deploy/deploy_default.py",
+        "dipoorlet/deploy/deploy_trt.py",
+        "dipoorlet/deploy/deploy_snpe.py",
+        "dipoorlet/deploy/deploy_qnn.py",
+        "dipoorlet/deploy/deploy_rv.py",
+        "dipoorlet/deploy/deploy_magicmind.py",
+        "dipoorlet/deploy/deploy_ti.py",
+        "dipoorlet/deploy/deploy_imx.py",
+        "dipoorlet/deploy/deploy_atlas.py",
+        "dipoorlet/deploy/deploy_stpu.py"
+      ]
+    },
+    {
+      "name": "Shared Utilities",
+      "description": "Dataset loading (binary files) and calibration-data batch generation used across calibration and profiling.",
+      "file_nodes": [
+        "dipoorlet_utils/calibrator.py",
+        "dipoorlet_utils/dataset.py"
+      ]
+    }
+  ],
+  "pipeline": {
+    "flow": [
+      "CLI (__main__.py) loads ONNX via ONNXGraph (utils)",
+      "tensor_calibration() collects activation ranges (forward_net via ONNXRuntime)",
+      "quantize.py injects Q/DQ nodes",
+      "weight_calibration() applies transforms: bc → we → update_bn → adaround/brecq/sparse",
+      "profiling.py measures per-layer quantization error",
+      "to_deploy() routes to platform-specific deploy_*.py writer"
+    ],
+    "data_flow": [
+      "input_dir (calibration binaries) → forward_net (ONNXRuntime) → activation statistics",
+      "statistics → basic_algorithm (minmax/hist/mse) → clip_val ranges",
+      "clip_val + ONNX graph → quantize.py → quantized ONNX with QDQ nodes",
+      "quantized graph + clip_val → deploy_*.py → platform-specific config"
+    ]
+  },
+  "directory_structure_evidence": {
+    "dipoorlet/tensor_cali/": "Activation calibration layer",
+    "dipoorlet/weight_transform/": "Weight transformation layer",
+    "dipoorlet/deploy/": "Deployment layer (one file per accelerator)",
+    "dipoorlet_utils/": "Cross-cutting utilities (dataset, calibration helpers)"
+  }
+}

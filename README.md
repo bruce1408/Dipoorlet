@@ -2,11 +2,11 @@
 
 Dipoorlet is an offline quantization tool that can perform offline quantization on ONNX model on a given calibration dataset:
 
-* Support several **Activation Calibration** algorithms: ***Mse, Minmax, Hist, etc***.
-* Support **Weight Transformation** to achieve better quantization results: ***BiasCorrection, WeightEqualization, etc.***
-* Supports **SOTA** offline finetune algorithms to improve quantization performance: ***Adaround, Brecq, Qdrop.***
-* Generate **Quantitative Parameters** required for several platforms: ***SNP, TensorRT, STPU, ATLAS, etc.***
-* Provide detailed **Quantitative Analysis** to facilitate the identification of accuracy bottlenecks in model quantization.
+- Support several **Activation Calibration** algorithms: **_Mse, Minmax, Hist, etc_**.
+- Support **Weight Transformation** to achieve better quantization results: **_BiasCorrection, WeightEqualization, etc._**
+- Supports **SOTA** offline finetune algorithms to improve quantization performance: **_Adaround, Brecq, Qdrop._**
+- Generate **Quantitative Parameters** required for several platforms: **_SNP, TensorRT, STPU, ATLAS, etc._**
+- Provide detailed **Quantitative Analysis** to facilitate the identification of accuracy bottlenecks in model quantization.
 
 # Installation
 
@@ -67,23 +67,23 @@ python -m dipoorlet -M MODEL_PATH -I INPUT_PATH -N PIC_NUM -A [mse, hist, minmax
 
 ## Optional
 
-* Using -M to specify ONNX model path.
-* Using -A to select activation statistic algorithm, minmax, hist, mse.
-* Using -D to select deploy platform, trt, snpe, rv, ti...
-* Using -N to specify number of calibration pics.
-* Using -I to specify path of calibration pics.
-* Using -O to specify output path.
-* For hist and kl:  
-    --bins specify histogram bins.  
-    --threshold specify histogram threshold for hist algorithm.
-* Using --bc to do Bias Correction algorithm.
-* Using --we to do weight equalization.
-* Using --adaround to do offline finetune by [Adaround](https://arxiv.org/abs/2004.10568).
-* Using --brecq to do offline finetune by [Brecq](https://arxiv.org/abs/2102.05426).
-* Using --brecq --drop to do offline finetune by [Qdrop](https://arxiv.org/abs/2203.05740).
-* Using --skip_layers to skip quantization of some layers.
-* Using --slurm to launch task from slurm.
-* Other usage can get by "python -m dipoorlet --h/-help"
+- Using -M to specify ONNX model path.
+- Using -A to select activation statistic algorithm, minmax, hist, mse.
+- Using -D to select deploy platform, trt, snpe, rv, ti...
+- Using -N to specify number of calibration pics.
+- Using -I to specify path of calibration pics.
+- Using -O to specify output path.
+- For hist and kl:  
+   --bins specify histogram bins.  
+   --threshold specify histogram threshold for hist algorithm.
+- Using --bc to do Bias Correction algorithm.
+- Using --we to do weight equalization.
+- Using --adaround to do offline finetune by [Adaround](https://arxiv.org/abs/2004.10568).
+- Using --brecq to do offline finetune by [Brecq](https://arxiv.org/abs/2102.05426).
+- Using --brecq --drop to do offline finetune by [Qdrop](https://arxiv.org/abs/2203.05740).
+- Using --skip_layers to skip quantization of some layers.
+- Using --slurm to launch task from slurm.
+- Other usage can get by "python -m dipoorlet --h/-help"
 
 ## Example
 

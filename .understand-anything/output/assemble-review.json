@@ -1,0 +1,115 @@
+{
+  "review_date": "2026-05-17",
+  "graph_stats": {
+    "total_nodes": 293,
+    "total_edges": 292,
+    "node_types": {
+      "file": 108,
+      "function": 148,
+      "class": 18,
+      "document": 12,
+      "config": 5,
+      "module": 2
+    },
+    "edge_types": {
+      "imports": 80,
+      "contains": 74,
+      "calls": 58,
+      "related": 22,
+      "import": 18,
+      "configures": 11,
+      "depends_on": 10,
+      "similar_to": 12,
+      "documents": 7
+    },
+    "complexity_distribution": {
+      "moderate": 113,
+      "simple": 180
+    }
+  },
+  "issues": [
+    {
+      "category": "data_quality",
+      "severity": "error",
+      "count": 12,
+      "description": "Deploy module files missing summary",
+      "details": [
+        "file:dipoorlet/deploy/__init__.py",
+        "file:dipoorlet/deploy/deploy_base.py",
+        "file:dipoorlet/deploy/deploy_default.py",
+        "file:dipoorlet/deploy/deploy_atlas.py",
+        "file:dipoorlet/deploy/deploy_imx.py",
+        "file:dipoorlet/deploy/deploy_magicmind.py",
+        "file:dipoorlet/deploy/deploy_qnn.py",
+        "file:dipoorlet/deploy/deploy_rv.py",
+        "file:dipoorlet/deploy/deploy_snpe.py",
+        "file:dipoorlet/deploy/deploy_stpu.py",
+        "file:dipoorlet/deploy/deploy_ti.py",
+        "file:dipoorlet/deploy/deploy_trt.py"
+      ],
+      "recommendation": "These deploy module files were processed but summaries were not generated. Check batch processing logs for these files."
+    },
+    {
+      "category": "data_quality",
+      "severity": "warning",
+      "count": 54,
+      "description": "Complexity defaulted to 'moderate'",
+      "details": [
+        "52 nodes had complexity=None (no analysis performed)",
+        "2 nodes had complexity='trivial' (should remain trivial, not escalated)"
+      ],
+      "recommendation": "Investigate why complexity analysis was skipped for these nodes. May indicate incomplete batch processing."
+    },
+    {
+      "category": "data_quality",
+      "severity": "warning",
+      "count": 3,
+      "description": "Missing import edges from dipoorlet/__main__.py",
+      "details": [
+        "file:dipoorlet/__main__.py -> file:dipoorlet/deploy/__init__.py (from .deploy import to_deploy)",
+        "file:dipoorlet/__main__.py -> file:dipoorlet/tensor_cali/__init__.py (from .tensor_cali import tensor_calibration)",
+        "file:dipoorlet/__main__.py -> file:dipoorlet/weight_transform/__init__.py (from .weight_transform import weight_calibration)"
+      ],
+      "recommendation": "These imports exist in the source code (__main__.py lines 13, 18, 22) but are missing from the graph. Cross-batch edge resolution may have dropped them."
+    },
+    {
+      "category": "schema_inconsistency",
+      "severity": "warning",
+      "count": 274,
+      "description": "Edges missing 'relation' field, use 'type' instead",
+      "details": "Most edges use 'type' field where 'relation' is expected. Only 18 edges have 'relation' field populated.",
+      "recommendation": "Standardize on 'relation' field for edge type. Current approach mixes 'type' and 'relation' causing potential downstream issues."
+    },
+    {
+      "category": "data_loss",
+      "severity": "error",
+      "count": 1,
+      "description": "batch-5.json malformed - not processed",
+      "details": "batch-5.json contains a JSON array at root level instead of expected {nodes, edges} object. Parse error at line 688: 'Extra data: line 688 column 1 (char 21849)'. This batch was skipped entirely.",
+      "recommendation": "Re-run batch-5 processing. The raw output may need to be filtered/processed before assembling into standard batch format."
+    }
+  ],
+  "cross_batch_verification": {
+    "import_map_validation": {
+      "total_expected_imports": 23,
+      "found_in_graph": 20,
+      "missing": 3,
+      "extra_imports_in_graph": 48
+    },
+    "details": "Extra imports are primarily from DemoLab scripts importing config:common/configs.py and other DemoLab files. These are valid but not part of the core import map."
+  },
+  "positive_findings": [
+    "All core dipoorlet modules have proper structure with contains/calls edges correctly linking",
+    "Weight transformation pipeline (adaround, brecq, sparse_quant) edges are complete",
+    "Deploy module inheritance structure is preserved (deploy_base -> deploy_*)",
+    "DemoLab demonstration scripts properly linked with depends_on and similar_to edges",
+    "No duplicate node IDs detected in assembled graph"
+  ],
+  "recommendations": [
+    "1. Fix batch-5.json - it contains raw agent output format that wasn't converted to standard batch format",
+    "2. Re-process deploy module files to generate summaries",
+    "3. Standardize edge schema to use 'relation' field consistently",
+    "4. Add cross-batch edge resolution for __main__.py imports to ensure complete dependency graph",
+    "5. Investigate complexity=None nodes - may need re-analysis or indicate batch processing gaps"
+  ]
+}

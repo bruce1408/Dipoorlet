@@ -1,0 +1,68 @@
+[
+  {
+    "order": 1,
+    "title": "Project Overview",
+    "description": "Dipoorlet is an offline quantization tool for ONNX models. It supports activation calibration (Mse, Minmax, Hist), weight transformation (BiasCorrection, WeightEqualization), and SOTA finetune algorithms (Adaround, Brecq, QDrop). Generates quantitative parameters for multiple platforms (TensorRT, SNPE, STPU, ATLAS, etc.). Start here to understand the project's purpose and capabilities.",
+    "nodeIds": ["document:README.md"]
+  },
+  {
+    "order": 2,
+    "title": "CLI Entry Point",
+    "description": "The main CLI entry point invoked via `python -m dipoorlet`. Parses command-line arguments, initializes distributed training (MPI/SLURM), loads the ONNX model via ONNXGraph, drives the full quantization pipeline (calibration → weight transformation → profiling → deploy), and routes output to the target platform.",
+    "nodeIds": ["file:dipoorlet/__main__.py"]
+  },
+  {
+    "order": 3,
+    "title": "ONNX Graph Utilities",
+    "description": "The ONNXGraph class is the core abstraction for model manipulation. It provides tensor shape/type management, initializer handling, node insertion/deletion, topological ordering, shape inference, quantization helper methods, and model serialization. Also provides calibration value management (save/load/reduce) and profiling result utilities used across distributed ranks.",
+    "nodeIds": ["file:dipoorlet/utils.py", "class:dipoorlet/utils.py:ONNXGraph"]
+  },
+  {
+    "order": 4,
+    "title": "Distributed Training Coordination",
+    "description": "Multi-GPU and multi-node coordination wrappers for MPI and SLURM environments. Handles distributed initialization, inter-process communication for calibration data reduction, and profiling result aggregation across ranks.",
+    "nodeIds": ["file:dipoorlet/dist_helper.py"]
+  },
+  {
+    "order": 5,
+    "title": "Platform Configuration",
+    "description": "Central registry mapping deploy target (trt, snpe, qnn, rv, magicmind, ti, imx, atlas, stpu) to quantization parameters: bit-widths, symmetric/asymmetric mode, per-channel/per-tensor settings, which layers to quantize, and deploy-specific flags. Shapes the quantization strategy per target accelerator.",
+    "nodeIds": ["file:dipoorlet/platform_settings.py"]
+  },
+  {
+    "order": 6,
+    "title": "Tensor Calibration (Activation Quantization)",
+    "description": "Collects activation ranges from calibration data via ONNXRuntime forward passes. Implements three calibration algorithms: MinMax (forward_get_minmax), Histogram with KL thresholding (forward_get_hist), and MSE/OCTAV (forward_net_octav). Includes weight-only minmax clipping. Supports both classic CNN and transformer architectures with dedicated forward variants.",
+    "nodeIds": ["file:dipoorlet/tensor_cali/tensor_cali_base.py", "file:dipoorlet/tensor_cali/basic_algorithm.py", "file:dipoorlet/forward_net.py"]
+  },
+  {
+    "order": 7,
+    "title": "Quantization (Graph Rewriting)",
+    "description": "Injects Q/DQ (QuantizeLinear/DequantizeLinear) fake-quantization nodes into the ONNX graph, setting up scale/zero-point tensors. Handles per-channel and per-layer quantization, symmetric and asymmetric modes, ConvTranspose channel-last transpose, ReLU merging, and TRT-specific Add handling. The quant_graph function is the main entry point; insert_fake_quant_node handles node insertion; get_qnode_by_param computes scale/zero-point.",
+    "nodeIds": ["file:dipoorlet/quantize.py"]
+  },
+  {
+    "order": 8,
+    "title": "Weight Transformation",
+    "description": "Post-calibration weight transformations that improve quantized model accuracy. Includes BiasCorrection (corrects bias after quantization), WeightEqualization (equalizes per-channel ranges), Adaround (activation-based range optimization for weight rounding), Brecq/QDrop (bit-level reconstruction with stochastic drop), sparse quantization (structured sparsity via mask generation), and BN update. Orchestrated by weight_calibration in weight_trans_base.py.",
+    "nodeIds": ["file:dipoorlet/weight_transform/weight_trans_base.py", "file:dipoorlet/weight_transform/adaround.py", "file:dipoorlet/weight_transform/brecq.py", "file:dipoorlet/weight_transform/bias_correction.py", "file:dipoorlet/weight_transform/weight_equalization.py", "file:dipoorlet/weight_transform/sparse_quant.py", "file:dipoorlet/weight_transform/sparse_quant_layer.py", "file:dipoorlet/weight_transform/ada_quant_layer.py", "file:dipoorlet/weight_transform/update_bn.py", "file:dipoorlet/weight_transform/utils.py"]
+  },
+  {
+    "order": 9,
+    "title": "Profiling (Quantization Error Analysis)",
+    "description": "Layer-wise and model-wise quantization error profiling using cosine similarity and max-abs-gap metrics. Supports multipass CNN profiling (quantize_profiling_multipass), transformer profiling with activation caching (quantize_profiling_transformer), and layerwise sensitivity analysis (quantize_profiling_layerwise). Outputs per-layer and aggregated profiling JSON for accuracy bottleneck identification.",
+    "nodeIds": ["file:dipoorlet/profiling.py"]
+  },
+  {
+    "order": 10,
+    "title": "Deployment (Platform-Specific Export)",
+    "description": "Writes quantized model and range files in each target accelerator's format. Base dispatcher (deploy_base.py) routes to platform-specific generators: TensorRT, SNPE, QNN, RV, MagicMind, TI, IMX, Atlas, STPU. Each deploy_*.py registers with the dispatcher and writes config blobs and model files tailored to the target hardware.",
+    "nodeIds": ["file:dipoorlet/deploy/deploy_base.py", "file:dipoorlet/deploy/deploy_default.py", "file:dipoorlet/deploy/deploy_trt.py", "file:dipoorlet/deploy/deploy_snpe.py", "file:dipoorlet/deploy/deploy_qnn.py", "file:dipoorlet/deploy/deploy_rv.py", "file:dipoorlet/deploy/deploy_magicmind.py", "file:dipoorlet/deploy/deploy_ti.py", "file:dipoorlet/deploy/deploy_imx.py", "file:dipoorlet/deploy/deploy_atlas.py", "file:dipoorlet/deploy/deploy_stpu.py"]
+  },
+  {
+    "order": 11,
+    "title": "Shared Utilities",
+    "description": "Dataset loading (binary calibration files) and calibration batch generation used across calibration, weight transformation, and profiling. The calibrator.py module provides activation range collectors; dataset.py handles binary data loading and batch formation.",
+    "nodeIds": ["file:dipoorlet_utils/calibrator.py", "file:dipoorlet_utils/dataset.py"]
+  }
+]
